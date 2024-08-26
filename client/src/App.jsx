@@ -1,34 +1,33 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import React, { useState, Suspense } from 'react'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import ROUTE from './constants/Route'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+const Home = React.lazy(() => import('./pages/Home'))
+const Login = React.lazy(() => import('./pages/Login'))
+const Register = React.lazy(() => import('./pages/Register'))
 
+function App() {
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <div className='min-h-screen flex flex-col'>
+        <Navbar />
+        <Toaster />
+        <main className='flex-grow'>
+          <Suspense fallback={<div className='items-center justify-center text-6xl'>Loading...</div>}>
+            <Routes>
+              <Route path={ROUTE.HOME} element={<Home />} />
+              <Route path={ROUTE.LOGIN} element={<Login />} />
+              <Route path={ROUTE.REGISTER} element={<Register />} />
+            </Routes>
+          </Suspense>
+        </main>
+        <Footer />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </BrowserRouter>
   )
 }
 
