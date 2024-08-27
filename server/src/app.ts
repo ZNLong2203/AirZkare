@@ -1,8 +1,11 @@
+import 'dotenv/config';
 import compression from 'compression';
 import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+
+import { errorMiddleware } from './middlewares/error.middleware';
 
 class App {
     public app: express.Application;
@@ -15,6 +18,7 @@ class App {
         this.port = process.env.PORT || 3000;
 
         this.middlewares();
+        this.errorHandling();
     }
 
     public listen() {
@@ -34,6 +38,10 @@ class App {
         this.app.use(helmet());
         this.app.use(compression());
         this.app.use(morgan('dev'));
+    }
+
+    private errorHandling() {
+        this.app.use(errorMiddleware);
     }
 }
 

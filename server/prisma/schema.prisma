@@ -1,0 +1,12 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// npx prisma db push (create the database)
+// npx prisma generate (generate the client for query)
+// npx prisma studio (open the database in the browser)
