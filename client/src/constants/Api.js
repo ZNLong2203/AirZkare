@@ -1,4 +1,4 @@
-const BE = "http://localhost:3000/api";
+const BE = "http://localhost:2222/api";
 
 const API = {
     LOGIN: `${BE}/login`,

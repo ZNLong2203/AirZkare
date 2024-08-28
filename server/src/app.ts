@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
-import { errorMiddleware } from './middlewares/error.middleware';
+import errorMiddleware  from './middlewares/error.middleware';
 
 class App {
     public app: express.Application;
