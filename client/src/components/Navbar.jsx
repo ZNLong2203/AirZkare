@@ -11,6 +11,9 @@ const Navbar = () => {
           AirZkare
         </Link>
         <div className="flex items-center space-x-6">
+          <Link href="/admin" className="hover:text-yellow-400 transition-colors duration-300">
+            Admin
+          </Link>
           <Link href="/" className="hover:text-yellow-400 transition-colors duration-300">
             Home
           </Link>
