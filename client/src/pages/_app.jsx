@@ -1,3 +1,5 @@
+"use client";
+
 import "@/styles/globals.css";
 import { StateProvider } from "@/redux/StateContext";
 import { initialState, reducer } from "@/redux/StateReducers";

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaPlane } from 'react-icons/fa';
 
-const Home = () => {
+const Book = () => {
   return (
     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen flex flex-col items-center justify-center">
       <header className="w-full text-white text-center py-10">
@@ -59,12 +59,8 @@ const Home = () => {
           </button>
         </form>
       </div>
-
-      <footer className="w-full text-center text-white py-6">
-        <p>&copy; 2024 Your Company. All rights reserved.</p>
-      </footer>
     </div>
   );
 };
 
-export default Home;
+export default Book;
