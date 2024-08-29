@@ -17,14 +17,14 @@ const Navbar = () => {
           <Link href="/" className="hover:text-yellow-400 transition-colors duration-300">
             Home
           </Link>
-          <Link href="/book" className="hover:text-yellow-400 transition-colors duration-300">
+          <Link href="/booking" className="hover:text-yellow-400 transition-colors duration-300">
             Book Flight
           </Link>
-          <Link href="/login" className="flex items-center hover:text-yellow-400 transition-colors duration-300">
+          <Link href="/auth/login" className="flex items-center hover:text-yellow-400 transition-colors duration-300">
             <FaSignInAlt className="mr-1" />
             Login
           </Link>
-          <Link href="/register" className="flex items-center hover:text-yellow-400 transition-colors duration-300">
+          <Link href="/auth/register" className="flex items-center hover:text-yellow-400 transition-colors duration-300">
             <FaUser className="mr-1" />
             Register
           </Link>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaLock, FaUser } from 'react-icons/fa';
+import Link from 'next/link';
 
 const Login = () => {
   return (
@@ -35,7 +36,7 @@ const Login = () => {
         </form>
 
         <div className="mt-4 text-center">
-          <p className="text-gray-600">Don't have an account? <a href="/register" className="text-blue-500 hover:underline">Register</a></p>
+          <p className="text-gray-600">Don't have an account? <Link href="/auth/register" className="text-blue-500 hover:underline">Register</Link></p>
         </div>
       </div>
     </div>

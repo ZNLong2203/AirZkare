@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaLock, FaUser, FaEnvelope } from 'react-icons/fa';
+import Link from 'next/link';
 
 const Register = () => {
   return (
@@ -44,7 +45,7 @@ const Register = () => {
         </form>
 
         <div className="mt-4 text-center">
-          <p className="text-gray-600">Already have an account? <a href="/login" className="text-blue-500 hover:underline">Login</a></p>
+          <p className="text-gray-600">Already have an account? <Link href="/auth/login" className="text-blue-500 hover:underline">Login</Link></p>
         </div>
       </div>
     </div>

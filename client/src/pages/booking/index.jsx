@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaPlane, FaCalendarAlt, FaUsers, FaSuitcase } from 'react-icons/fa';
 
-const Book = () => {
+const Booking = () => {
   return (
     <div className="bg-gradient-to-r from-blue-500 to-indigo-600 min-h-screen flex flex-col items-center justify-center">
       <header className="w-full text-white text-center py-10">
@@ -105,4 +105,4 @@ const Book = () => {
   );
 };
 
-export default Book;
+export default Booking;
