@@ -1,12 +1,12 @@
 import { UUID } from "crypto";
 
-export interface user {
-    id: string;
+export interface User {
+    user_id: string;
     username: string;
     password: string;
     name: string;
-    age: number;
     email: string;
-    passport: string;
-    membership: string;
+    provider: string;
+    provider_code: string;
+    role: string;
 }
