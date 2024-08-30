@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../interfaces/user.interface";
-import { Token } from "../interfaces/token.interface";
 import AuthService from "../services/auth.service";
 
 class AuthController {
@@ -9,11 +8,10 @@ class AuthController {
     public register = async  (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: User = req.body;
-            const signUpUserData: User = await this.authService.register(userData);
+            await this.authService.register(userData);
 
             res.status(201).json({
                 message: 'User registered successfully',
-                data: signUpUserData,
             })
         } catch(err) {
             next(err);
@@ -23,11 +21,14 @@ class AuthController {
     public login = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: User = req.body
-            const { token }: Token = await this.authService.login(userData);
+            const { token } = await this.authService.login(userData);
 
             res.status(200).json({ 
                 message: 'Login successful',
-                data:  token ,
+                data:  {
+                    token: token,
+                    expire: Date.now() + 24 * 60 * 60 * 1000,
+                }
             });
         } catch(err) {
             next(err);

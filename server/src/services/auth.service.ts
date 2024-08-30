@@ -3,15 +3,15 @@ import { sign } from 'jsonwebtoken';
 import { PrismaClientInstance } from '../db/PrismaClient';
 import { HttpException } from '../exceptions/HttpException';
 import { User } from '../interfaces/user.interface';
-import { Token } from '../interfaces/token.interface';
+import { randomUUID } from 'crypto';
 
 const prisma = PrismaClientInstance();
 
 class AuthService {
-    public async register(userData: User): Promise<User> {
+    public async register(userData: User): Promise<void> {
         if(!userData) throw new HttpException(400, 'No data');
 
-        const findUser: User = await prisma.user.findUnique({
+        const findUser = await prisma.user.findFirst({
             where: {
                 email: userData.email
             }
@@ -19,20 +19,21 @@ class AuthService {
         if(findUser) throw new HttpException(409, `Email ${userData.email} already exists`);
 
         const hashedPassword = await hash(userData.password, 10);
-        const createdUser: User = await prisma.user.create({
+        await prisma.user.create({
             data: {
                 ...userData,
+                user_id: randomUUID(),
                 password: hashedPassword,
             }
         })
 
-        return createdUser;
+        return;
     }
 
-    public async login(userData: User): Promise<Token> {
+    public async login(userData: User): Promise<{token: string}> {
         if(!userData) throw new HttpException(400, 'No data');
         
-        const findUser: User = await prisma.user.findUnique({
+        const findUser = await prisma.user.findFirst({
             where: {
                 email: userData.email,
             }
@@ -47,14 +48,17 @@ class AuthService {
             email: findUser.email,
             name: findUser.name,
         }, process.env.JWT_SECRET!, { expiresIn: '1d' });
-        const createdToken: Token = await prisma.token.create({
+        const createdToken = await prisma.token.create({
             data: {
+                token_id: randomUUID(),
                 user_id: findUser.user_id,
                 token: token,
             }
         })
 
-        return createdToken;
+        return { 
+            token: createdToken.token, 
+        };
     }
 }
 

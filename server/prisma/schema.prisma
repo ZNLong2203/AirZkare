@@ -3,10 +3,95 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// npx prisma db push (create the database)
-// npx prisma generate (generate the client for query)
-// npx prisma studio (open the database in the browser)
+model airport {
+  airport_id                          String   @id @db.VarChar
+  name                                String   @db.VarChar
+  location                            String?  @db.VarChar
+  flight_flight_arrival_idToairport   flight[] @relation("flight_arrival_idToairport")
+  flight_flight_departure_idToairport flight[] @relation("flight_departure_idToairport")
+}
+
+model booking {
+  booking_id String    @id @db.VarChar
+  user_id    String?   @db.Uuid
+  seat_id    String?   @db.VarChar
+  cost       Float?
+  date       DateTime? @db.Timestamp(6)
+  status     String?   @db.VarChar
+  seat       seat?     @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
+  user       user?     @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  payment    payment[]
+}
+
+model flight {
+  flight_id                            String    @id @db.VarChar
+  name                                 String    @db.VarChar
+  departure_id                         String?   @db.VarChar
+  arrival_id                           String?   @db.VarChar
+  departure_time                       DateTime? @db.Timestamp(6)
+  arrival_time                         DateTime? @db.Timestamp(6)
+  airport_flight_arrival_idToairport   airport?  @relation("flight_arrival_idToairport", fields: [arrival_id], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
+  airport_flight_departure_idToairport airport?  @relation("flight_departure_idToairport", fields: [departure_id], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
+  seat                                 seat[]
+}
+
+model passenger {
+  user_id    String  @id @db.Uuid
+  age        BigInt?
+  passport   String? @db.VarChar
+  membership String? @db.VarChar
+  user       user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model payment {
+  payment_id String    @id @db.Uuid
+  booking_id String?   @db.VarChar
+  method     String?   @db.VarChar
+  amount     BigInt?
+  time       DateTime? @db.Timestamp(6)
+  booking    booking?  @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model seat {
+  seat_id         String        @id @db.VarChar
+  travel_class_id String?       @db.Uuid
+  flight_id       String?       @db.VarChar
+  number          String        @db.VarChar
+  cost            Float?
+  status          BigInt?
+  booking         booking[]
+  flight          flight?       @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
+  travel_class    travel_class? @relation(fields: [travel_class_id], references: [travel_class_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model token {
+  token_id String  @id @db.VarChar
+  user_id  String? @db.Uuid
+  token    String  @db.VarChar
+  user     user?   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model travel_class {
+  travel_class_id String  @id @db.Uuid
+  name            String  @db.VarChar
+  capacity        BigInt?
+  seat            seat[]
+}
+
+model user {
+  user_id       String     @id @db.Uuid
+  username      String     @db.VarChar
+  password      String     @db.VarChar
+  name          String?    @db.VarChar
+  email         String?    @db.VarChar
+  provider      String?    @db.VarChar
+  provider_code String?    @db.VarChar
+  role          String?    @db.VarChar
+  booking       booking[]
+  passenger     passenger?
+  token         token[]
+}

@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 
+import { Routes } from './interfaces/routes.interface';
 import { errorMiddleware }  from './middlewares/error.middleware';
 
 class App {
@@ -12,12 +13,13 @@ class App {
     public env: string;
     public port: string | number;
     
-    constructor() {
+    constructor(routes: Routes[]) {
         this.app = express();
         this.env = process.env.NODE_ENV || 'dev';
         this.port = process.env.PORT || 3000;
 
         this.middlewares();
+        this.initializeRoutes(routes);
         this.errorHandling();
     }
 
@@ -39,6 +41,13 @@ class App {
         this.app.use(compression());
         this.app.use(morgan('dev'));
     }
+
+    private initializeRoutes(routes: Routes[]) {
+        routes.forEach(route => {
+          this.app.use('/', route.router);
+        });
+        this.app.use('/images/', express.static('./'));
+    }    
 
     private errorHandling() {
         this.app.use(errorMiddleware);
