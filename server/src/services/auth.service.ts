@@ -47,18 +47,57 @@ class AuthService {
             user_id: findUser.user_id,
             email: findUser.email,
             name: findUser.name,
+            role: findUser.role,
         }, process.env.JWT_SECRET!, { expiresIn: '1d' });
-        const createdToken = await prisma.token.create({
-            data: {
-                token_id: randomUUID(),
+
+        const findToken = await prisma.token.findFirst({
+            where: {
                 user_id: findUser.user_id,
-                token: token,
             }
         })
+
+        let createdToken;
+        if(findToken) {
+            createdToken = await prisma.token.update({
+                where: {
+                    token_id: findToken.token_id,
+                },
+                data: {
+                    token: token,
+                }
+            })
+        } else {
+            createdToken = await prisma.token.create({
+                data: {
+                    token_id: randomUUID(),
+                    user_id: findUser.user_id,
+                    token: token,
+                }
+            })
+        }
 
         return { 
             token: createdToken.token, 
         };
+    }
+
+    public async logout(userData: User): Promise<void> {
+        if(!userData) throw new HttpException(400, 'No data');
+
+        const findUser = await prisma.user.findUnique({
+            where: {
+                user_id: userData.user_id,
+            }
+        })
+        if(!findUser) throw new HttpException(409, `User ${userData.user_id} not found`);
+
+        await prisma.token.deleteMany({
+            where: {
+                user_id: findUser.user_id,
+            }
+        })
+
+        return;
     }
 }
 
