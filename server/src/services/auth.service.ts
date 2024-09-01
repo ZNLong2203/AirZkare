@@ -30,7 +30,7 @@ class AuthService {
         return;
     }
 
-    public async login(userData: User): Promise<{token: string}> {
+    public async login(userData: User): Promise<{ data: object }> {
         if(!userData) throw new HttpException(400, 'No data');
         
         const findUser = await prisma.user.findFirst({
@@ -46,7 +46,7 @@ class AuthService {
         const token: string = sign({ 
             user_id: findUser.user_id,
             email: findUser.email,
-            name: findUser.name,
+            username: findUser.username,
             role: findUser.role,
         }, process.env.JWT_SECRET!, { expiresIn: '1d' });
 
@@ -77,7 +77,13 @@ class AuthService {
         }
 
         return { 
-            token: createdToken.token, 
+            data: {
+                user_id: findUser.user_id,
+                username: findUser.username,
+                email: findUser.email,
+                role: findUser.role,
+                token: createdToken.token,
+            }, 
         };
     }
 

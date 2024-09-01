@@ -48,7 +48,7 @@ model passenger {
   address     String?   @db.VarChar
   nationality String?   @db.VarChar
   passport    String?   @db.VarChar
-  membership  String?   @db.VarChar
+  membership  String?   @default("silver") @db.VarChar
   user        user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
@@ -94,7 +94,7 @@ model user {
   email         String?    @db.VarChar
   provider      String?    @db.VarChar
   provider_code String?    @db.VarChar
-  role          String?    @db.VarChar
+  role          String?    @default("user") @db.VarChar
   booking       booking[]
   passenger     passenger?
   token         token[]

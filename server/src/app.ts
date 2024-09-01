@@ -4,6 +4,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import cors from 'cors';
 
 import { Routes } from './interfaces/routes.interface';
 import { errorMiddleware }  from './middlewares/error.middleware';
@@ -38,6 +39,7 @@ class App {
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
         this.app.use(helmet());
+        this.app.use(cors());
         this.app.use(compression());
         this.app.use(morgan('dev'));
     }

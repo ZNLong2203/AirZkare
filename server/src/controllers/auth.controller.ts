@@ -21,12 +21,12 @@ class AuthController {
     public login = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: User = req.body
-            const { token } = await this.authService.login(userData);
+            const { data } = await this.authService.login(userData);
 
             res.status(200).json({ 
                 message: 'Login successful',
-                data:  {
-                    token: token,
+                metadata:  {
+                    ...data,
                     expire: Date.now() + 24 * 60 * 60 * 1000,
                 }
             });

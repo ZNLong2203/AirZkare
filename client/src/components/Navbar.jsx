@@ -1,8 +1,12 @@
 import React from 'react';
 import { FaPlane, FaUser, FaSignInAlt, FaTicketAlt } from 'react-icons/fa';
 import Link from 'next/link';
+import { useStateProvider } from '@/redux/StateContext';
 
 const Navbar = () => {
+  // const [{ userInfo }] = useStateProvider();
+  // console.log(context);
+
   return (
     <nav className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">

@@ -1,20 +1,18 @@
-import { reducerCases } from "./ReducerCases";
-
 export const initialState = {
-    userInfo: undefined,
+    userInfo: null,
 };
 
 export const reducer = (state, action) => {
     switch (action.type) {
-        case reducerCases.SET_USER:
+        case "SET_USER_INFO":
             return {
                 ...state,
-                userInfo: action.payload,
+                userInfo: action.userInfo,
             };
-        case reducerCases.CLEAR_USER:
+        case "CLEAR_USER_INFO":
             return {
                 ...state,
-                userInfo: undefined,
+                userInfo: null,
             };
         default:
             return state;

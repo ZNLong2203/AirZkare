@@ -13,7 +13,7 @@ class PassengerController {
 
             res.status(200).json({
                 message: 'Passengers fetched successfully',
-                data: findPassenger,
+                metadata: findPassenger,
             })
         } catch(err) {
             next(err);
@@ -26,7 +26,7 @@ class PassengerController {
 
             res.status(200).json({
                 message: 'Passengers fetched successfully',
-                data: findAllPassenger,
+                metadata: findAllPassenger,
             })
         } catch(err) {
             next(err);
@@ -42,7 +42,7 @@ class PassengerController {
 
             res.status(200).json({
                 message: 'Passenger updated successfully',
-                data: updatePassenger,
+                metadata: updatePassenger,
             })
         } catch(err) {
             next(err);

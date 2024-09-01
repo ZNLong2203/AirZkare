@@ -6,14 +6,13 @@ CREATE TABLE "user" (
     email VARCHAR,
     provider VARCHAR,
     provider_code VARCHAR,
-    role VARCHAR
+    role VARCHAR DEFAULT 'user'
 );
 
 CREATE TABLE "token" (
     token_id VARCHAR PRIMARY KEY,
     user_id UUID,
     token VARCHAR NOT NULL,
-    expire BIGINT,
     FOREIGN KEY (user_id) REFERENCES "user"(user_id)
 );
 
@@ -26,7 +25,7 @@ CREATE TABLE "passenger" (
     address VARCHAR,
     nationality VARCHAR,
     passport VARCHAR,
-    membership VARCHAR,
+    membership VARCHAR DEFAULT 'silver',
     FOREIGN KEY (user_id) REFERENCES "user"(user_id)
 );
 
