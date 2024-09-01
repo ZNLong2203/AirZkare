@@ -32,6 +32,36 @@ class PassengerController {
             next(err);
         }
     }
+
+    public updatePassenger = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { user_id } = req.params;
+            const passengerData: Passenger = req.body;
+
+            const updatePassenger = await this.passengerService.updatePassenger(user_id, passengerData);
+
+            res.status(200).json({
+                message: 'Passenger updated successfully',
+                data: updatePassenger,
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    public deletePassenger = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { user_id } = req.params;
+
+            await this.passengerService.deletePassenger(user_id);
+
+            res.status(200).json({
+                message: 'Passenger deleted successfully',
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
 }
 
 export default PassengerController;

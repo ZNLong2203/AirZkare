@@ -31,6 +31,33 @@ class PassengerService {
          
         return findAllPassenger;
     }
+
+    public async updatePassenger(user_id: string, passengerData: Passenger): Promise<object> {
+        if(!user_id || !passengerData) throw new HttpException(400, 'No data');
+
+        const updatePassenger = await prisma.passenger.update({
+            where: {
+                user_id: user_id,
+            },
+            data: {
+                ...passengerData,
+            }
+        })
+
+        return updatePassenger;
+    }
+
+    public async deletePassenger(user_id: string): Promise<void> {
+        if(!user_id) throw new HttpException(400, 'No data');
+
+        await prisma.passenger.delete({
+            where: {
+                user_id: user_id,
+            }
+        })
+
+        return;
+    }
 }
 
 export default PassengerService;

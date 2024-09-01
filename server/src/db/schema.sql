@@ -20,6 +20,11 @@ CREATE TABLE "token" (
 CREATE TABLE "passenger" (
     user_id UUID PRIMARY KEY,
     age BIGINT,
+    gender VARCHAR,
+    dob DATE,
+    phone VARCHAR,
+    address VARCHAR,
+    nationality VARCHAR,
     passport VARCHAR,
     membership VARCHAR,
     FOREIGN KEY (user_id) REFERENCES "user"(user_id)

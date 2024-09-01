@@ -40,11 +40,16 @@ model flight {
 }
 
 model passenger {
-  user_id    String  @id @db.Uuid
-  age        BigInt?
-  passport   String? @db.VarChar
-  membership String? @db.VarChar
-  user       user    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  user_id     String    @id @db.Uuid
+  age         BigInt?
+  gender      String?   @db.VarChar
+  dob         DateTime? @db.Date
+  phone       String?   @db.VarChar
+  address     String?   @db.VarChar
+  nationality String?   @db.VarChar
+  passport    String?   @db.VarChar
+  membership  String?   @db.VarChar
+  user        user      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model payment {
@@ -86,7 +91,6 @@ model user {
   user_id       String     @id @db.Uuid
   username      String     @db.VarChar
   password      String     @db.VarChar
-  name          String?    @db.VarChar
   email         String?    @db.VarChar
   provider      String?    @db.VarChar
   provider_code String?    @db.VarChar
