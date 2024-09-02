@@ -4,6 +4,7 @@ import { FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { toast } from 'react-hot-toast';
 import API from '@/constants/api';
 import { useStateProvider } from '@/redux/StateContext';
 
@@ -29,7 +30,7 @@ const Login = () => {
       localStorage.setItem('expire', response.data.metadata.expire);
       router.push('/');
     } catch (error) {
-      console.log(error);
+      toast.error("Invalid email or password");
     }
   }
   
