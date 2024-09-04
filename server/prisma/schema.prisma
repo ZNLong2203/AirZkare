@@ -41,11 +41,12 @@ model flight {
 
 model passenger {
   user_id     String    @id @db.Uuid
-  age         BigInt?
+  age         Int?
   gender      String?   @db.VarChar
   dob         DateTime? @db.Date
   phone       String?   @db.VarChar
-  address     String?   @db.VarChar
+  city        String?   @db.VarChar
+  country     String?   @db.VarChar
   nationality String?   @db.VarChar
   passport    String?   @db.VarChar
   membership  String?   @default("silver") @db.VarChar
@@ -56,7 +57,7 @@ model payment {
   payment_id String    @id @db.Uuid
   booking_id String?   @db.VarChar
   method     String?   @db.VarChar
-  amount     BigInt?
+  amount     Int?
   time       DateTime? @db.Timestamp(6)
   booking    booking?  @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -67,7 +68,7 @@ model seat {
   flight_id       String?       @db.VarChar
   number          String        @db.VarChar
   cost            Float?
-  status          BigInt?
+  status          Int?
   booking         booking[]
   flight          flight?       @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
   travel_class    travel_class? @relation(fields: [travel_class_id], references: [travel_class_id], onDelete: NoAction, onUpdate: NoAction)
@@ -81,9 +82,9 @@ model token {
 }
 
 model travel_class {
-  travel_class_id String  @id @db.Uuid
-  name            String  @db.VarChar
-  capacity        BigInt?
+  travel_class_id String @id @db.Uuid
+  name            String @db.VarChar
+  capacity        Int?
   seat            seat[]
 }
 
@@ -92,6 +93,7 @@ model user {
   username      String     @db.VarChar
   password      String     @db.VarChar
   email         String?    @db.VarChar
+  image         String?    @db.VarChar
   provider      String?    @db.VarChar
   provider_code String?    @db.VarChar
   role          String?    @default("user") @db.VarChar

@@ -6,29 +6,38 @@ import toast from 'react-hot-toast';
 import API from '@/constants/api';
 
 const Profile = () => {
-  const [userInfo, setUserInfo] = useState({
-    name: null,
+  const [user, setUser] = useState({
+    username: null,
     email: null,
-    phoneNumber: null,
+    age: null,
+    gender: null,
+    dob: null,
+    phone: null,
     country: null,
     city: null,
-    zipCode: null,
+    nationality: null,
+    passport: null,
   });
 
-  const token = localStorage.getItem('accessToken');
+  const [userId, setUserId] = useState(null);
   const [countries, setCountries] = useState([]);
   const [cities, setCities] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
+    const userId = localStorage.getItem('user_id');
+    setUserId(userId);
+    
     const fetchUserData = async() => {
       try {
-        const response = await axios.get(`${ROUTES.BE}/api/users`, {
-          headers: {
-            Authorization: 'Bearer ' + token
-          }
+        const response = await axios.get(`${API.PROFILE}/${userId}`);
+        setUser({
+          ...response.data.metadata.passenger,
+          username: response.data.metadata.username,
+          email: response.data.metadata.email,
+          role: response.data.metadata.role,
         });
-        setUserInfo(response.data.user);
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -50,10 +59,10 @@ const Profile = () => {
   }, []);
 
   useEffect(() => {
-    if (userInfo.country) {
+    if (user.country) {
       const fetchCities = async () => {
         try {
-          const response = await axios.get(`http://api.geonames.org/searchJSON?country=${userInfo.country.value}&featureClass=P&username=batonia`);
+          const response = await axios.get(`http://api.geonames.org/searchJSON?country=${user.country.value}&featureClass=P&username=batonia`);
           const cityOptions = response.data.geonames.map(city => ({
             value: city.geonameId,
             label: city.name
@@ -68,21 +77,21 @@ const Profile = () => {
     } else {
       setCities([]);
     }
-  }, [userInfo.country]);
+  }, [user.country]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUserInfo({ ...userInfo, [name]: value });
+    setUser((prevUser) => ({ ...prevUser, [name]: value }));
   };
 
   const handleSelectChange = (selectedOption, action) => {
-    setUserInfo({ ...userInfo, [action.name]: selectedOption });
+    setUser({ ...user, [action.name]: selectedOption });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     try {
-      axios.patch(`${ROUTES.BE}/api/users`, userInfo, {
+      axios.patch(`${API.PROFILE}/${userId}`, user, {
         headers: {
           Authorization: 'Bearer ' + token
         }
@@ -118,16 +127,16 @@ const Profile = () => {
             <div className="flex justify-center">
               <img
                 className="w-32 h-32 rounded-full object-cover"
-                src={userInfo.image || "https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg"}
+                src={user.image || "https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg"}
                 alt="User"
               />
             </div>
             <h3 className="text-center mt-4 text-xl font-semibold mb-6">
-              {userInfo.name} 
+              {user.username} 
             </h3>
-            <p className="select-none rounded-lg bg-blue-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">{userInfo.role}</p>
+            <p className="select-none rounded-lg bg-blue-500 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/40 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">{user.role}</p>
             <button className="mt-4 w-full select-none rounded-lg bg-gray-900 py-3 px-6 text-center align-middle font-sans text-xs font-bold uppercase text-white shadow-md shadow-gray-900/10 transition-all hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none">
-              |||||||||||||||||||||||||||||||
+              {user.membership}
             </button>
           </div>
 
@@ -137,10 +146,10 @@ const Profile = () => {
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <input
                   type="text"
-                  name="name"
-                  placeholder="Name"
+                  name="username"
+                  placeholder="UserName"
                   className="w-full p-2 border border-gray-300 rounded"
-                  value={userInfo.name}
+                  value={user.username}
                   onChange={handleInputChange}
                 />
                 <input
@@ -148,38 +157,69 @@ const Profile = () => {
                   name="email"
                   placeholder="Email"
                   className="w-full p-2 border border-gray-300 rounded"
-                  value={userInfo.email}
+                  value={user.email}
                   disabled
                 />
                 <input
                   type="text"
-                  name="phoneNumber"
-                  placeholder="Phone Number"
+                  name="age"
+                  placeholder="Age"
                   className="w-full p-2 border border-gray-300 rounded"
-                  value={userInfo.phoneNumber}
+                  value={user.age}
                   onChange={handleInputChange}
                 />
                 <input
                   type="text"
-                  name="zipCode"
-                  placeholder="Zip Code"
+                  name="gender"
+                  placeholder="Gender"
                   className="w-full p-2 border border-gray-300 rounded"
-                  value={userInfo.zipCode}
+                  value={user.gender}
+                  onChange={handleInputChange}
+                />
+                <input
+                  type="date"
+                  name="dob"
+                  placeholder="Date of Birth"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  value={user.dob}
+                  onChange={handleInputChange}
+                />
+                <input
+                  type="text"
+                  name="phone"
+                  placeholder="Phone Number"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  value={user.phone}
+                  onChange={handleInputChange}
+                />
+                <input
+                  type="text"
+                  name="passport"
+                  placeholder="Passport"
+                  className="w-full p-2 border border-gray-300 rounded"
+                  value={user.passport}
                   onChange={handleInputChange}
                 />
                 <Select
-                  name="country"
+                  name="nationality"
                   options={countries}
-                  placeholder="Select Country"
+                  placeholder="Select Nationality"
                   onChange={handleSelectChange}
-                  value={countries.find(option => option.value === userInfo.country)}
+                  value={countries.find(option => option.value === user.nationality)}
                 />
                 <Select
                   name="city"
                   options={cities}
                   placeholder="Select City"
                   onChange={handleSelectChange}
-                  value={cities.find(option => option.value === userInfo.city)}
+                  value={cities.find(option => option.value === user.city)}
+                />
+                <Select
+                  name="country"
+                  options={countries}
+                  placeholder="Select Country"
+                  onChange={handleSelectChange}
+                  value={countries.find(option => option.value === user.country)}
                 />
                 <button
                   type="submit"
@@ -190,18 +230,26 @@ const Profile = () => {
               </form>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="font-semibold">Name:</div>
-                <div>{userInfo.name}</div>
+                <div className="font-semibold">UserName:</div>
+                <div>{user.username}</div>
                 <div className="font-semibold">Email:</div>
-                <div>{userInfo.email}</div>
+                <div>{user.email}</div>
+                <div className="font-semibold">Age:</div>
+                <div>{user.age}</div>
+                <div className="font-semibold">Gender:</div>
+                <div>{user.gender}</div>
+                <div className="font-semibold">Date of Birth:</div>
+                <div>{user.dob}</div>
                 <div className="font-semibold">Phone Number:</div>
-                <div>{userInfo.phoneNumber}</div>
-                <div className="font-semibold">Zip Code:</div>
-                <div>{userInfo.zipCode}</div>
-                <div className="font-semibold">Country:</div>
-                <div>{userInfo.country ? userInfo.country.label : 'N/A'}</div>
+                <div>{user.phoneNumber}</div>
+                <div className="font-semibold">Passport:</div>
+                <div>{user.passport}</div>
+                <div className="font-semibold">Nationality:</div>
+                <div>{user.nationality ? user.nationality.label : 'N/A'}</div>
                 <div className="font-semibold">City:</div>
-                <div>{userInfo.city ? userInfo.city.label : 'N/A'}</div>
+                <div>{user.city ? user.city.label : 'N/A'}</div>
+                <div className="font-semibold">Country:</div>
+                <div>{user.country ? user.country.label : 'N/A'}</div>
               </div>
             )}
           </div>

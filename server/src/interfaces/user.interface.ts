@@ -3,6 +3,7 @@ export interface User {
     username: string;
     password: string;
     email: string;
+    image: string;
     provider: string;
     provider_code: string;
     role: string;

@@ -6,10 +6,10 @@ import PassengerService from '../services/passenger.service';
 class PassengerController {
     public passengerService = new PassengerService();
 
-    public getPassenger = async (req: Request, res: Response, next: NextFunction) => {
+    public getPassengerInfo = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { user_id } = req.params;
-            const findPassenger = await this.passengerService.getPassenger(user_id);
+            const findPassenger = await this.passengerService.getPassengerInfo(user_id);
 
             res.status(200).json({
                 message: 'Passengers fetched successfully',

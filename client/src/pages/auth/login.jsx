@@ -25,8 +25,8 @@ const Login = () => {
         type: "SET_USER_INFO",
         userInfo: response.data.metadata,
       })
+      localStorage.setItem('user_id', response.data.metadata.user_id);
       localStorage.setItem('token', response.data.metadata.token);
-      localStorage.setItem('role', response.data.metadata.role);
       localStorage.setItem('expire', response.data.metadata.expire);
       router.push('/');
     } catch (error) {

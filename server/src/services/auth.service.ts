@@ -3,6 +3,7 @@ import { sign } from 'jsonwebtoken';
 import { PrismaClientInstance } from '../db/PrismaClient';
 import { HttpException } from '../exceptions/HttpException';
 import { User } from '../interfaces/user.interface';
+import { Passenger } from '../interfaces/passsenger.interface';
 import { randomUUID } from 'crypto';
 
 const prisma = PrismaClientInstance();
@@ -19,11 +20,17 @@ class AuthService {
         if(findUser) throw new HttpException(409, `Email ${userData.email} already exists`);
 
         const hashedPassword = await hash(userData.password, 10);
-        await prisma.user.create({
+        const createUser = await prisma.user.create({
             data: {
                 ...userData,
                 user_id: randomUUID(),
                 password: hashedPassword,
+            }
+        })
+
+        await prisma.passenger.create({
+            data: {
+                user_id: createUser.user_id,
             }
         })
 

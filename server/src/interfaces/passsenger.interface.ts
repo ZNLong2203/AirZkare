@@ -4,7 +4,8 @@ export interface Passenger {
     gender: string;
     dob: Date;
     phone: string;
-    address: string;
+    city: string;
+    country: string;
     nationality: string;
     passport: string;
     membership: string;

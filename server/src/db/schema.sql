@@ -4,6 +4,7 @@ CREATE TABLE "user" (
     password VARCHAR NOT NULL,
     name VARCHAR,
     email VARCHAR,
+    image VARCHAR,
     provider VARCHAR,
     provider_code VARCHAR,
     role VARCHAR DEFAULT 'user'
@@ -18,11 +19,12 @@ CREATE TABLE "token" (
 
 CREATE TABLE "passenger" (
     user_id UUID PRIMARY KEY,
-    age BIGINT,
+    age INT,
     gender VARCHAR,
     dob DATE,
     phone VARCHAR,
-    address VARCHAR,
+    city VARCHAR,
+    country VARCHAR,
     nationality VARCHAR,
     passport VARCHAR,
     membership VARCHAR DEFAULT 'silver',
@@ -32,7 +34,7 @@ CREATE TABLE "passenger" (
 CREATE TABLE "travel_class" (
     travel_class_id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
-    capacity BIGINT
+    capacity INT
 );
 
 CREATE TABLE "airport" (
@@ -60,7 +62,7 @@ CREATE TABLE "seat" (
     flight_id VARCHAR,
     number VARCHAR NOT NULL,
     cost FLOAT,
-    status BIGINT,
+    status INT,
     FOREIGN KEY (travel_class_id) REFERENCES "travel_class"(travel_class_id),
     FOREIGN KEY (flight_id) REFERENCES "flight"(flight_id)
 );
@@ -80,7 +82,7 @@ CREATE TABLE "payment" (
     payment_id UUID PRIMARY KEY,
     booking_id VARCHAR,
     method VARCHAR,
-    amount BIGINT,
+    amount INT,
     time TIMESTAMP,
     FOREIGN KEY (booking_id) REFERENCES "booking"(booking_id)
 );
