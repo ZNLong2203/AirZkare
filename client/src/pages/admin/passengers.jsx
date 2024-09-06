@@ -1,24 +1,59 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
 import SideBarAdmin from '@/components/SideBarAdmin';
 import API from '@/constants/api';
+import PassengerDetailsDialog from '@/components/PassengerDetailsDialog'; // Import the dialog component
 
 const AdminPassengers = () => {
-    const [passengers, setPassengers] = useState([]);
+    const [allPassengers, setAllPassengers] = useState([]);
+    const [selectedPassenger, setSelectedPassenger] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchPassengers = async () => {
             try {
-                const response = await axios.get(`${API.ADMIN_PASSENGERS}`);
-                setPassengers(response.data.metadata);
+                const res = await axios.get(`${API.PASSENGER}`);
+                setAllPassengers(res.data.metadata);
             } catch (error) {
                 toast.error("Error fetching passengers");
             }
         };
         fetchPassengers();
     }, []);
+
+    const handleDeletePassenger = async (user_id) => {
+        try {
+            await axios.delete(`${API.PASSENGER}/${user_id}`);
+            toast.success("Passenger deleted successfully");
+            setPassengers(passengers.filter((passenger) => passenger.user_id !== user_id));
+        } catch (error) {
+            toast.error("Error deleting passenger");
+        }
+    };
+
+    const handleViewPassenger = async (user_id) => {
+        try {
+            const res = await axios.get(`${API.PASSENGER}/${user_id}`);
+            const passenger = {
+                ...res.data.metadata.passenger,
+                user_id: res.data.metadata.user_id,
+                username: res.data.metadata.username,
+                email: res.data.metadata.email,
+                role: res.data.metadata.role,
+            }
+            setSelectedPassenger(passenger);
+            setIsModalOpen(true);
+        } catch {
+            toast.error("Error fetching passenger");
+        }
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedPassenger(null);
+    };
 
     return (
         <div className="min-h-screen flex bg-gray-100">
@@ -44,18 +79,24 @@ const AdminPassengers = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {passengers.map((passenger) => (
+                            {allPassengers.map((passenger) => (
                                 <tr key={passenger.user_id} className="border-t">
                                     <td className="px-4 py-2">{passenger.user_id}</td>
                                     <td className="px-4 py-2">{passenger.username}</td>
                                     <td className="px-4 py-2">{passenger.email}</td>
-                                    <td className="px-4 py-2">{passenger.passenger.phone}</td>
+                                    <td className="px-4 py-2">{passenger.phone}</td>
                                     <td className="px-4 py-2">
                                         <div className="flex space-x-2">
-                                            <button className="text-green-600 hover:text-green-800 flex items-center">
-                                                <AiOutlineEdit className="mr-1" /> Edit
+                                            <button
+                                                onClick={() => handleViewPassenger(passenger.user_id)}
+                                                className="text-blue-600 hover:text-blue-800 flex items-center"
+                                            >
+                                                <AiOutlineEye className="mr-1" /> View
                                             </button>
-                                            <button className="text-red-600 hover:text-red-800 flex items-center">
+                                            <button
+                                                className="text-red-600 hover:text-red-800 flex items-center"
+                                                onClick={() => handleDeletePassenger(passenger.user_id)}
+                                            >
                                                 <AiOutlineDelete className="mr-1" /> Delete
                                             </button>
                                         </div>
@@ -66,8 +107,15 @@ const AdminPassengers = () => {
                     </table>
                 </div>
             </main>
+
+            {/* Passenger Details Dialog */}
+            <PassengerDetailsDialog
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                passenger={selectedPassenger}
+            />
         </div>
     );
-}
+};
 
 export default AdminPassengers;

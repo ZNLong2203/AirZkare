@@ -77,6 +77,12 @@ class PassengerService {
             }
         })
 
+        await prisma.user.delete({
+            where: {
+                user_id: user_id,
+            }
+        })
+
         return;
     }
 }

@@ -31,7 +31,7 @@ const Profile = () => {
     
     const fetchUserData = async() => {
       try {
-        const response = await axios.get(`${API.PROFILE}/${userId}`);
+        const response = await axios.get(`${API.PASSENGER}/${userId}`);
         setUser({
           ...response.data.metadata.passenger,
           username: response.data.metadata.username,
@@ -45,6 +45,7 @@ const Profile = () => {
     fetchUserData();
   }, []);
 
+  // Fetch countries and cities from API
   useEffect(() => {
     axios.get('https://restcountries.com/v3.1/all')
       .then(response => {
@@ -81,7 +82,11 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setUser((prevUser) => ({ ...prevUser, [name]: value }));
+    if(name === 'age') {
+      setUser((prevUser) => ({ ...prevUser, [name]: parseInt(value) }));
+    } else {
+      setUser((prevUser) => ({ ...prevUser, [name]: value }));
+    }
   };
 
   const handleSelectChange = (selectedOption, action) => {
@@ -90,12 +95,9 @@ const Profile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { username, email, role, ...userData } = user; 
     try {
-      axios.patch(`${API.PROFILE}/${userId}`, user, {
-        headers: {
-          Authorization: 'Bearer ' + token
-        }
-      });
+      axios.patch(`${API.PASSENGER}/${userId}`, userData);
     } catch(err) {
       toast.error('Failed to update user data');
     }
