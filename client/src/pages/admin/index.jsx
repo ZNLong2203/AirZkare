@@ -37,11 +37,11 @@ const AdminHome = () => {
 
                     <div    
                         className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
-                        onClick={() => router.push('/admin/customers')}
+                        onClick={() => router.push('/admin/passengers')}
                     >
                         <AiOutlineUser className="text-purple-600 text-3xl mb-4" />
-                        <h2 className="text-xl font-semibold mb-2">Manage Customers</h2>
-                        <p className="text-gray-600">View and manage customer data.</p>
+                        <h2 className="text-xl font-semibold mb-2">Manage Passengers</h2>
+                        <p className="text-gray-600">View and manage passengers data.</p>
                     </div>
 
                     <div 

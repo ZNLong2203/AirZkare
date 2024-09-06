@@ -17,9 +17,9 @@ const SideBarAdmin = () => {
                     <MdFlightTakeoff className="mr-3 text-xl" />
                     Flights
                 </Link>
-                <Link href="/admin/customers" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
+                <Link href="/admin/passengers" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
                     <AiOutlineUser className="mr-3 text-xl" />
-                    Customers
+                    Passengers
                 </Link>
                 <Link href="/admin/settings" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
                     <AiOutlineSetting className="mr-3 text-xl" />

@@ -21,8 +21,9 @@ const Register = () => {
         password: password,
       });
       router.push('/auth/login');
+      toast.success("Register successful");
     } catch (error) {
-      console.log(error);
+      toast.error("Register failed");
     }
   }
 

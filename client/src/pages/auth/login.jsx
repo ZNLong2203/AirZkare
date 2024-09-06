@@ -29,6 +29,7 @@ const Login = () => {
       localStorage.setItem('token', response.data.metadata.token);
       localStorage.setItem('expire', response.data.metadata.expire);
       router.push('/');
+      toast.success("Login successful");
     } catch (error) {
       toast.error("Invalid email or password");
     }

@@ -28,7 +28,11 @@ class PassengerService {
 
     public async getAllPassenger(): Promise<object[]> {
         const findAllPassenger = await prisma.user.findMany({
-            include: {
+            select: {
+                user_id: true,
+                username: true,
+                email: true,
+                role: true,
                 passenger: true,
             }
         })
