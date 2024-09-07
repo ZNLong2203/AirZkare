@@ -1,5 +1,8 @@
+import React, { useState, useEffect } from 'react'
 import { AiOutlineBarChart, AiOutlineUser, AiOutlineFile, AiOutlineSetting } from 'react-icons/ai';
 import SideBarAdmin from '@/components/SideBarAdmin';
+import PieChart from '@/components/dashboard/PieChart';
+import LineChart from '@/components/dashboard/LineChart';
 
 const AdminDashboard = () => {
     return (
@@ -43,16 +46,10 @@ const AdminDashboard = () => {
                 <div className="mt-8">
                     <h2 className="text-2xl font-semibold text-gray-700 mb-4">Overview</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-white p-6 rounded-lg shadow-md">
-                            <h3 className="text-lg font-semibold text-gray-700 mb-4">Flight Statistics</h3>
-                            {/* Include your flight statistics chart or data here */}
-                            <p className="text-gray-500">Chart showing flight statistics will go here.</p>
-                        </div>
-                        <div className="bg-white p-6 rounded-lg shadow-md">
-                            <h3 className="text-lg font-semibold text-gray-700 mb-4">Customer Insights</h3>
-                            {/* Include your customer insights chart or data here */}
-                            <p className="text-gray-500">Chart showing customer insights will go here.</p>
-                        </div>
+                        {/* Flight Statistics chart */}
+                        <PieChart />
+                        {/* Customer Insights chart */}
+                        <LineChart />
                     </div>
                 </div>
             </main>
