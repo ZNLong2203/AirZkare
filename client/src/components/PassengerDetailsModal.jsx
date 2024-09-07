@@ -2,7 +2,7 @@ import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { MdPerson } from 'react-icons/md';
 
-const PassengerDetailsDialog = ({ isOpen, onClose, passenger }) => {
+const PassengerDetailsModal = ({ isOpen, onClose, passenger }) => {
     if (!isOpen || !passenger) return null;
 
     return (
@@ -78,4 +78,4 @@ const PassengerDetailsDialog = ({ isOpen, onClose, passenger }) => {
     );
 };
 
-export default PassengerDetailsDialog;
+export default PassengerDetailsModal;

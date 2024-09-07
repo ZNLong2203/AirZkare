@@ -1,5 +1,6 @@
 import { AiOutlineDashboard, AiOutlineUser, AiOutlineSetting } from 'react-icons/ai';
-import { MdFlightTakeoff } from 'react-icons/md';
+import { FaPlaneDeparture } from 'react-icons/fa'; 
+import { IoAirplane } from "react-icons/io5";
 import SideBarAdmin from '@/components/SideBarAdmin';
 import { useRouter } from 'next/router';
 
@@ -26,11 +27,20 @@ const AdminHome = () => {
                         <p className="text-gray-600">View overall statistics of your airline booking system.</p>
                     </div>
 
+                    <div    
+                        className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
+                        onClick={() => router.push('/admin/airports')}
+                    >
+                        <FaPlaneDeparture className="text-red-600 text-3xl mb-4" />
+                        <h2 className="text-xl font-semibold mb-2">Manage Airports</h2>
+                        <p className="text-gray-600">Add, update, or remove airport details.</p>
+                    </div>
+
                     <div 
                         className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
                         onClick={() => router.push('/admin/flights')}
                     >
-                        <MdFlightTakeoff className="text-green-600 text-3xl mb-4" />
+                        <IoAirplane className="text-green-600 text-3xl mb-4" />
                         <h2 className="text-xl font-semibold mb-2">Manage Flights</h2>
                         <p className="text-gray-600">Add, update, or remove flights.</p>
                     </div>

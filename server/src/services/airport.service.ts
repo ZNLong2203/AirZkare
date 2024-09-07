@@ -1,6 +1,7 @@
 import { PrismaClientInstance } from "../db/PrismaClient";
 import { HttpException } from "../exceptions/HttpException";
 import { Airport } from "../interfaces/airport.interface";
+import { randomUUID } from "crypto";
 
 const prisma = PrismaClientInstance();
 
@@ -11,6 +12,7 @@ class AirportService {
         const createAirport = await prisma.airport.create({
             data: {
                 ...airportData,
+                airport_id: randomUUID(),
             }
         })
 

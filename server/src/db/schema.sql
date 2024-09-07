@@ -11,7 +11,7 @@ CREATE TABLE "user" (
 );
 
 CREATE TABLE "token" (
-    token_id VARCHAR PRIMARY KEY,
+    token_id UUID PRIMARY KEY,
     user_id UUID,
     token VARCHAR NOT NULL,
     FOREIGN KEY (user_id) REFERENCES "user"(user_id)
@@ -38,17 +38,19 @@ CREATE TABLE "travel_class" (
 );
 
 CREATE TABLE "airport" (
-    airport_id VARCHAR PRIMARY KEY,
+    airport_id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
+    code VARCHAR NOT NULL,
     location VARCHAR
 );
 
 
 CREATE TABLE "flight" (
-    flight_id VARCHAR PRIMARY KEY,
+    flight_id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
-    departure_id VARCHAR,
-    arrival_id VARCHAR,
+    code VARCHAR NOT NULL,
+    departure_id UUID,
+    arrival_id UUID,
     departure_time TIMESTAMP,
     arrival_time TIMESTAMP,
     FOREIGN KEY (departure_id) REFERENCES "airport"(airport_id),
@@ -57,21 +59,21 @@ CREATE TABLE "flight" (
 
 
 CREATE TABLE "seat" (
-    seat_id VARCHAR PRIMARY KEY,
+    seat_id UUID PRIMARY KEY,
     travel_class_id UUID,
-    flight_id VARCHAR,
+    flight_id UUID,
     number VARCHAR NOT NULL,
-    cost FLOAT,
+    price FLOAT,
     status INT,
     FOREIGN KEY (travel_class_id) REFERENCES "travel_class"(travel_class_id),
     FOREIGN KEY (flight_id) REFERENCES "flight"(flight_id)
 );
 
 CREATE TABLE "booking" (
-    booking_id VARCHAR PRIMARY KEY,
+    booking_id UUID PRIMARY KEY,
     user_id UUID,
-    seat_id VARCHAR,
-    cost FLOAT,
+    seat_id UUID,
+    price FLOAT,
     date TIMESTAMP,
     status VARCHAR,
     FOREIGN KEY (user_id) REFERENCES "user"(user_id),
@@ -80,7 +82,7 @@ CREATE TABLE "booking" (
 
 CREATE TABLE "payment" (
     payment_id UUID PRIMARY KEY,
-    booking_id VARCHAR,
+    booking_id UUID,
     method VARCHAR,
     amount INT,
     time TIMESTAMP,

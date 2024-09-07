@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
 import SideBarAdmin from '@/components/SideBarAdmin';
 import API from '@/constants/api';
-import PassengerDetailsDialog from '@/components/PassengerDetailsDialog'; // Import the dialog component
+import PassengerDetailsModal from '@/components/PassengerDetailsModal'; 
 
 const AdminPassengers = () => {
     const [allPassengers, setAllPassengers] = useState([]);
@@ -27,7 +27,7 @@ const AdminPassengers = () => {
         try {
             await axios.delete(`${API.PASSENGER}/${user_id}`);
             toast.success("Passenger deleted successfully");
-            setPassengers(passengers.filter((passenger) => passenger.user_id !== user_id));
+            setAllPassengers(allPassengers.filter((passenger) => passenger.user_id !== user_id));
         } catch (error) {
             toast.error("Error deleting passenger");
         }
@@ -109,7 +109,7 @@ const AdminPassengers = () => {
             </main>
 
             {/* Passenger Details Dialog */}
-            <PassengerDetailsDialog
+            <PassengerDetailsModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
                 passenger={selectedPassenger}
