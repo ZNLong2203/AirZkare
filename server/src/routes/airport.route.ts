@@ -8,6 +8,10 @@ class AirportRoute implements Routes {
     public airportController = new AirportController();
 
     constructor() {
+        this.initializeRoutes();
+    }
+
+    private initializeRoutes() {
         this.router.post(`${this.path}`, this.airportController.createAirport);
         this.router.get(`${this.path}`, this.airportController.getAllAirport);
         this.router.patch(`${this.path}/:airport_id`, this.airportController.editAirport);
