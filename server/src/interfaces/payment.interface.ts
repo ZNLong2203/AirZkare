@@ -3,5 +3,5 @@ export interface Payment {
     booking_id: string;
     method: string;
     amount: number;
-    time: string;
+    time: Date;
 }

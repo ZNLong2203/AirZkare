@@ -37,11 +37,11 @@ const AdminPassengers = () => {
         try {
             const res = await axios.get(`${API.PASSENGER}/${user_id}`);
             const passenger = {
-                ...res.data.metadata.passenger,
-                user_id: res.data.metadata.user_id,
-                username: res.data.metadata.username,
-                email: res.data.metadata.email,
-                role: res.data.metadata.role,
+                ...res.data.metadata,
+                user_id: res.data.metadata.user.user_id,
+                username: res.data.metadata.user.username,
+                email: res.data.metadata.user.email,
+                role: res.data.metadata.user.role,
             }
             setSelectedPassenger(passenger);
             setIsModalOpen(true);

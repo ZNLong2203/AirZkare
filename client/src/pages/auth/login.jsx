@@ -32,7 +32,7 @@ const Login = () => {
       setTimeout(() => {
         window.location.reload();
       }, 1000);
-      toast.success("Login successful");s
+      toast.success("Login successful");
     } catch (error) {
       toast.error("Invalid email or password");
     }

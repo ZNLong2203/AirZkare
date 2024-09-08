@@ -30,6 +30,7 @@ class AuthService {
 
         await prisma.passenger.create({
             data: {
+                passenger_id: createUser.user_id,
                 user_id: createUser.user_id,
             }
         })

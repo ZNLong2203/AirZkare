@@ -1,4 +1,5 @@
 export interface Passenger {
+    passenger_id: string;
     user_id: string;
     age: number;
     gender: string;
@@ -8,5 +9,5 @@ export interface Passenger {
     country: string;
     nationality: string;
     passport: string;
-    membership: string;
+    membership: 'silver' | 'gold' | 'platinum';
 }
