@@ -1,7 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 
-const AirportEditModal = ({ isOpen, onClose, airportData, onSubmit }) => {
+interface AirportEditModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    airportData: {
+        airport_id: string;
+        name: string;
+        code: string;
+        location: string;
+    };
+    onSubmit: (data: { airport_id: string; code: string; name: string; location: string }) => void;
+}
+
+const AirportEditModal: FC<AirportEditModalProps> = ({ isOpen, onClose, airportData, onSubmit }) => {
     const [name, setName] = useState('');
     const [code, setCode] = useState('');
     const [location, setLocation] = useState('');

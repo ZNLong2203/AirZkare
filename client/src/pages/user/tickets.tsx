@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { FaPlane, FaTicketAlt, FaCalendarAlt } from 'react-icons/fa';
+import { FaPlane, FaCalendarAlt } from 'react-icons/fa';
 import Link from 'next/link';
 
-const MyTickets = () => {
-  const [tickets, setTickets] = useState([]);
+interface Ticket {
+  id: string;
+  flightNumber: string;
+  departure: string;
+  arrival: string;
+  date: string;
+  status: string;
+}
+
+const MyTickets: React.FC = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
   useEffect(() => {
-    // Fetch user tickets from API or local storage
-    const userTickets = [
+    const userTickets: Ticket[] = [
       {
         id: '1',
         flightNumber: 'AZ1234',

@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { MdAirplanemodeActive } from "react-icons/md";
 
-const seats = [
+interface Seat {
+  id: number;
+  class: string;
+  reserved: boolean;
+  label: string;
+}
+
+const seats: Seat[] = [
   { id: 1, class: 'Business', reserved: false, label: '1A' },
   { id: 2, class: 'Business', reserved: false, label: '1B' },
   { id: 3, class: 'Business', reserved: true, label: '1C' },
@@ -28,10 +35,10 @@ const seats = [
   { id: 24, class: 'Economy', reserved: false, label: '4F' },
 ];
 
-const SelectSeat = () => {
-  const [selectedSeats, setSelectedSeats] = useState([]);
+const SelectSeat: React.FC = () => {
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
 
-  const handleSeatSelection = (seat) => {
+  const handleSeatSelection = (seat: Seat) => {
     if (!seat.reserved) {
       setSelectedSeats((prev) =>
         prev.includes(seat.id)
@@ -41,7 +48,7 @@ const SelectSeat = () => {
     }
   };
 
-  const renderSeats = (seatClass) =>
+  const renderSeats = (seatClass: string) =>
     seats
       .filter((seat) => seat.class === seatClass)
       .map((seat) => (
@@ -85,11 +92,11 @@ const SelectSeat = () => {
             <div>
               <p className="text-sm text-gray-500">Selected Seat</p>
               <p className="text-lg font-semibold">
-                {selectedSeats.map((id) => ` ${seats.find(seat => seat.id === id).label}`)}
+                {selectedSeats.map((id) => ` ${seats.find(seat => seat.id === id)?.label}`)}
               </p>
             </div>
             <span className="inline-block bg-green-200 text-green-800 text-sm px-3 py-1 rounded-full">
-              {selectedSeats.length > 0 && seats.find(seat => seat.id === selectedSeats[0]).class}
+              {selectedSeats.length > 0 && seats.find(seat => seat.id === selectedSeats[0])?.class}
             </span>
           </div>
           <button

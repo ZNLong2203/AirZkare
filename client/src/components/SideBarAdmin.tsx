@@ -5,7 +5,7 @@ import { FiLogOut } from 'react-icons/fi';
 import { FaPlaneDeparture } from 'react-icons/fa';
 import Link from 'next/link';
 
-const SideBarAdmin = () => {
+const SideBarAdmin: React.FC = () => {
     return (
         <aside className="w-64 bg-blue-900 text-white flex flex-col">
             <div className="px-7 py-2 text-2xl font-bold mt-5">Admin Home</div>

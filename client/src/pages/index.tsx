@@ -20,15 +20,27 @@ import {
 } from "@/components/ui/popover";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { SelectRangeEventHandler } from "react-day-picker";
 
-const Index = ({ className }) => {
+interface Destination {
+  name: string;
+  date: string;
+  price: string;
+  image: string;
+}
+
+interface IndexProps {
+  className?: string;
+}
+
+const Index: React.FC<IndexProps> = ({ className }) => {
   const router = useRouter();
-  const [date, setDate] = useState({
+  const [date, setDate] = useState<DateRange>({
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
   });
 
-  const destinations = [
+  const destinations: Destination[] = [
     {
       name: "TP. Hồ Chí Minh đến Hà Nội",
       date: "23/09/2024",
@@ -135,7 +147,7 @@ const Index = ({ className }) => {
                   mode="range"
                   defaultMonth={date?.from}
                   selected={date}
-                  onSelect={setDate}
+                  onSelect={setDate as SelectRangeEventHandler}
                   numberOfMonths={2}
                 />
               </PopoverContent>

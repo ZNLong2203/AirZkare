@@ -6,11 +6,16 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
-function MyApp({ Component, pageProps }) {
+interface MyAppProps {
+  Component: React.ComponentType;
+  pageProps: Record<string, unknown>;
+}
+
+const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const expire = localStorage.getItem("expire");
-    if(!token || (expire && Date.now() > expire)) {
+    if(!token || (expire && Date.now() > parseInt(expire, 10))) {
       localStorage.removeItem("token");
       localStorage.removeItem("expire");
     }

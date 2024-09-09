@@ -2,7 +2,26 @@ import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import { MdPerson } from 'react-icons/md';
 
-const PassengerDetailsModal = ({ isOpen, onClose, passenger }) => {
+interface Passenger {
+    user_id: string;
+    username: string;
+    email: string;
+    phone: string;
+    age: number;
+    gender: string;
+    city: string;
+    country: string;
+    nationality: string;
+    membership: string;
+}
+
+interface PassengerDetailsModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    passenger: Passenger;
+}
+
+const PassengerDetailsModal: React.FC<PassengerDetailsModalProps> = ({ isOpen, onClose, passenger }) => {
     if (!isOpen || !passenger) return null;
 
     return (

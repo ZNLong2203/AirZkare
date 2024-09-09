@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { FaAngleDown } from 'react-icons/fa';
 
-const flights = [
+interface Flight {
+  id: number;
+  airline: string;
+  flightNumber: string;
+  departureTime: string;
+  arrivalTime: string;
+  duration: string;
+  price: string;
+  seatsLeft: number;
+}
+
+const flights: Flight[] = [
   {
     id: 1,
     airline: 'VIETRAVEL AIRLINES',
@@ -44,14 +55,20 @@ const flights = [
   },
 ];
 
+interface Filters {
+  airline: string;
+  nonStop: boolean;
+}
+
 export default function FlightSearch() {
-  const [selectedFilters, setSelectedFilters] = useState({
+  const [selectedFilters, setSelectedFilters] = useState<Filters>({
     airline: 'all',
     nonStop: true,
   });
 
-  const handleFilterChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
     setSelectedFilters((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,

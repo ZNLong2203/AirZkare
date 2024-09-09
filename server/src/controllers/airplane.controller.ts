@@ -37,7 +37,7 @@ class AirplaneController {
         try {
             const airplane_id: string = req.params.id;
 
-            const airplane = await this.AirplaneService.getAllAirplane(airplane_id);
+            const airplane = await this.AirplaneService.getAirplaneInfo(airplane_id);
 
             res.status(200).json({
                 message: "Successfully retrieved airplane",

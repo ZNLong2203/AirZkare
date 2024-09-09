@@ -1,14 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
-import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
+import { AiOutlinePlus, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
 import SideBarAdmin from '@/components/SideBarAdmin';
 import API from '@/constants/api';
 import PassengerDetailsModal from '@/components/PassengerDetailsModal'; 
 
+interface Passenger {
+    user_id: string;
+    username: string;
+    email: string;
+    role: string;
+    phone: string;
+    age: number;
+    gender: string;
+    city: string;
+    country: string;
+    nationality: string;
+    membership: string;
+    dob: string;
+    passport: string;
+}
+
 const AdminPassengers = () => {
-    const [allPassengers, setAllPassengers] = useState([]);
-    const [selectedPassenger, setSelectedPassenger] = useState(null);
+    const [allPassengers, setAllPassengers] = useState<Passenger[]>([]);
+    const [selectedPassenger, setSelectedPassenger] = useState<Passenger | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
@@ -23,7 +39,7 @@ const AdminPassengers = () => {
         fetchPassengers();
     }, []);
 
-    const handleDeletePassenger = async (user_id) => {
+    const handleDeletePassenger = async (user_id: string) => {
         try {
             await axios.delete(`${API.PASSENGER}/${user_id}`);
             toast.success("Passenger deleted successfully");
@@ -33,15 +49,12 @@ const AdminPassengers = () => {
         }
     };
 
-    const handleViewPassenger = async (user_id) => {
+    const handleViewPassenger = async (user_id: string) => {
         try {
             const res = await axios.get(`${API.PASSENGER}/${user_id}`);
-            const passenger = {
+            const passenger: Passenger = {
                 ...res.data.metadata,
-                user_id: res.data.metadata.user.user_id,
-                username: res.data.metadata.user.username,
-                email: res.data.metadata.user.email,
-                role: res.data.metadata.user.role,
+                ...res.data.metadata.user
             }
             setSelectedPassenger(passenger);
             setIsModalOpen(true);
@@ -74,7 +87,7 @@ const AdminPassengers = () => {
                                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Customer ID</th>
                                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Name</th>
                                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Email</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Phone</th>
+                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Role</th>
                                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Actions</th>
                             </tr>
                         </thead>
@@ -84,7 +97,7 @@ const AdminPassengers = () => {
                                     <td className="px-4 py-2">{passenger.user_id}</td>
                                     <td className="px-4 py-2">{passenger.username}</td>
                                     <td className="px-4 py-2">{passenger.email}</td>
-                                    <td className="px-4 py-2">{passenger.phone}</td>
+                                    <td className="px-4 py-2">{passenger.role}</td>
                                     <td className="px-4 py-2">
                                         <div className="flex space-x-2">
                                             <button
@@ -112,7 +125,7 @@ const AdminPassengers = () => {
             <PassengerDetailsModal
                 isOpen={isModalOpen}
                 onClose={closeModal}
-                passenger={selectedPassenger}
+                passenger={selectedPassenger as Passenger}
             />
         </div>
     );

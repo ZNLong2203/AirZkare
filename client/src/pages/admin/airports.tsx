@@ -7,11 +7,18 @@ import SideBarAdmin from '@/components/SideBarAdmin';
 import AirportAddModal from '@/components/airport/AirportAddModal';
 import AirportEditModal from '@/components/airport/AirportEditModal';
 
-const AdminAirports = () => {
+interface Airport {
+    airport_id: string;
+    code: string;
+    name: string;
+    location: string;
+}
+
+const AdminAirports: React.FC = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [allAirports, setAllAirports] = useState([]);
-    const [currentAirport, setCurrentAirport] = useState(null);
+    const [allAirports, setAllAirports] = useState<Airport[]>([]);
+    const [currentAirport, setCurrentAirport] = useState<Airport | null>(null);
     const [shouldFetch, setShouldFetch] = useState(false);
 
     useEffect(() => {
@@ -34,7 +41,7 @@ const AdminAirports = () => {
         setIsAddModalOpen(false);
     };
 
-    const openEditModal = (airport) => {
+    const openEditModal = (airport: Airport) => {
         setCurrentAirport(airport);
         setIsEditModalOpen(true);
     };
@@ -43,7 +50,7 @@ const AdminAirports = () => {
         setIsEditModalOpen(false);
     };
 
-    const handleAddAirport = async (airport) => {
+    const handleAddAirport = async (airport: Airport) => {
         try {
             await axios.post(`${API.AIRPORT}`, airport);
             toast.success("Airport added successfully");
@@ -54,7 +61,7 @@ const AdminAirports = () => {
         }
     };
 
-    const handleEditAirport = async (updatedAirport) => {
+    const handleEditAirport = async (updatedAirport: Airport) => {
         try {
             await axios.patch(`${API.AIRPORT}/${updatedAirport.airport_id}`, updatedAirport);
             toast.success("Airport edited successfully");
@@ -65,7 +72,7 @@ const AdminAirports = () => {
         }
     };
 
-    const handleDeleteAirport = async (airport_id) => {
+    const handleDeleteAirport = async (airport_id: string) => {
         try {
             await axios.delete(`${API.AIRPORT}/${airport_id}`);
             toast.success("Airport deleted successfully");
@@ -133,13 +140,13 @@ const AdminAirports = () => {
             <AirportAddModal 
                 isOpen={isAddModalOpen} 
                 onClose={closeAddModal} 
-                onSubmit={handleAddAirport} 
+                onSubmit={(airport: { code: string; name: string; location: string; }) => handleAddAirport(airport as Airport)} 
             />
             <AirportEditModal
                 isOpen={isEditModalOpen}
                 onClose={closeEditModal}
-                airportData={currentAirport}
-                onSubmit={handleEditAirport}
+                airportData={currentAirport as { airport_id: string; name: string; code: string; location: string; }}
+                onSubmit={(airport: { airport_id: string; name: string; code: string; location: string; }) => handleEditAirport(airport as Airport)}
             />
         </div>
     );
