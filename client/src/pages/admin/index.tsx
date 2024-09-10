@@ -1,6 +1,7 @@
 import { AiOutlineDashboard, AiOutlineUser, AiOutlineSetting } from 'react-icons/ai';
 import { FaPlaneDeparture } from 'react-icons/fa'; 
 import { IoAirplane } from "react-icons/io5";
+import { MdOutlineAirplaneTicket } from "react-icons/md";
 import SideBarAdmin from '@/components/SideBarAdmin';
 import { useRouter } from 'next/router';
 
@@ -14,7 +15,6 @@ const AdminHome = () => {
             <main className="flex-1 p-6">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-semibold text-gray-700">Welcome to the Admin Home</h1>
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Flight</button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 cursor-pointer">
@@ -23,7 +23,7 @@ const AdminHome = () => {
                         onClick={() => router.push('/admin/dashboard')}
                     >
                         <AiOutlineDashboard className="text-blue-600 text-3xl mb-4" />
-                        <h2 className="text-xl font-semibold mb-2">Overview</h2>
+                        <h2 className="text-xl font-semibold mb-2">Dashboard</h2>
                         <p className="text-gray-600">View overall statistics of your airline booking system.</p>
                     </div>
 
@@ -31,16 +31,25 @@ const AdminHome = () => {
                         className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
                         onClick={() => router.push('/admin/airports')}
                     >
-                        <FaPlaneDeparture className="text-red-600 text-3xl mb-4" />
+                        <FaPlaneDeparture className="text-red-500 text-3xl mb-4" />
                         <h2 className="text-xl font-semibold mb-2">Manage Airports</h2>
                         <p className="text-gray-600">Add, update, or remove airport details.</p>
+                    </div>
+
+                    <div    
+                        className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
+                        onClick={() => router.push('/admin/airplanes')}
+                    >
+                        <IoAirplane className="text-gray-600 text-3xl mb-4" />
+                        <h2 className="text-xl font-semibold mb-2">Manage Airplanes</h2>
+                        <p className="text-gray-600">Add, update, or remove airplane details.</p>
                     </div>
 
                     <div 
                         className="bg-white p-6 rounded-lg shadow-md cursor-pointer"
                         onClick={() => router.push('/admin/flights')}
                     >
-                        <IoAirplane className="text-green-600 text-3xl mb-4" />
+                        <MdOutlineAirplaneTicket className="text-green-600 text-3xl mb-4" />
                         <h2 className="text-xl font-semibold mb-2">Manage Flights</h2>
                         <p className="text-gray-600">Add, update, or remove flights.</p>
                     </div>

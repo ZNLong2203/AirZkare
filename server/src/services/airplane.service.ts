@@ -79,6 +79,89 @@ class AirplaneService {
         })
         if(!existsAirplane) throw new HttpException(404, `Airplane with id ${airplane_id} not found`);
 
+        // Change Economy Seat if change total_economy
+        if(airplaneData.total_economy != existsAirplane.total_economy && existsAirplane.total_economy != undefined) {
+            const diff = airplaneData.total_economy - existsAirplane.total_economy;
+            const columnEconomy = ['A', 'B', 'C', 'D', 'E', 'F'];
+            
+            if(diff > 0) {
+                const startNum = (existsAirplane.total_economy / 6) + 1;
+                await prisma.seat.createMany({
+                    data: Array.from({ length: diff }, (_, index) => {
+                        return {
+                            seat_id: randomUUID(),
+                            airplane_id: airplane_id,
+                            number: `${startNum + index}${columnEconomy[index % columnEconomy.length]}`,
+                            class: 'economy',
+                            status: 'available'
+                        }
+                    })
+                })
+            } else if(diff < 0) {
+                const seatsToDelete = await prisma.seat.findMany({
+                    where: {
+                        airplane_id: airplane_id,
+                        class: 'economy'
+                    },
+                    orderBy: {
+                        number: 'desc'
+                    },
+                    take: Math.abs(diff)
+                });
+
+                const seatIdsToDelete = seatsToDelete.map(seat => seat.seat_id);
+
+                await prisma.seat.deleteMany({
+                    where: {
+                        seat_id: {
+                            in: seatIdsToDelete
+                        }
+                    }
+                });
+            }
+        }
+
+        // Change Business Seat if change total_business
+        if(airplaneData.total_business != existsAirplane.total_business && existsAirplane.total_business != undefined) {
+            const diff = airplaneData.total_business - existsAirplane.total_business;
+            const columnBusiness = ['A', 'B'];
+
+            if(diff > 0) {
+                const startNum = (existsAirplane.total_business / 4) + 1;
+                await prisma.seat.createMany({
+                    data: Array.from({ length: diff }, (_, index) => {
+                        return {
+                            seat_id: randomUUID(),
+                            airplane_id: airplane_id,
+                            number: `${startNum + index}${columnBusiness[index % columnBusiness.length]}`,
+                            class: 'business',
+                            status: 'available'
+                        }
+                    })
+                })
+            } else if(diff < 0) {
+                const seatsToDelete = await prisma.seat.findMany({
+                    where: {
+                        airplane_id: airplane_id,
+                        class: 'business'
+                    },
+                    orderBy: {
+                        number: 'desc'
+                    },
+                    take: Math.abs(diff)
+                });
+
+                const seatIdsToDelete = seatsToDelete.map(seat => seat.seat_id);
+                await prisma.seat.deleteMany({
+                    where: {
+                        seat_id: {
+                            in: seatIdsToDelete
+                        }
+                    }
+                })
+            }
+        }
+
         const updatedAirplane = await prisma.airplane.update({
             where: {
                 airplane_id: airplane_id
@@ -92,7 +175,7 @@ class AirplaneService {
     }
 
     public async deleteAirplane(airplane_id: string): Promise<void> {
-        const existsAirplane = await prisma.airplane.findFirst({
+        const existsAirplane = await prisma.airplane.findUnique({
             where: {
                 airplane_id: airplane_id
             }

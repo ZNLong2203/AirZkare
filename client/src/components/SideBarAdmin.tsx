@@ -2,6 +2,7 @@ import React from 'react';
 import { AiOutlineDashboard, AiOutlineUser, AiOutlineSetting } from 'react-icons/ai';
 import { IoAirplane } from 'react-icons/io5';
 import { FiLogOut } from 'react-icons/fi';
+import { MdOutlineAirplaneTicket } from "react-icons/md";
 import { FaPlaneDeparture } from 'react-icons/fa';
 import Link from 'next/link';
 
@@ -19,11 +20,11 @@ const SideBarAdmin: React.FC = () => {
                     Airports
                 </Link>
                 <Link href="/admin/airplanes" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <FaPlaneDeparture className="mr-3 text-xl" />
+                    <IoAirplane className="mr-3 text-xl" />
                     Airplanes
                 </Link>
                 <Link href="/admin/flights" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <IoAirplane className="mr-3 text-xl" />
+                    <MdOutlineAirplaneTicket className="mr-3 text-xl" />
                     Flights
                 </Link>
                 <Link href="/admin/passengers" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">

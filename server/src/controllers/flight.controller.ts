@@ -19,6 +19,19 @@ class FlightController {
             next(err);
         }
     }
+
+    public getAllFlight = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const flights = await this.flightService.getAllFlight();
+
+            res.status(200).json({
+                message: 'Flights fetched successfully',
+                metadata: flights,
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
 }
 
 export default FlightController;

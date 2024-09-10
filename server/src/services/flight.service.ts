@@ -18,6 +18,12 @@ class FlightService {
 
         return createFlight;
     }
+
+    public async getAllFlight(): Promise<object[]> {
+        const flights = await prisma.flight.findMany();
+
+        return flights;
+    }
 }
 
 export default FlightService;

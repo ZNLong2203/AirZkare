@@ -5,6 +5,8 @@ import { MdEmail } from "react-icons/md";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { toast } from 'react-hot-toast';
+import { Mail } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import API from '@/constants/api';
 import { useStateProvider } from '@/redux/StateContext';
 
@@ -67,11 +69,15 @@ const Login: React.FC = () => {
           <button 
             type="submit"
             onClick={handleLogin}
-            className="w-full py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-700"
+            className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-800"
           >
             Login
           </button>
         </form>
+
+        <Button className='w-full mt-4 h-12'>
+          <Mail className="mr-2 h-4 w-4" /> Login with Email
+        </Button>
 
         <div className="mt-4 text-center">
           <p className="text-gray-600">Dont have an account? <Link href="/auth/register" className="text-blue-500 hover:underline">Register</Link></p>

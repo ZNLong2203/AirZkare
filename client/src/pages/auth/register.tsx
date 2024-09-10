@@ -66,7 +66,7 @@ const Register: React.FC = () => {
           <button 
             type="submit" 
             onClick={handleRegister}
-            className="w-full py-3 bg-blue-500 text-white font-bold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-700"
+            className="w-full py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-800"
           >
             Register
           </button>
