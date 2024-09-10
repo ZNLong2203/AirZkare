@@ -35,7 +35,7 @@ class AirplaneController {
 
     public getAirplaneInfo = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const airplane_id: string = req.params.id;
+            const { airplane_id } = req.params;
 
             const airplane = await this.AirplaneService.getAirplaneInfo(airplane_id);
 
@@ -50,7 +50,7 @@ class AirplaneController {
 
     public updateAirplane = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const airplane_id: string = req.params.id;
+            const { airplane_id } = req.params;
             const airplaneData: Airplane = req.body;
 
             const updatedAirplane = await this.AirplaneService.updateAirplane(airplane_id, airplaneData);
@@ -66,7 +66,7 @@ class AirplaneController {
 
     public deleteAirplane = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const airplane_id: string = req.params.id;
+            const { airplane_id } = req.params;
 
             await this.AirplaneService.deleteAirplane(airplane_id);
 

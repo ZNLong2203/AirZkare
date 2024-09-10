@@ -5,6 +5,7 @@ const API = {
     REGISTER: `${BE}/auth/register`,
     PASSENGER: `${BE}/passenger`,
     AIRPORT: `${BE}/airport`,
+    AIRPLANE: `${BE}/airplane`,
 }
 
 export default API;

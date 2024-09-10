@@ -18,6 +18,10 @@ const SideBarAdmin: React.FC = () => {
                     <FaPlaneDeparture className="mr-3 text-xl" />
                     Airports
                 </Link>
+                <Link href="/admin/airplanes" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
+                    <FaPlaneDeparture className="mr-3 text-xl" />
+                    Airplanes
+                </Link>
                 <Link href="/admin/flights" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
                     <IoAirplane className="mr-3 text-xl" />
                     Flights

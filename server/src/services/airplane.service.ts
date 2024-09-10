@@ -25,7 +25,7 @@ class AirplaneService {
 
         const columnEconomy = ['A', 'B', 'C', 'D', 'E', 'F'];
         await prisma.seat.createMany({
-            data: airplaneData.total_economy % 6 == 0 ? Array.from({ length: airplaneData.total_economy * columnEconomy.length}, (_, index) => {
+            data: airplaneData.total_economy % 6 == 0 ? Array.from({ length: airplaneData.total_economy }, (_, index) => {
                 return {
                     seat_id: randomUUID(),
                     airplane_id: createdAirplane.airplane_id,
@@ -38,7 +38,7 @@ class AirplaneService {
 
         const columnBusiness = ['A', 'B'];
         await prisma.seat.createMany({
-            data: airplaneData.total_business % 4 == 0 ? Array.from({ length: airplaneData.total_business * columnBusiness.length}, (_, index) => {
+            data: airplaneData.total_business % 4 == 0 ? Array.from({ length: airplaneData.total_business }, (_, index) => {
                 return {
                     seat_id: randomUUID(),
                     airplane_id: createdAirplane.airplane_id,
@@ -70,14 +70,14 @@ class AirplaneService {
     }
 
     public async updateAirplane(airplane_id: string, airplaneData: Airplane): Promise<object> {
-        if(!airplaneData) throw new HttpException(400, 'No data');
+        if(!airplane_id || !airplaneData) throw new HttpException(400, 'No data');
 
-        const existsAirplane = await prisma.airplane.findFirst({
+        const existsAirplane = await prisma.airplane.findUnique({
             where: {
                 airplane_id: airplane_id
             }
         })
-        if(!existsAirplane) throw new HttpException(404, `Airplane with id ${airplaneData.airplane_id} not found`);
+        if(!existsAirplane) throw new HttpException(404, `Airplane with id ${airplane_id} not found`);
 
         const updatedAirplane = await prisma.airplane.update({
             where: {
