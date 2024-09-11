@@ -33,7 +33,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md relative z-50">
+    <nav className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md relative z-50 top-0 w-full">
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center text-2xl font-bold">
           <FaPlane className="mr-2 text-yellow-400" />

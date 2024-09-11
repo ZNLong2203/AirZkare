@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useRouter } from 'next/router';
 
 interface MyAppProps {
   Component: React.ComponentType;
@@ -12,6 +13,8 @@ interface MyAppProps {
 }
 
 const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
+  const router = useRouter();
+
   useEffect(() => {
     const token = localStorage.getItem("token");
     const expire = localStorage.getItem("expire");
@@ -30,7 +33,7 @@ const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
       <Toaster />
       <Navbar />
       <Component {...pageProps} />
-      <Footer />
+      {router.pathname !== '/admin' && <Footer />}
     </StateProvider>
   );
 }
