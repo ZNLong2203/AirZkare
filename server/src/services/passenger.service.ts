@@ -78,21 +78,28 @@ class PassengerService {
     public async deletePassenger(user_id: string): Promise<void> {
         if(!user_id) throw new HttpException(400, 'No data');
 
-        await prisma.passenger.delete({
-            where: {
-                passenger_id: user_id,
-            }
-        })
-
-        await prisma.token.deleteMany({
-            where: {
-                user_id: user_id,
-            }
-        })
-
-        await prisma.user.delete({
-            where: {
-                user_id: user_id,
+        // Transaction to delete passenger, ticket, and token
+        await prisma.$transaction(async (prisma) => {
+            try {
+                await prisma.passenger.delete({
+                    where: {
+                        passenger_id: user_id,
+                    }
+                })
+        
+                await prisma.token.deleteMany({
+                    where: {
+                        user_id: user_id,
+                    }
+                })
+        
+                await prisma.user.delete({
+                    where: {
+                        user_id: user_id,
+                    }
+                })
+            } catch(err) {
+                throw new HttpException(500, 'Transaction failed');
             }
         })
 

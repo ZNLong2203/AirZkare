@@ -14,6 +14,7 @@ class FlightRoute implements Routes {
     private initializeRoutes() {
         this.router.post(`${this.path}`, this.flightController.createFlight);
         this.router.get(`${this.path}`, this.flightController.getAllFlight);
+        this.router.delete(`${this.path}/:flight_id`, this.flightController.deleteFlight);
     }
 }
 

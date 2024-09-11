@@ -32,6 +32,20 @@ class FlightController {
             next(err);
         }
     }
+
+    public deleteFlight = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { flight_id } = req.params;
+
+            await this.flightService.deleteFlight(flight_id);
+            
+            res.status(200).json({
+                message: 'Flight deleted successfully',
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
 }
 
 export default FlightController;

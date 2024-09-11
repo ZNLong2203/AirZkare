@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../interfaces/user.interface";
+import passport from "../configs/googleAuth.config";
 import AuthService from "../services/auth.service";
 
 class AuthController {
@@ -44,6 +45,24 @@ class AuthController {
                 message: 'Logout successful',
             })
         } catch(err) {  
+            next(err);
+        }
+    }
+
+    // Google Auth
+    public googleAuth = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    public googleAuthCallback = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            passport.authenticate('google', { failureRedirect: '/login' })(req, res, next);
+            res.redirect('/');
+        } catch(err) {
             next(err);
         }
     }

@@ -3,8 +3,9 @@ export interface User {
     username: string;
     password: string;
     email: string;
-    image?: string;
-    provider?: string;
-    provider_code?: string;
-    role: 'user' | 'admin';
+    provider: string | null;
+    provider_code: string | null;
+    role: 'user' | 'admin' | null;
+    image: string | null; 
 }
+

@@ -182,15 +182,22 @@ class AirplaneService {
         })
         if(!existsAirplane) throw new HttpException(404, `Airplane with id ${airplane_id} not found`);
 
-        await prisma.airplane.delete({
-            where: {
-                airplane_id: airplane_id
-            }
-        })
-
-        await prisma.seat.deleteMany({
-            where: {
-                airplane_id: airplane_id
+        // Transaction to delete airplane, flight seat, and flight
+        await prisma.$transaction(async (prisma) => {
+            try {
+                await prisma.airplane.delete({
+                    where: {
+                        airplane_id: airplane_id
+                    }
+                })
+        
+                await prisma.seat.deleteMany({
+                    where: {
+                        airplane_id: airplane_id
+                    }
+                })
+            } catch(err) {
+                throw new HttpException(500, 'Transaction failed');
             }
         })
 

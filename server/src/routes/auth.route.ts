@@ -15,6 +15,9 @@ class AuthRoute implements Routes {
         this.router.post(`${this.path}/register`, this.authController.register);
         this.router.post(`${this.path}/login`, this.authController.login);
         this.router.post(`${this.path}/logout`, this.authController.logout);
+
+        this.router.get(`${this.path}/google`, this.authController.googleAuth);
+        this.router.get(`${this.path}/google/callback`, this.authController.googleAuthCallback);
     }
 }
 

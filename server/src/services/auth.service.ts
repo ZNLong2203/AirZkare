@@ -3,7 +3,6 @@ import { sign } from 'jsonwebtoken';
 import { PrismaClientInstance } from '../db/PrismaClient';
 import { HttpException } from '../exceptions/HttpException';
 import { User } from '../interfaces/user.interface';
-import { Passenger } from '../interfaces/passsenger.interface';
 import { randomUUID } from 'crypto';
 
 const prisma = PrismaClientInstance();
