@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   FaSuitcase,
   FaShoppingCart,
-  FaHotel,
+  // FaHotel,
   FaShieldAlt,
   FaEllipsisH,
   FaPlane,
@@ -89,8 +89,8 @@ const Index: React.FC<IndexProps> = ({ className }) => {
             className="bg-white rounded-full shadow-lg px-8 py-2 flex items-center space-x-4 cursor-pointer"
             onClick={() => router.push("/book")}
           >
-            <FaPlane className="text-blue-500 text-3xl" />
-            <h1 className="text-blue-500 text-2xl font-bold">MUA VÉ</h1>
+            <FaPlane className="text-blue-500 text-3xl pt-1" />
+            <h1 className="text-blue-500 text-2xl font-bold">Booking Flight</h1>
           </div>
         </div>
       </header>
@@ -99,18 +99,18 @@ const Index: React.FC<IndexProps> = ({ className }) => {
       <section className="mt-8 w-full flex justify-center">
         <div className="bg-white rounded-lg shadow-lg p-4 flex flex-col sm:flex-row justify-around items-center w-5/6 max-w-4xl">
           <div className="flex flex-col mb-4 sm:mb-0">
-            <label className="text-gray-700 font-semibold mb-2">From</label>
+            <label className="text-gray-700 font-semibold mb-2">Departure</label>
             <input
               type="text"
-              placeholder="Hà Nội (HAN), Việt Nam"
+              placeholder="Ha Noi"
               className="p-2 border border-gray-300 rounded-lg"
             />
           </div>
           <div className="flex flex-col mb-4 sm:mb-0">
-            <label className="text-gray-700 font-semibold mb-2">To</label>
+            <label className="text-gray-700 font-semibold mb-2">Arrival</label>
             <input
               type="text"
-              placeholder="Điểm đến"
+              placeholder="Paris"
               className="p-2 border border-gray-300 rounded-lg"
             />
           </div>
@@ -153,34 +153,39 @@ const Index: React.FC<IndexProps> = ({ className }) => {
               </PopoverContent>
             </Popover>
           </div>
-          <button className="mt-4 sm:mt-0 bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600">
-            Tìm kiếm
-          </button>
+          <Button className="p-6 mt-6">
+            Search
+          </Button>
         </div>
       </section>
 
       {/* Navigation Section */}
       <section className="mt-8 w-full flex justify-center">
         <div className="flex space-x-4 bg-gray-100 py-2 px-4 rounded-lg shadow-lg">
-          <button className="text-blue-600 font-semibold flex items-center space-x-2">
+          <button 
+            className="text-blue-600 font-semibold flex items-center space-x-2"
+            onClick={() => router.push('/utilities/luggage')}
+          >
             <FaSuitcase className="text-xl" />
-            <span>Hành lý trả trước</span>
+            <span>Luggage</span>
           </button>
-          <button className="text-blue-600 font-semibold flex items-center space-x-2">
+          <button 
+            className="text-blue-600 font-semibold flex items-center space-x-2"
+            onClick={() => router.push('/utilities/shopping')}
+          >
             <FaShoppingCart className="text-xl" />
-            <span>Mua sắm</span>
+            <span>Shopping</span>
           </button>
-          <button className="text-blue-600 font-semibold flex items-center space-x-2">
-            <FaHotel className="text-xl" />
-            <span>Khách sạn & tour</span>
-          </button>
-          <button className="text-blue-600 font-semibold flex items-center space-x-2">
+          <button 
+            className="text-blue-600 font-semibold flex items-center space-x-2"
+            onClick={() => router.push('/utilities/insurance')}
+          >
             <FaShieldAlt className="text-xl" />
-            <span>Bảo hiểm</span>
+            <span>Insurance</span>
           </button>
           <button className="text-blue-600 font-semibold flex items-center space-x-2">
             <FaEllipsisH className="text-xl" />
-            <span>Dịch vụ khác</span>
+            <span>Other</span>
           </button>
         </div>
       </section>
