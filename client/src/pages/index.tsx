@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaSuitcase,
   FaShoppingCart,
@@ -39,6 +39,16 @@ const Index: React.FC<IndexProps> = ({ className }) => {
     from: new Date(2022, 0, 20),
     to: addDays(new Date(2022, 0, 20), 20),
   });
+
+  useEffect(() => {
+    const token = router.query.token as string;
+    if(token) {
+      localStorage.setItem('token', token);
+      router.push('/').then(() => {
+        window.location.reload();
+      });
+    }
+  }, [router.query.token, router]);
 
   const destinations: Destination[] = [
     {

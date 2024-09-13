@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import compression from 'compression';
 import express from 'express';
+import session from 'express-session';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
@@ -42,6 +43,14 @@ class App {
         this.app.use(cors());
         this.app.use(compression());
         this.app.use(morgan('dev'));
+        this.app.use(session({
+            secret: process.env.SESSION_SECRET as string,
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                maxAge: 24 * 60 * 60 * 1000,
+            }
+        }));
     }
 
     private initializeRoutes(routes: Routes[]) {

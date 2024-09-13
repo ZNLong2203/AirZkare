@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState, FormEvent } from 'react';
+import React, { useState, FormEvent, useEffect } from 'react';
 import { FaLock } from 'react-icons/fa';
 import { MdEmail } from "react-icons/md";
 import Link from 'next/link';
@@ -8,6 +8,7 @@ import { toast } from 'react-hot-toast';
 import { Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import API from '@/constants/api';
+import { getCookie } from '@/utils/getCookie';
 import { useStateProvider } from '@/redux/StateContext';
 
 const Login: React.FC = () => {
@@ -15,7 +16,17 @@ const Login: React.FC = () => {
   const { dispatch } = useStateProvider();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  
+
+  useEffect(() => {
+    const token: string | undefined = getCookie('token');
+    const user_id: string | undefined = getCookie('user_id');
+    if(token && user_id) {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user_id', user_id);
+      router.push('/');
+    }
+  }, [router]);
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     try {
@@ -38,6 +49,10 @@ const Login: React.FC = () => {
     } catch (error) {
       toast.error("Invalid email or password");
     }
+  }
+
+  const handleGoogleLogin = async () => {
+    window.location.href = API.GOOGLE_AUTH;
   }
   
   return (
@@ -75,7 +90,10 @@ const Login: React.FC = () => {
           </button>
         </form>
 
-        <Button className='w-full mt-4 h-12'>
+        <Button 
+          className='w-full mt-4 h-12'
+          onClick={handleGoogleLogin}
+        >
           <Mail className="mr-2 h-4 w-4" /> Login with Email
         </Button>
 

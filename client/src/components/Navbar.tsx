@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaPlane, FaUser, FaSignInAlt } from 'react-icons/fa';
 import Link from 'next/link';
+// import axios from 'axios';
+// import API from '../constants/api';
+// import { toast } from 'react-hot-toast'
+import { useRouter } from 'next/router';
 
 const Navbar = () => {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -31,6 +36,24 @@ const Navbar = () => {
   const toggleDropdown = () => {
     setDropdownOpen(prevState => !prevState);
   };
+
+  const handleLogout = async () => {
+    // try {
+      // const response = await axios.post(`${API.LOGOUT}`);
+      // if (response.status === 200) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user_id');
+        localStorage.removeItem('expire');
+        router.push('/').then(() => {
+          window.location.reload();
+        });
+      // } else {
+      //   toast.error('Error logging out');
+      // }
+    // } catch (error) {
+    //   toast.error('Error logging out');
+    // }
+  }
 
   return (
     <nav className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md relative z-50 top-0 w-full">
@@ -67,9 +90,12 @@ const Navbar = () => {
                   <Link href="/user/tickets" className="block px-4 py-2 hover:bg-gray-200">
                     My Tickets
                   </Link>
-                  <Link href="/auth/logout" className="block px-4 py-2 hover:bg-gray-200">
+                  <button 
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                  >
                     Logout
-                  </Link>
+                  </button>
                 </div>
               )}
             </div>

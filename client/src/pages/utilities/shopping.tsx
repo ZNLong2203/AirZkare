@@ -1,4 +1,5 @@
 import React from 'react';
+import Image from 'next/image';
 
 interface Product {
   name: string;
@@ -42,10 +43,12 @@ const InFlightShopping: React.FC = () => {
               className="relative bg-white shadow-lg rounded-lg p-8 transition-transform transform hover:-translate-y-2 hover:shadow-2xl duration-300"
             >
               <div className="flex justify-center mb-4">
-                <img
+                <Image
                   src={product.imageUrl}
                   alt={product.name}
-                  className="w-32 h-32 object-cover rounded-full"
+                  width={128}
+                  height={128}
+                  className="object-cover rounded-full"
                 />
               </div>
               <h2 className="text-3xl font-semibold text-center mb-4 text-orange-700 truncate">

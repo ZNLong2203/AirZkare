@@ -38,9 +38,11 @@ class AuthController {
 
     public logout = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userData: User = req.body;
+            const userData: User = req.user as User;
+            console.log(userData);
             await this.authService.logout(userData);
 
+            res.clearCookie('token');
             res.status(200).json({
                 message: 'Logout successful',
             })
@@ -60,8 +62,22 @@ class AuthController {
 
     public googleAuthCallback = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            passport.authenticate('google', { failureRedirect: '/login' })(req, res, next);
-            res.redirect('/');
+            passport.authenticate('google', (err: any, user: any) => {
+                if(err) {
+                    return next(err);
+                }
+                if(!user) {
+                    return res.redirect('/login');
+                }
+                req.logIn(user, (err: any) => {
+                    if(err) {
+                        return next(err);
+                    }
+                    res.cookie('token', user.token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+                    res.cookie('user_id', user.user_id, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
+                    res.redirect(`${process.env.FRONTEND_URL}/?token=${encodeURIComponent(user.token)}`);
+                });
+            })(req, res, next);
         } catch(err) {
             next(err);
         }
