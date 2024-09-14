@@ -1,9 +1,13 @@
-export interface Flight {
-    flight_id: string;
-    airplane_id: string;
-    code: string;
-    departure_airport: string;
-    arrival_airport: string;
-    departure_time: Date;
-    arrival_time: Date;
-}
+import { z } from 'zod';
+
+export const FlightSchema = z.object({
+  flight_id: z.string().uuid(), 
+  airplane_id: z.string().uuid(), 
+  code: z.string(), 
+  departure_airport: z.string(), 
+  arrival_airport: z.string(),
+  departure_time: z.date(),
+  arrival_time: z.date(), 
+});
+
+export type Flight = z.infer<typeof FlightSchema>;

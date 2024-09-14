@@ -1,7 +1,11 @@
-export interface Seat {
-    seat_id: string;
-    airplane_id: string;
-    number: string;
-    class: 'economy' | 'business'; 
-    status: 'available' | 'booked' | 'maintenance'; 
-}
+import { z } from 'zod';
+
+export const SeatSchema = z.object({
+  seat_id: z.string().uuid(),
+  airplane_id: z.string().uuid(),
+  number: z.string(),
+  class: z.enum(['economy', 'business']),
+  status: z.enum(['available', 'booked', 'maintenance']),
+});
+
+export type Seat = z.infer<typeof SeatSchema>;

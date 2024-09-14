@@ -1,7 +1,11 @@
-export interface FlightSeat {
-    flight_seat_id: string;
-    flight_id: string;
-    seat_id: string;
-    price: number;
-    is_booked: boolean;
-}
+import { z } from 'zod';
+
+export const FlightSeatSchema = z.object({
+  flight_seat_id: z.string().uuid(), 
+  flight_id: z.string().uuid(), 
+  seat_id: z.string().uuid(), 
+  price: z.number().positive(),
+  is_booked: z.boolean(), 
+});
+
+export type FlightSeat = z.infer<typeof FlightSeatSchema>;
