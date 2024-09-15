@@ -19,6 +19,8 @@ const Register: React.FC = () => {
         username: username,
         email: email,
         password: password,
+      }, {
+        withCredentials: true,
       });
       router.push('/auth/login');
       toast.success("Register successful");

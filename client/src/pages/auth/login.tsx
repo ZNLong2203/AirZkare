@@ -33,6 +33,8 @@ const Login: React.FC = () => {
       const response = await axios.post(`${API.LOGIN}`, {
         email: email,
         password: password,
+      }, {
+        withCredentials: true,
       });
       dispatch({
         type: "SET_USER_INFO",

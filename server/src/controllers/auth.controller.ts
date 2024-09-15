@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../interfaces/user.interface";
+import { Login } from "../interfaces/auth.interface";
 import passport from "../configs/googleAuth.config";
 import AuthService from "../services/auth.service";
 
@@ -22,8 +23,20 @@ class AuthController {
     public login = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: User = req.body
-            const { data } = await this.authService.login(userData);
+            const data: Login = await this.authService.login(userData);
 
+            res.cookie('token', data.token, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000,
+            })
+            res.cookie('user_id', data.user_id, {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax',
+                maxAge: 24 * 60 * 60 * 1000,
+            })
             res.status(200).json({ 
                 message: 'Login successful',
                 metadata:  {
@@ -39,7 +52,6 @@ class AuthController {
     public logout = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData: User = req.user as User;
-            console.log(userData);
             await this.authService.logout(userData);
 
             res.clearCookie('token');
@@ -73,9 +85,19 @@ class AuthController {
                     if(err) {
                         return next(err);
                     }
-                    res.cookie('token', user.token, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
-                    res.cookie('user_id', user.user_id, { httpOnly: true, maxAge: 24 * 60 * 60 * 1000 });
-                    res.redirect(`${process.env.FRONTEND_URL}/?token=${encodeURIComponent(user.token)}`);
+                    res.cookie('token', user.token, {
+                        httpOnly: true,
+                        secure: false,
+                        sameSite: 'lax',
+                        maxAge: 24 * 60 * 60 * 1000,    
+                    })
+                    res.cookie('user_id', user.user_id, {
+                        httpOnly: true,
+                        secure: false,
+                        sameSite: 'lax',
+                        maxAge: 24 * 60 * 60 * 1000,
+                    })
+                    res.redirect(`${process.env.FRONTEND_URL}/?token=${encodeURIComponent(user.token)}&user_id=${user.user_id}&expire=${Date.now() + 24 * 60 * 60 * 1000}`);
                 });
             })(req, res, next);
         } catch(err) {

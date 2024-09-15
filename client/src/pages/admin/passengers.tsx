@@ -30,7 +30,9 @@ const AdminPassengers = () => {
     useEffect(() => {
         const fetchPassengers = async () => {
             try {
-                const res = await axios.get(`${API.PASSENGER}`);
+                const res = await axios.get(`${API.PASSENGER}`, {
+                    withCredentials: true,
+                });
                 setAllPassengers(res.data.metadata);
             } catch (error) {
                 toast.error("Error fetching passengers");
@@ -41,7 +43,9 @@ const AdminPassengers = () => {
 
     const handleDeletePassenger = async (user_id: string) => {
         try {
-            await axios.delete(`${API.PASSENGER}/${user_id}`);
+            await axios.delete(`${API.PASSENGER}/${user_id}`, {
+                withCredentials: true,
+            });
             toast.success("Passenger deleted successfully");
             setAllPassengers(allPassengers.filter((passenger) => passenger.user_id !== user_id));
         } catch (error) {
@@ -51,7 +55,9 @@ const AdminPassengers = () => {
 
     const handleViewPassenger = async (user_id: string) => {
         try {
-            const res = await axios.get(`${API.PASSENGER}/${user_id}`);
+            const res = await axios.get(`${API.PASSENGER}/${user_id}`, {
+                withCredentials: true,
+            });
             const passenger: Passenger = {
                 ...res.data.metadata,
                 ...res.data.metadata.user

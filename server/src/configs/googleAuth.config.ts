@@ -35,6 +35,20 @@ const strategy = new GoogleStrategy({
         } else if(user.provider !== 'google') {
             return done(null, false, { message: 'User already registered with different provider' })
         }
+
+        const checkCreatePassenger = await prisma.passenger.findUnique({
+            where: {
+                passenger_id: user.user_id,
+            }
+        })
+        if(!checkCreatePassenger) {
+            await prisma.passenger.create({
+                data: {
+                    passenger_id: user.user_id,
+                    user_id: user.user_id,
+                }
+            })
+        }
     
         const createToken = sign({
             user_id: user.user_id,
@@ -42,31 +56,6 @@ const strategy = new GoogleStrategy({
             email: user.email,
             role: user.role,
         }, process.env.JWT_SECRET!, { expiresIn: '1d' });
-    
-        const existsToken = await prisma.token.findFirst({
-            where: {
-                user_id: user.user_id,
-            }
-        })
-    
-        if(existsToken) {
-            await prisma.token.update({
-                where: {
-                    token_id: existsToken.token_id,
-                },
-                data: {
-                    token: createToken,
-                }
-            })
-        } else {
-            await prisma.token.create({
-                data: {
-                    token_id: randomUUID(),
-                    user_id: user.user_id,
-                    token: createToken,
-                }
-            })
-        }
     
         const metadata = {
             user_id: user.user_id,

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { Routes } from '../interfaces/routes.interface';
+import authMiddleware from '../middlewares/auth.middleware';
 import AirportController from '../controllers/airport.controller';
 
 class AirportRoute implements Routes {
@@ -12,10 +13,10 @@ class AirportRoute implements Routes {
     }
 
     private initializeRoutes() {
-        this.router.post(`${this.path}`, this.airportController.createAirport);
-        this.router.get(`${this.path}`, this.airportController.getAllAirport);
-        this.router.patch(`${this.path}/:airport_id`, this.airportController.editAirport);
-        this.router.delete(`${this.path}/:airport_id`, this.airportController.deleteAirport);
+        this.router.post(`${this.path}`, authMiddleware, this.airportController.createAirport);
+        this.router.get(`${this.path}`, authMiddleware, this.airportController.getAllAirport);
+        this.router.patch(`${this.path}/:airport_id`, authMiddleware, this.airportController.editAirport);
+        this.router.delete(`${this.path}/:airport_id`, authMiddleware, this.airportController.deleteAirport);
     }
 }
 

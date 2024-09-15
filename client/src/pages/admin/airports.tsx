@@ -24,7 +24,9 @@ const AdminAirports: React.FC = () => {
     useEffect(() => {
         const fetchAirports = async () => {
             try {
-                const res = await axios.get(`${API.AIRPORT}`);
+                const res = await axios.get(`${API.AIRPORT}`, {
+                    withCredentials: true,
+                });
                 setAllAirports(res.data.metadata);
             } catch (err) {
                 toast.error("Error fetching airports");
@@ -52,7 +54,9 @@ const AdminAirports: React.FC = () => {
 
     const handleAddAirport = async (airport: Airport) => {
         try {
-            await axios.post(`${API.AIRPORT}`, airport);
+            await axios.post(`${API.AIRPORT}`, airport, {
+                withCredentials: true,
+            });
             toast.success("Airport added successfully");
             setShouldFetch(prev => !prev);
             closeAddModal();
@@ -63,7 +67,9 @@ const AdminAirports: React.FC = () => {
 
     const handleEditAirport = async (updatedAirport: Airport) => {
         try {
-            await axios.patch(`${API.AIRPORT}/${updatedAirport.airport_id}`, updatedAirport);
+            await axios.patch(`${API.AIRPORT}/${updatedAirport.airport_id}`, updatedAirport, {
+                withCredentials: true,
+            });
             toast.success("Airport edited successfully");
             setShouldFetch(prev => !prev);
             closeEditModal();
@@ -74,7 +80,9 @@ const AdminAirports: React.FC = () => {
 
     const handleDeleteAirport = async (airport_id: string) => {
         try {
-            await axios.delete(`${API.AIRPORT}/${airport_id}`);
+            await axios.delete(`${API.AIRPORT}/${airport_id}`, {
+                withCredentials: true,
+            });
             toast.success("Airport deleted successfully");
             setShouldFetch(prev => !prev);
         } catch (err) {

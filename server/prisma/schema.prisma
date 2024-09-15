@@ -76,13 +76,6 @@ model seat {
   airplane    airplane?     @relation(fields: [airplane_id], references: [airplane_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model token {
-  token_id String  @id @db.Uuid
-  user_id  String? @db.Uuid
-  token    String? @db.VarChar
-  user     user?   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-}
-
 model user {
   user_id       String      @id @db.Uuid
   username      String      @unique @db.VarChar
@@ -94,7 +87,6 @@ model user {
   image         String?     @db.VarChar
   booking       booking[]
   passenger     passenger[]
-  token         token[]
 }
 
 model airplane {

@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Routes } from "../interfaces/routes.interface";
+import authMiddleware from "../middlewares/auth.middleware";
 import FlightController from "../controllers/flight.controller";
 
 class FlightRoute implements Routes {
@@ -12,9 +13,9 @@ class FlightRoute implements Routes {
     }
 
     private initializeRoutes() {
-        this.router.post(`${this.path}`, this.flightController.createFlight);
-        this.router.get(`${this.path}`, this.flightController.getAllFlight);
-        this.router.delete(`${this.path}/:flight_id`, this.flightController.deleteFlight);
+        this.router.post(`${this.path}`, authMiddleware, this.flightController.createFlight);
+        this.router.get(`${this.path}`, authMiddleware, this.flightController.getAllFlight);
+        this.router.delete(`${this.path}/:flight_id`, authMiddleware, this.flightController.deleteFlight);
     }
 }
 

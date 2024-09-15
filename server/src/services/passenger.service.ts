@@ -87,12 +87,6 @@ class PassengerService {
                     }
                 })
         
-                await prisma.token.deleteMany({
-                    where: {
-                        user_id: user_id,
-                    }
-                })
-        
                 await prisma.user.delete({
                     where: {
                         user_id: user_id,

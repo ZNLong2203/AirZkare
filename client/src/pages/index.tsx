@@ -42,8 +42,12 @@ const Index: React.FC<IndexProps> = ({ className }) => {
 
   useEffect(() => {
     const token = router.query.token as string;
+    const user_id = router.query.user_id as string;
+    const expire = router.query.expire as string;
     if(token) {
       localStorage.setItem('token', token);
+      localStorage.setItem('user_id', user_id);
+      localStorage.setItem('expire', expire);
       router.push('/').then(() => {
         window.location.reload();
       });

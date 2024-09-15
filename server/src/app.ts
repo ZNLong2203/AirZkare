@@ -40,7 +40,10 @@ class App {
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cookieParser());
         this.app.use(helmet());
-        this.app.use(cors());
+        this.app.use(cors({
+            origin: process.env.FRONTEND_URL,
+            credentials: true,
+        }));
         this.app.use(compression());
         this.app.use(morgan('dev'));
         this.app.use(session({

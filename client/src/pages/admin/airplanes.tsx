@@ -25,7 +25,9 @@ const AdminAirplane: React.FC = () => {
     useEffect(() => {
         const fetchAirplanes = async () => {
             try {
-                const res = await axios.get(`${API.AIRPLANE}`);
+                const res = await axios.get(`${API.AIRPLANE}`, {
+                    withCredentials: true,
+                });
                 setAllAirplanes(res.data.metadata);
             } catch (err) {
                 toast.error("Error fetching airplanes");
@@ -53,7 +55,9 @@ const AdminAirplane: React.FC = () => {
 
     const handleAddAirplane = async (airplane: Airplane) => {
         try {
-            await axios.post(`${API.AIRPLANE}`, airplane);
+            await axios.post(`${API.AIRPLANE}`, airplane, {
+                withCredentials: true,
+            });
             toast.success("Airplane added successfully");
             setShouldFetch(prev => !prev);
             closeAddModal();
@@ -64,7 +68,9 @@ const AdminAirplane: React.FC = () => {
 
     const handleEditAirplane = async (updatedAirplane: Airplane) => {
         try {
-            await axios.put(`${API.AIRPLANE}/${updatedAirplane.airplane_id}`, updatedAirplane);
+            await axios.put(`${API.AIRPLANE}/${updatedAirplane.airplane_id}`, updatedAirplane, {
+                withCredentials: true,
+            });
             toast.success("Airplane edited successfully");
             setShouldFetch(prev => !prev);
             closeEditModal();
@@ -75,7 +81,9 @@ const AdminAirplane: React.FC = () => {
 
     const handleDeleteAirplane = async (airplane_id: string) => {
         try {
-            await axios.delete(`${API.AIRPLANE}/${airplane_id}`);
+            await axios.delete(`${API.AIRPLANE}/${airplane_id}`, {
+                withCredentials: true,
+            });
             toast.success("Airplane deleted successfully");
             setShouldFetch(prev => !prev);
         } catch (err) {

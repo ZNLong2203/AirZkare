@@ -3,6 +3,7 @@ import { sign } from 'jsonwebtoken';
 import { PrismaClientInstance } from '../db/PrismaClient';
 import { HttpException } from '../exceptions/HttpException';
 import { User } from '../interfaces/user.interface';
+import { Login } from '../interfaces/auth.interface';
 import { randomUUID } from 'crypto';
 
 const prisma = PrismaClientInstance();
@@ -37,60 +38,39 @@ class AuthService {
         return;
     }
 
-    public async login(userData: User): Promise<{ data: object }> {
-        if(!userData) throw new HttpException(400, 'No data');
-        
-        const findUser = await prisma.user.findFirst({
-            where: {
-                email: userData.email,
-            }
-        })
-        if(!findUser) throw new HttpException(409, `Email ${userData.email} not found`);
-
-        const checkPassword: boolean = await compare(userData.password, findUser.password);
-        if(!checkPassword) throw new HttpException(409, 'Password is incorrect');
-
-        const token: string = sign({ 
-            user_id: findUser.user_id,
-            email: findUser.email,
-            username: findUser.username,
-            role: findUser.role,
-        }, process.env.JWT_SECRET!, { expiresIn: '1d' });
-
-        const findToken = await prisma.token.findFirst({
-            where: {
-                user_id: findUser.user_id,
-            }
-        })
-
-        let createdToken;
-        if(findToken) {
-            createdToken = await prisma.token.update({
-                where: {
-                    token_id: findToken.token_id,
-                },
-                data: {
-                    token: token,
-                }
-            })
-        } else {
-            createdToken = await prisma.token.create({
-                data: {
-                    token_id: randomUUID(),
-                    user_id: findUser.user_id,
-                    token: token,
-                }
-            })
+    public async login(userData: User): Promise<Login> {
+        if (!userData) throw new HttpException(400, 'No data provided');
+      
+        const findUser = await prisma.user.findUnique({
+          where: {
+            email: userData.email,
+          },
+        });
+        if (!findUser) throw new HttpException(401, 'Invalid email or password');
+      
+        const passwordMatches: boolean = await compare(userData.password, findUser.password);
+        if (!passwordMatches) throw new HttpException(401, 'Invalid email or password');
+      
+        const jwtSecret = process.env.JWT_SECRET;
+        if (!jwtSecret) {
+          throw new Error('JWT_SECRET is not defined in environment variables');
         }
-
-        return { 
-            data: {
-                user_id: findUser.user_id,
-                username: findUser.username,
-                email: findUser.email,
-                role: findUser.role,
-                token: createdToken.token,
-            }, 
+      
+        const tokenPayload = {
+          user_id: findUser.user_id,
+          email: findUser.email,
+          username: findUser.username,
+          role: findUser.role,
+        };
+      
+        const token: string = sign(tokenPayload, jwtSecret, { expiresIn: '1d' });
+      
+        return {
+          user_id: findUser.user_id,
+          username: findUser.username,
+          email: findUser.email,
+          role: findUser.role!,
+          token: token,
         };
     }
 
@@ -103,12 +83,6 @@ class AuthService {
             }
         })
         if(!findUser) throw new HttpException(409, `User ${userData.user_id} not found`);
-
-        await prisma.token.deleteMany({
-            where: {
-                user_id: findUser.user_id,
-            }
-        })
 
         return;
     }

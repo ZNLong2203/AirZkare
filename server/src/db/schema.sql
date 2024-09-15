@@ -90,9 +90,3 @@ CREATE TABLE payment (
     amount FLOAT,
     time TIMESTAMP
 );
-
-CREATE TABLE token (
-    token_id UUID PRIMARY KEY,
-    user_id UUID REFERENCES "user"(user_id),
-    token VARCHAR
-);
