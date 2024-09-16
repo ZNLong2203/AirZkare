@@ -2,7 +2,7 @@ import { FaPlaneDeparture, FaPlaneArrival, FaUser } from 'react-icons/fa';
 
 const FlightInfoBar: React.FC = () => {
   return (
-    <div className="bg-gray-100 py-4 shadow-md">
+    <div className="bg-gray-100 py-4 shadow-md mt-8 mb-10">
       <div className="container mx-auto flex justify-between items-center px-4">
         {/* Departure and Arrival Points */}
         <div className="flex items-center space-x-6">

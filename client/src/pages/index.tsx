@@ -101,7 +101,7 @@ const Index: React.FC<IndexProps> = ({ className }) => {
         <div className="relative flex justify-center mt-[-40px]">
           <div
             className="bg-white rounded-full shadow-lg px-8 py-2 flex items-center space-x-4 cursor-pointer"
-            onClick={() => router.push("/book")}
+            onClick={() => router.push("/booking")}
           >
             <FaPlane className="text-blue-500 text-3xl pt-1" />
             <h1 className="text-blue-500 text-2xl font-bold">Booking Flight</h1>
@@ -167,7 +167,10 @@ const Index: React.FC<IndexProps> = ({ className }) => {
               </PopoverContent>
             </Popover>
           </div>
-          <Button className="p-6 mt-6">
+          <Button 
+            className="p-6 mt-6"
+            onClick={() => router.push('/booking/availability/come')}
+          >
             Search
           </Button>
         </div>

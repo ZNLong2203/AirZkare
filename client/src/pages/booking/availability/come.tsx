@@ -1,86 +1,218 @@
-import React, { useState } from 'react';
-import { FaPlaneDeparture, FaBusinessTime } from 'react-icons/fa';
-import { GiPriceTag } from 'react-icons/gi';
-import FlightInfoBar from '@/components/flight/FlightInfoBar';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Clock, Plane } from "lucide-react";
+import FlightInfoBar from "@/components/flight/FlightInfoBar";
 
-interface Flight {
-  id: number;
-  departureTime: string;
-  arrivalTime: string;
-  priceEconomy: number;
-  priceBusiness: number;
-}
+const initialFlights = [
+  {
+    id: 1,
+    departure: { time: "09:05", code: "HAN" },
+    arrival: { time: "11:15", code: "PQC" },
+    duration: "2 hours 10 minutes",
+    durationMinutes: 130,
+    flightNumber: "VN 1237",
+    airline: "Vietnam Airlines",
+    economyPrice: 1670000,
+    businessPrice: 5428000,
+    seatsLeft: 4,
+    stops: 0,
+  },
+  {
+    id: 2,
+    departure: { time: "11:05", code: "HAN" },
+    arrival: { time: "13:20", code: "PQC" },
+    duration: "2 hours 15 minutes",
+    durationMinutes: 135,
+    flightNumber: "VN 1239",
+    airline: "Vietnam Airlines",
+    economyPrice: 1670000,
+    businessPrice: 5428000,
+    seatsLeft: 6,
+    stops: 0,
+  },
+  {
+    id: 3,
+    departure: { time: "05:00", code: "HAN" },
+    arrival: { time: "09:30", code: "PQC" },
+    duration: "4 hours 30 minutes",
+    durationMinutes: 270,
+    stopover: { code: "SGN", duration: "1 hour 15 minutes" },
+    flightNumber: "VN 205",
+    airline: "Vietnam Airlines",
+    codeshare: { flightNumber: "VN 6101", airline: "Pacific Airlines" },
+    economyPrice: 3015000,
+    businessPrice: 6890000,
+    seatsLeft: 6,
+    stops: 1,
+  },
+];
 
 const SelectFlightPage: React.FC = () => {
-  const flights: Flight[] = [
-    {
-      id: 1,
-      departureTime: '08:00 AM',
-      arrivalTime: '10:30 AM',
-      priceEconomy: 150,
-      priceBusiness: 350,
-    },
-    {
-      id: 2,
-      departureTime: '12:00 PM',
-      arrivalTime: '02:30 PM',
-      priceEconomy: 180,
-      priceBusiness: 380,
-    },
-    {
-      id: 3,
-      departureTime: '04:00 PM',
-      arrivalTime: '06:30 PM',
-      priceEconomy: 200,
-      priceBusiness: 400,
-    },
-  ];
+  const [flights, setFlights] = useState(initialFlights);
+  const [sortBy, setSortBy] = useState("departureTime");
+  const [stopFilter, setStopFilter] = useState("all");
 
-  const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
+  const sortFlights = (criteria: string) => {
+    const sortedFlights = [...flights].sort((a, b) => {
+      switch (criteria) {
+        case "price":
+          return a.economyPrice - b.economyPrice;
+        case "departureTime":
+          return a.departure.time.localeCompare(b.departure.time);
+        case "duration":
+          return a.durationMinutes - b.durationMinutes;
+        default:
+          return 0;
+      }
+    });
+    setFlights(sortedFlights);
+  };
 
-  const handleFlightSelection = (flight: Flight) => {
-    setSelectedFlight(flight);
+  const filterFlights = (stops: string) => {
+    if (stops === "all") {
+      setFlights(initialFlights);
+    } else {
+      const filteredFlights = initialFlights.filter((flight) =>
+        stops === "nonstop" ? flight.stops === 0 : flight.stops > 0
+      );
+      setFlights(filteredFlights);
+    }
+  };
+
+  const handleSortChange = (value: string) => {
+    setSortBy(value);
+    sortFlights(value);
+  };
+
+  const handleStopFilterChange = (value: string) => {
+    setStopFilter(value);
+    filterFlights(value);
   };
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="min-h-screen container mx-auto p-4 space-y-4">
       <FlightInfoBar />
-      <h2 className="text-2xl font-bold my-10">Select Your Come Flight</h2>
-      <div className="grid grid-cols-1 gap-4">
-        {flights.map(flight => (
-          <div 
-            key={flight.id} 
-            className={`p-4 border rounded-lg ${selectedFlight?.id === flight.id ? 'border-blue-500' : 'border-gray-300'} cursor-pointer`}
-            onClick={() => handleFlightSelection(flight)}
-          >
-            <div className="flex justify-between items-center">
-              <div>
-                <FaPlaneDeparture className="inline-block text-xl mr-2" />
-                <span className="text-lg font-semibold">Departure: {flight.departureTime}</span>
-                <span className="block text-gray-500">Arrival: {flight.arrivalTime}</span>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center">
-                  <GiPriceTag className="inline-block text-lg mr-2 text-green-500" />
-                  <span className="text-green-500 font-bold">${flight.priceEconomy} (Economy)</span>
+      <div className="flex flex-col sm:flex-row gap-4 mb-10">
+        <Select onValueChange={handleSortChange} value={sortBy}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="price">Lowest price</SelectItem>
+            <SelectItem value="departureTime">Departure time</SelectItem>
+            <SelectItem value="duration">Flight duration</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select onValueChange={handleStopFilterChange} value={stopFilter}>
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Number of stops" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All flights</SelectItem>
+            <SelectItem value="nonstop">Non-stop</SelectItem>
+            <SelectItem value="withstops">With stops</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      {flights.map((flight) => (
+        <Card key={flight.id} className="w-full">
+          <CardContent className="p-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 flex flex-col justify-between">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <div className="text-lg font-bold">
+                      {flight.departure.time}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {flight.departure.code}
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <Plane className="inline-block w-4 h-4 rotate-90" />
+                    <div className="text-xs text-muted-foreground">
+                      {flight.stops === 0
+                        ? "Non-stop"
+                        : `${flight.stops} stops`}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold">
+                      {flight.arrival.time}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {flight.arrival.code}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center mt-2">
-                  <FaBusinessTime className="inline-block text-lg mr-2 text-blue-500" />
-                  <span className="text-blue-500 font-bold">${flight.priceBusiness} (Business)</span>
+                <div className="mt-2 flex items-center justify-center text-sm text-muted-foreground">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {flight.duration}
+                </div>
+                <div className="mt-2 text-sm">
+                  <div>
+                    {flight.flightNumber} Operated by {flight.airline}
+                  </div>
+                  {flight.codeshare && (
+                    <div>
+                      {flight.codeshare.flightNumber} Operated by{" "}
+                      {flight.codeshare.airline}
+                    </div>
+                  )}
+                </div>
+                {flight.stopover && (
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    <div className="flex items-center">
+                      <div className="w-4 h-4 rounded-full border-2 border-muted-foreground flex items-center justify-center mr-2">
+                        <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
+                      </div>
+                      {flight.stopover.code}
+                    </div>
+                    <div className="ml-6">{flight.stopover.duration}</div>
+                  </div>
+                )}
+                <div className="mt-2 text-sm text-blue-600 hover:underline cursor-pointer">
+                  Trip details
+                </div>
+              </div>
+              <div className="bg-teal-800 text-white p-4 flex flex-col justify-between">
+                <div className="text-lg font-bold">ECONOMY</div>
+                <div className="text-2xl font-bold">
+                  from {flight.economyPrice.toLocaleString()} VND
+                </div>
+                <div className="text-sm">per passenger</div>
+                <Button variant="secondary" className="mt-2">
+                  Select
+                </Button>
+                <div className="mt-2 text-sm">
+                  {flight.seatsLeft} seats left
+                </div>
+              </div>
+              <div className="bg-yellow-500 text-black p-4 flex flex-col justify-between">
+                <div className="text-lg font-bold">BUSINESS</div>
+                <div className="text-2xl font-bold">
+                  from {flight.businessPrice.toLocaleString()} VND
+                </div>
+                <div className="text-sm">per passenger</div>
+                <Button variant="secondary" className="mt-2">
+                  Select
+                </Button>
+                <div className="mt-2 text-sm">
+                  {flight.seatsLeft} seats left
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-      {selectedFlight && (
-        <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-          <h3 className="text-lg font-semibold">Selected Flight:</h3>
-          <p>Departure Time: {selectedFlight.departureTime}</p>
-          <p>Arrival Time: {selectedFlight.arrivalTime}</p>
-          <p>Price: {selectedFlight.priceEconomy} (Economy) / {selectedFlight.priceBusiness} (Business)</p>
-        </div>
-      )}
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };

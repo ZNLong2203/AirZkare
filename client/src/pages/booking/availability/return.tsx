@@ -42,7 +42,7 @@ const SelectFlightPage: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-8">
+    <div className="min-h-screen container mx-auto p-8">
       <h2 className="text-2xl font-bold mb-6">Select Your Return Flight</h2>
       <div className="grid grid-cols-1 gap-4">
         {flights.map(flight => (
