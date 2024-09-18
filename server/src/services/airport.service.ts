@@ -19,10 +19,24 @@ class AirportService {
         return createAirport;
     }
 
-    public async getAllAirport(): Promise<object[]> {
-        const findAllAirport = await prisma.airport.findMany();
+    public async getAllAirport(page: number): Promise<object> {
+        const limit = 10;
+        const skip = (page - 1) * limit;
 
-        return findAllAirport;
+        const totalAirport = await prisma.airport.count();
+        const findAllAirport = await prisma.airport.findMany({
+            skip: skip,
+            take: limit
+        });
+
+        const totalPages = Math.ceil(totalAirport / limit);
+        const metadata = {
+            airports: findAllAirport,
+            totalPages: totalPages,
+            currentPage: page
+        }
+
+        return metadata;
     }
 
     public async editAirport(airport_id: string, airportData: Airport): Promise<object> {

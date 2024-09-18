@@ -52,10 +52,24 @@ class AirplaneService {
         return createdAirplane;
     }
 
-    public async getAllAirplane(): Promise<object[]> {
-        const airplanes = await prisma.airplane.findMany();
+    public async getAllAirplane(page: number): Promise<object> {
+        const limit = 10;
+        const skip = (page - 1) * limit;
 
-        return airplanes;
+        const totalAirplane = await prisma.airplane.count();
+        const airplanes = await prisma.airplane.findMany({
+            skip: skip,
+            take: limit,
+        });
+
+        const totalPages = Math.ceil(totalAirplane / limit);
+        const metadata = {
+            airplanes: airplanes,
+            totalPages: totalPages,
+            currentPage: page
+        }
+
+        return metadata;
     }
 
     public async getAirplaneInfo(airplane_id: string): Promise<object> {

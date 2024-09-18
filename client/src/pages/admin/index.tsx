@@ -2,7 +2,7 @@ import { AiOutlineDashboard, AiOutlineUser, AiOutlineSetting } from 'react-icons
 import { FaPlaneDeparture } from 'react-icons/fa'; 
 import { IoAirplane } from "react-icons/io5";
 import { MdOutlineAirplaneTicket } from "react-icons/md";
-import SideBarAdmin from '@/components/SideBarAdmin';
+import SideBarAdmin from '@/components/common/SideBarAdmin';
 import { useRouter } from 'next/router';
 
 const AdminHome = () => {

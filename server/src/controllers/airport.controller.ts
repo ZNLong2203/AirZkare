@@ -22,7 +22,10 @@ class AirportController {
 
     public getAllAirport = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const findAllAirport = await this.airportService.getAllAirport();
+            const { page } = req.query;
+            const pageNumber = parseInt(page as string) | 1;
+
+            const findAllAirport = await this.airportService.getAllAirport(pageNumber);
 
             res.status(200).json({
                 message: 'Airport fetched successfully',

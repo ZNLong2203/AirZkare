@@ -1,5 +1,5 @@
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
-import SideBarAdmin from '@/components/SideBarAdmin';
+import SideBarAdmin from '@/components/common/SideBarAdmin';
 
 const AdminFlights = () => {
     return (

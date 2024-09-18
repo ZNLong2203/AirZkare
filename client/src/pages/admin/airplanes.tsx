@@ -3,9 +3,10 @@ import axios from 'axios';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
 import API from '@/constants/api';
-import SideBarAdmin from '@/components/SideBarAdmin';
+import SideBarAdmin from '@/components/common/SideBarAdmin';
 import AirplaneAddModal from '@/components/airplane/AirPlaneAddModal';
 import AirplaneEditModal from '@/components/airplane/AirPlaneEditModal';
+import Pagination from '@/components/common/Pagination'; 
 
 interface Airplane {
     airplane_id: string;
@@ -21,20 +22,23 @@ const AdminAirplane: React.FC = () => {
     const [allAirplanes, setAllAirplanes] = useState<Airplane[]>([]);
     const [currentAirplane, setCurrentAirplane] = useState<Airplane | null>(null);
     const [shouldFetch, setShouldFetch] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         const fetchAirplanes = async () => {
             try {
-                const res = await axios.get(`${API.AIRPLANE}`, {
+                const res = await axios.get(`${API.AIRPLANE}?page=${currentPage}`, {
                     withCredentials: true,
                 });
-                setAllAirplanes(res.data.metadata);
+                setAllAirplanes(res.data.metadata.airplanes); 
+                setTotalPages(res.data.metadata.totalPages); 
             } catch (err) {
                 toast.error("Error fetching airplanes");
             }
         };
         fetchAirplanes();
-    }, [shouldFetch]);
+    }, [shouldFetch, currentPage]);
 
     const openAddModal = () => {
         setIsAddModalOpen(true);
@@ -89,7 +93,7 @@ const AdminAirplane: React.FC = () => {
         } catch (err) {
             toast.error("Error deleting airplane");
         }
-    }
+    };
 
     return (
         <div className="min-h-screen flex bg-gray-100">
@@ -132,7 +136,7 @@ const AdminAirplane: React.FC = () => {
                                             >
                                                 <AiOutlineEdit className="mr-1" /> Edit
                                             </button>
-                                            <button 
+                                            <button
                                                 className="text-red-600 hover:text-red-800 flex items-center"
                                                 onClick={() => handleDeleteAirplane(airplane.airplane_id)}
                                             >
@@ -145,19 +149,40 @@ const AdminAirplane: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
+                <div className="mt-4 flex justify-center">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={(page: number) => setCurrentPage(page)}
+                    />
+                </div>
             </main>
 
-            {/* Add and Edit Modals */}
-            <AirplaneAddModal 
-                isOpen={isAddModalOpen} 
-                onClose={closeAddModal} 
-                onSubmit={(airplane: { name: string; model: string; total_business: number; total_economy: number; }) => handleAddAirplane(airplane as Airplane)} 
+            <AirplaneAddModal
+                isOpen={isAddModalOpen}
+                onClose={closeAddModal}
+                onSubmit={(airplane: { name: string; model: string; total_business: number; total_economy: number }) =>
+                    handleAddAirplane(airplane as Airplane)
+                }
             />
+
             <AirplaneEditModal
                 isOpen={isEditModalOpen}
                 onClose={closeEditModal}
-                airplaneData={currentAirplane as { airplane_id: string; name: string; model: string; total_business: number; total_economy: number; }}
-                onSubmit={(airplane: { airplane_id: string; name: string; model: string; total_business: number; total_economy: number; }) => handleEditAirplane(airplane as Airplane)}
+                airplaneData={currentAirplane as {
+                    airplane_id: string;
+                    name: string;
+                    model: string;
+                    total_business: number;
+                    total_economy: number;
+                }}
+                onSubmit={(airplane: {
+                    airplane_id: string;
+                    name: string;
+                    model: string;
+                    total_business: number;
+                    total_economy: number;
+                }) => handleEditAirplane(airplane as Airplane)}
             />
         </div>
     );

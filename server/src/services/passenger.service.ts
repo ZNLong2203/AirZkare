@@ -39,7 +39,11 @@ class PassengerService {
         return findPassenger;
     }
 
-    public async getAllPassenger(): Promise<object[]> {
+    public async getAllPassenger(page: number): Promise<object> {
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        const totalPassenger = await prisma.user.count();
         const findAllPassenger = await prisma.user.findMany({
             select: {
                 user_id: true,
@@ -50,7 +54,14 @@ class PassengerService {
             }
         })
 
-        return findAllPassenger;
+        const totalPages = Math.ceil(totalPassenger / limit);
+        const metadata = {
+            passengers: findAllPassenger,
+            totalPages: totalPages,
+            currentPage: page
+        }
+
+        return metadata;
     }
 
     public async updatePassenger(user_id: string, passengerData: Passenger): Promise<object> {

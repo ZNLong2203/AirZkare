@@ -5,13 +5,14 @@ import {
   // FaHotel,
   FaShieldAlt,
   FaEllipsisH,
+  FaExchangeAlt,
   FaPlane,
 } from "react-icons/fa";
 import { addDays, format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -33,12 +34,20 @@ interface IndexProps {
   className?: string;
 }
 
-const Index: React.FC<IndexProps> = ({ className }) => {
+const Index: React.FC<IndexProps> = () => {
   const router = useRouter();
   const [date, setDate] = useState<DateRange>({
-    from: new Date(2022, 0, 20),
-    to: addDays(new Date(2022, 0, 20), 20),
+    from: new Date(2024, 0, 20),
+    to: addDays(new Date(2024, 0, 20), 20),
   });
+  const [departure, setDeparture] = useState("Ha Noi");
+  const [arrival, setArrival] = useState("Paris");
+
+  const handleSwapLocations = () => {
+    const temp = departure;
+    setDeparture(arrival);
+    setArrival(temp);
+  };
 
   useEffect(() => {
     const token = router.query.token as string;
@@ -111,68 +120,90 @@ const Index: React.FC<IndexProps> = ({ className }) => {
 
       {/* Search Section */}
       <section className="mt-8 w-full flex justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-4 flex flex-col sm:flex-row justify-around items-center w-5/6 max-w-4xl">
-          <div className="flex flex-col mb-4 sm:mb-0">
-            <label className="text-gray-700 font-semibold mb-2">Departure</label>
-            <input
-              type="text"
-              placeholder="Ha Noi"
-              className="p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-          <div className="flex flex-col mb-4 sm:mb-0">
-            <label className="text-gray-700 font-semibold mb-2">Arrival</label>
-            <input
-              type="text"
-              placeholder="Paris"
-              className="p-2 border border-gray-300 rounded-lg"
-            />
-          </div>
-          <div className={cn("grid gap-2", className)}>
-            <label className="text-gray-700 font-semibold">Date</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  id="date"
-                  variant={"outline"}
-                  className={cn(
-                    "w-[300px] justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "LLL dd, y")} -{" "}
-                        {format(date.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(date.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={setDate as SelectRangeEventHandler}
-                  numberOfMonths={2}
+        <div className="bg-white rounded-lg shadow-lg p-6 w-5/6 max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Departure</label>
+              <div className="relative">
+                <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input
+                  type="text"
+                  value={departure}
+                  onChange={(e) => setDeparture(e.target.value)}
+                  className="pl-10"
+                  placeholder="Enter city"
                 />
-              </PopoverContent>
-            </Popover>
+              </div>
+            </div>
+            <div className="space-y-2 relative">
+              <label className="text-sm font-medium text-gray-700">Arrival</label>
+              <div className="relative">
+                <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <Input
+                  type="text"
+                  value={arrival}
+                  onChange={(e) => setArrival(e.target.value)}
+                  className="pl-10"
+                  placeholder="Enter city"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute right-0 top-8 transform translate-x-1/2 -translate-y-1/2 rounded-full"
+                onClick={handleSwapLocations}
+              >
+                <FaExchangeAlt className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    {/* <CalendarIcon className="h-4 w-4" /> */}
+                    {date?.from ? (
+                      date.to ? (
+                        <>
+                          {format(date.from, "LLL dd, y")} -{" "}
+                          {format(date.to, "LLL dd, y")}
+                        </>
+                      ) : (
+                        format(date.from, "LLL dd, y")
+                      )
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={setDate as SelectRangeEventHandler}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div className="space-y-2 flex items-end">
+              <Button 
+                className="w-full"
+                onClick={() => router.push('/booking/availability/come')}
+              >
+                Search Flights
+              </Button>
+            </div>
           </div>
-          <Button 
-            className="p-6 mt-6"
-            onClick={() => router.push('/booking/availability/come')}
-          >
-            Search
-          </Button>
         </div>
       </section>
 

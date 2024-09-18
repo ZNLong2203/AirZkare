@@ -1,6 +1,6 @@
 import React from 'react'
 import { AiOutlineBarChart, AiOutlineUser, AiOutlineFile, AiOutlineSetting } from 'react-icons/ai';
-import SideBarAdmin from '@/components/SideBarAdmin';
+import SideBarAdmin from '@/components/common/SideBarAdmin';
 import PieChart from '@/components/dashboard/PieChart';
 import LineChart from '@/components/dashboard/LineChart';
 

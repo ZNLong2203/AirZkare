@@ -2,6 +2,7 @@ import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
 import Select, { SingleValue, ActionMeta } from 'react-select';
 import { FaEdit } from 'react-icons/fa';
+import Image from 'next/image';
 import toast from 'react-hot-toast';
 import API from '@/constants/api';
 
@@ -57,12 +58,15 @@ const Profile: React.FC = () => {
     
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API.PASSENGER}/${userId}`);
+        const response = await axios.get(`${API.PASSENGER}/${userId}`, {
+          withCredentials: true,
+        });
         setUsers({
           ...response.data.metadata,
           username: response.data.metadata.user.username,
           email: response.data.metadata.user.email,
           role: response.data.metadata.user.role,
+          image: response.data.metadata.user.image,
         });
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -106,7 +110,6 @@ const Profile: React.FC = () => {
     }
   }, [users.country]);
 
-  // Handle input changes
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUsers((prevUser) => ({
@@ -115,7 +118,6 @@ const Profile: React.FC = () => {
     }));
   };
 
-  // Handle select changes
   const handleSelectChange = (selectedOption: SingleValue<Option>, action: ActionMeta<Option>) => {
     setUsers((prevUsers) => ({
       ...prevUsers,
@@ -123,7 +125,6 @@ const Profile: React.FC = () => {
     }));
   };
 
-  // Handle form submission
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -144,7 +145,6 @@ const Profile: React.FC = () => {
     setIsEditing(false);
   };
 
-  // Toggle edit mode
   const toggleEditMode = () => {
     setIsEditing((prevState) => !prevState);
   };
@@ -155,7 +155,6 @@ const Profile: React.FC = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold">Profile</h2>
           <div className="text-gray-500">
-            <span>{new Date().toLocaleDateString()}</span>
             <button
               className="ml-4 text-blue-600 hover:text-blue-800"
               onClick={toggleEditMode}
@@ -168,10 +167,13 @@ const Profile: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
           <div className="bg-gray-100 p-6 rounded-lg shadow-md">
             <div className="flex justify-center">
-              <img
+              <Image
                 className="w-32 h-32 rounded-full object-cover"
                 src={users.image || "https://i.pinimg.com/originals/c6/e5/65/c6e56503cfdd87da299f72dc416023d4.jpg"}
                 alt="User"
+                width={128} 
+                height={128} 
+                objectFit="cover"
               />
             </div>
             <h3 className="text-center mt-4 text-xl font-semibold mb-6">

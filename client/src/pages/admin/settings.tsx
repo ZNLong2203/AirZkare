@@ -1,5 +1,5 @@
 import { AiOutlineSave } from 'react-icons/ai';
-import SideBarAdmin from '@/components/SideBarAdmin';
+import SideBarAdmin from '@/components/common/SideBarAdmin';
 
 const AdminSettings = () => {
     return (

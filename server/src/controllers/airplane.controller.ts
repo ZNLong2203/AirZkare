@@ -22,7 +22,10 @@ class AirplaneController {
 
     public getAllAirplane = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const airplanes = await this.AirplaneService.getAllAirplane();
+            const { page } = req.query;
+            const pageNumber = parseInt(page as string) || 1; 
+
+            const airplanes = await this.AirplaneService.getAllAirplane(pageNumber);
 
             res.status(200).json({
                 message: "Successfully retrieved airplanes",

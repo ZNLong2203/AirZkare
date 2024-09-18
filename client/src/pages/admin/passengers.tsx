@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { AiOutlinePlus, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
-import SideBarAdmin from '@/components/SideBarAdmin';
+import SideBarAdmin from '@/components/common/SideBarAdmin';
 import API from '@/constants/api';
-import PassengerDetailsModal from '@/components/PassengerDetailsModal'; 
+import PassengerDetailsModal from '@/components/passenger/PassengerDetailsModal';
+import Pagination from '@/components/common/Pagination'; 
 
 interface Passenger {
     user_id: string;
@@ -22,10 +23,13 @@ interface Passenger {
     passport: string;
 }
 
+
 const AdminPassengers = () => {
     const [allPassengers, setAllPassengers] = useState<Passenger[]>([]);
     const [selectedPassenger, setSelectedPassenger] = useState<Passenger | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1); 
+    const [totalPages, setTotalPages] = useState(1); 
 
     useEffect(() => {
         const fetchPassengers = async () => {
@@ -33,7 +37,8 @@ const AdminPassengers = () => {
                 const res = await axios.get(`${API.PASSENGER}`, {
                     withCredentials: true,
                 });
-                setAllPassengers(res.data.metadata);
+                setAllPassengers(res.data.metadata.passengers);
+                setTotalPages(res.data.metadata.totalPages); 
             } catch (error) {
                 toast.error("Error fetching passengers");
             }
@@ -73,6 +78,8 @@ const AdminPassengers = () => {
         setIsModalOpen(false);
         setSelectedPassenger(null);
     };
+
+    const handlePageChange = (page: number) => setCurrentPage(page);
 
     return (
         <div className="min-h-screen flex bg-gray-100">
@@ -125,9 +132,15 @@ const AdminPassengers = () => {
                         </tbody>
                     </table>
                 </div>
+                <div className="mt-4 flex justify-center">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
+                </div>
             </main>
 
-            {/* Passenger Details Dialog */}
             <PassengerDetailsModal
                 isOpen={isModalOpen}
                 onClose={closeModal}

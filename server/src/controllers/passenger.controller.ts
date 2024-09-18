@@ -22,7 +22,10 @@ class PassengerController {
 
     public getAllPassenger = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const findAllPassenger = await this.passengerService.getAllPassenger();
+            const { page } = req.query
+            const pageNumber = parseInt(page as string) | 1;
+
+            const findAllPassenger = await this.passengerService.getAllPassenger(pageNumber);
 
             res.status(200).json({
                 message: 'Passengers fetched successfully',

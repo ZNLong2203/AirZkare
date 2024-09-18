@@ -3,8 +3,8 @@ import { StateProvider } from '@/redux/StateContext';
 import '../styles/globals.css';
 import Head from 'next/head';
 import { Toaster } from "react-hot-toast";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/common/Navbar";
+import Footer from "@/components/common/Footer";
 import { useRouter } from 'next/router';
 
 interface MyAppProps {
