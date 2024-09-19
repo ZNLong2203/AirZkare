@@ -2,27 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { AiOutlinePlus, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
+import { Passenger } from '@/schemas/Passenger';
 import SideBarAdmin from '@/components/common/SideBarAdmin';
 import API from '@/constants/api';
 import PassengerDetailsModal from '@/components/passenger/PassengerDetailsModal';
 import Pagination from '@/components/common/Pagination'; 
-
-interface Passenger {
-    user_id: string;
-    username: string;
-    email: string;
-    role: string;
-    phone: string;
-    age: number;
-    gender: string;
-    city: string;
-    country: string;
-    nationality: string;
-    membership: string;
-    dob: string;
-    passport: string;
-}
-
 
 const AdminPassengers = () => {
     const [allPassengers, setAllPassengers] = useState<Passenger[]>([]);

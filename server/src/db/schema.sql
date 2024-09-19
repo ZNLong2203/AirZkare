@@ -8,6 +8,10 @@ CREATE TYPE membership_type AS ENUM ('silver', 'gold', 'platinum');
 
 CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'cancelled');
 
+CREATE TYPE flight_type AS ENUM('non-stop', 'connecting');
+
+CREATE TYPE flight_status AS ENUM('on-time', 'delayed', 'cancelled', 'done')
+
 CREATE TABLE airport (
     airport_id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
@@ -27,6 +31,10 @@ CREATE TABLE flight (
     flight_id UUID PRIMARY KEY,
     airplane_id UUID REFERENCES airplane(airplane_id),
     code VARCHAR,
+    type VARCHAR DEFAULT 'non-stop',
+    status VARCHAR DEFAULT 'on-time'
+    price_business FLOAT,
+    price_economy FLOAT,
     departure_airport UUID REFERENCES airport(airport_id),
     arrival_airport UUID REFERENCES airport(airport_id),
     departure_time TIMESTAMP,
@@ -45,7 +53,6 @@ CREATE TABLE flight_seat (
     flight_seat_id UUID PRIMARY KEY,
     flight_id UUID REFERENCES flight(flight_id),
     seat_id UUID REFERENCES seat(seat_id),
-    price FLOAT,
     is_booked BOOLEAN DEFAULT FALSE
 );
 

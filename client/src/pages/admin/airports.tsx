@@ -2,18 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-hot-toast";
+import { Airport } from '@/schemas/Airport';
 import API from "@/constants/api";
 import SideBarAdmin from "@/components/common/SideBarAdmin";
 import AirportAddModal from "@/components/airport/AirportAddModal";
 import AirportEditModal from "@/components/airport/AirportEditModal";
 import Pagination from "@/components/common/Pagination";
-
-interface Airport {
-  airport_id: string;
-  code: string;
-  name: string;
-  location: string;
-}
 
 const AdminAirports = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);

@@ -9,6 +9,13 @@ class AirportService {
     public async createAirport(airportData: Airport): Promise<object> {
         if(!airportData) throw new HttpException(400, 'No data');
 
+        const existsAirport = await prisma.airport.findFirst({
+            where: {
+                code: airportData.code
+            }
+        })
+        if(existsAirport) throw new HttpException(401, 'Airport code it exists')
+
         const createAirport = await prisma.airport.create({
             data: {
                 ...airportData,

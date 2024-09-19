@@ -12,6 +12,9 @@ class FlightService {
         const duplicateFlight = await prisma.flight.findMany({
             where: {
                 airplane_id: flightData.airplane_id,
+                status: {
+                    in: ['on-time', 'delayed'],
+                }
             }
         })
 
@@ -31,10 +34,24 @@ class FlightService {
         return createFlight;
     }
 
-    public async getAllFlight(): Promise<object[]> {
-        const flights = await prisma.flight.findMany();
+    public async getAllFlight(page: number): Promise<object> {
+        const limit = 10;
+        const skip = (page - 1) * limit;
 
-        return flights;
+        const totalFlight = await prisma.flight.count();
+        const flights = await prisma.flight.findMany({
+            skip: skip,
+            take: limit
+        });
+
+        const totalPages = Math.ceil(totalFlight / limit);
+        const metadata = {
+            flights: flights,
+            totalPages: totalPages,
+            currentPage: page
+        }
+
+        return metadata;
     }
 
     public async deleteFlight(flight_id: string): Promise<void> {

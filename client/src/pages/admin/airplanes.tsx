@@ -2,19 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
+import { Airplane } from '@/schemas/Airplane'
 import API from '@/constants/api';
 import SideBarAdmin from '@/components/common/SideBarAdmin';
 import AirplaneAddModal from '@/components/airplane/AirPlaneAddModal';
 import AirplaneEditModal from '@/components/airplane/AirPlaneEditModal';
 import Pagination from '@/components/common/Pagination'; 
-
-interface Airplane {
-    airplane_id: string;
-    name: string;
-    model: string;
-    total_business: number;
-    total_economy: number;
-}
 
 const AdminAirplane: React.FC = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);

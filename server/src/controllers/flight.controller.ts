@@ -22,7 +22,10 @@ class FlightController {
 
     public getAllFlight = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const flights = await this.flightService.getAllFlight();
+            const { page } = req.query;
+            const pageNumber = parseInt(page as string) | 1;
+
+            const flights = await this.flightService.getAllFlight(pageNumber);
 
             res.status(200).json({
                 message: 'Flights fetched successfully',

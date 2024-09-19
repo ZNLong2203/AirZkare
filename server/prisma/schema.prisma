@@ -36,6 +36,10 @@ model flight {
   arrival_airport                           String?       @db.Uuid
   departure_time                            DateTime?     @db.Timestamp(6)
   arrival_time                              DateTime?     @db.Timestamp(6)
+  price_economy                             Float?
+  price_business                            Float?
+  type                                      String?       @default("non-stop") @db.VarChar
+  status                                    String?       @default("on-time") @db.VarChar
   airplane                                  airplane?     @relation(fields: [airplane_id], references: [airplane_id], onDelete: NoAction, onUpdate: NoAction)
   airport_flight_arrival_airportToairport   airport?      @relation("flight_arrival_airportToairport", fields: [arrival_airport], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
   airport_flight_departure_airportToairport airport?      @relation("flight_departure_airportToairport", fields: [departure_airport], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
@@ -103,7 +107,6 @@ model flight_seat {
   flight_seat_id String    @id @db.Uuid
   flight_id      String?   @db.Uuid
   seat_id        String?   @db.Uuid
-  price          Float?
   is_booked      Boolean?  @default(false)
   booking        booking[]
   flight         flight?   @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
@@ -136,4 +139,16 @@ enum seat_status {
 enum user_role {
   user
   admin
+}
+
+enum flight_status {
+  on_time   @map("on-time")
+  delayed
+  cancelled
+  done
+}
+
+enum flight_type {
+  non_stop   @map("non-stop")
+  connecting
 }
