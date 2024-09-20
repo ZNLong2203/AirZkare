@@ -3,7 +3,7 @@ import { FaPlane, FaUser, FaSignInAlt } from 'react-icons/fa';
 import Link from 'next/link';
 // import axios from 'axios';
 // import API from '../constants/api';
-// import { toast } from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router';
 
 const Navbar = () => {
@@ -47,6 +47,7 @@ const Navbar = () => {
         router.push('/').then(() => {
           window.location.reload();
         });
+        toast.success('Logout successful')
       // } else {
       //   toast.error('Error logging out');
       // }

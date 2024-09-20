@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import { Clock, Plane } from "lucide-react";
 import FlightInfoBar from "@/components/flight/FlightInfoBar";
+// import { useRouter } from 'next/router';
+import FlightUpgradeModal from "@/components/booking/FlightUpgradeModal";
 
 const initialFlights = [
   {
@@ -56,9 +59,12 @@ const initialFlights = [
 ];
 
 const SelectFlightPage: React.FC = () => {
+  // const router = useRouter();
   const [flights, setFlights] = useState(initialFlights);
   const [sortBy, setSortBy] = useState("departureTime");
   const [stopFilter, setStopFilter] = useState("all");
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false); 
+  const [selectedFlight, setSelectedFlight] = useState(null);
 
   const sortFlights = (criteria: string) => {
     const sortedFlights = [...flights].sort((a, b) => {
@@ -97,8 +103,19 @@ const SelectFlightPage: React.FC = () => {
     filterFlights(value);
   };
 
+  const handleSelectFlight = (flight: any) => {
+    setSelectedFlight(flight);
+    setIsUpgradeModalOpen(true); 
+  };
+
+  const handleConfirmUpgrade = () => {
+    console.log("Upgrade confirmed for flight:", selectedFlight);
+    setIsUpgradeModalOpen(false);
+    // router.push(`/checkout?flightId=${selectedFlight?.id}`);
+  };
+
   return (
-    <div className="min-h-screen container mx-auto p-4 space-y-4">
+    <div className="min-h-screen container mx-auto p-2 space-y-4">
       <FlightInfoBar />
       <div className="flex flex-col sm:flex-row gap-4 mb-10">
         <Select onValueChange={handleSortChange} value={sortBy}>
@@ -127,30 +144,21 @@ const SelectFlightPage: React.FC = () => {
           <CardContent className="p-0">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="p-4 flex flex-col justify-between">
+                {/* Flight details */}
                 <div className="flex justify-between items-center">
                   <div>
-                    <div className="text-lg font-bold">
-                      {flight.departure.time}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {flight.departure.code}
-                    </div>
+                    <div className="text-lg font-bold">{flight.departure.time}</div>
+                    <div className="text-sm text-muted-foreground">{flight.departure.code}</div>
                   </div>
                   <div className="text-center">
                     <Plane className="inline-block w-4 h-4 rotate-90" />
                     <div className="text-xs text-muted-foreground">
-                      {flight.stops === 0
-                        ? "Non-stop"
-                        : `${flight.stops} stops`}
+                      {flight.stops === 0 ? "Non-stop" : `${flight.stops} stops`}
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold">
-                      {flight.arrival.time}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {flight.arrival.code}
-                    </div>
+                    <div className="text-lg font-bold">{flight.arrival.time}</div>
+                    <div className="text-sm text-muted-foreground">{flight.arrival.code}</div>
                   </div>
                 </div>
                 <div className="mt-2 flex items-center justify-center text-sm text-muted-foreground">
@@ -163,56 +171,47 @@ const SelectFlightPage: React.FC = () => {
                   </div>
                   {flight.codeshare && (
                     <div>
-                      {flight.codeshare.flightNumber} Operated by{" "}
-                      {flight.codeshare.airline}
+                      {flight.codeshare.flightNumber} Operated by {flight.codeshare.airline}
                     </div>
                   )}
                 </div>
-                {flight.stopover && (
-                  <div className="mt-2 text-sm text-muted-foreground">
-                    <div className="flex items-center">
-                      <div className="w-4 h-4 rounded-full border-2 border-muted-foreground flex items-center justify-center mr-2">
-                        <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
-                      </div>
-                      {flight.stopover.code}
-                    </div>
-                    <div className="ml-6">{flight.stopover.duration}</div>
-                  </div>
-                )}
-                <div className="mt-2 text-sm text-blue-600 hover:underline cursor-pointer">
-                  Trip details
-                </div>
               </div>
-              <div className="bg-teal-800 text-white p-4 flex flex-col justify-between">
+              {/* Economy class selection */}
+              <div
+                className="bg-teal-800 text-white p-4 flex flex-col justify-between cursor-pointer"
+                onClick={() => handleSelectFlight(flight)}
+              >
                 <div className="text-lg font-bold">ECONOMY</div>
-                <div className="text-2xl font-bold">
-                  from {flight.economyPrice.toLocaleString()} VND
-                </div>
+                <div className="text-2xl font-bold">from {flight.economyPrice.toLocaleString()} VND</div>
                 <div className="text-sm">per passenger</div>
                 <Button variant="secondary" className="mt-2">
                   Select
                 </Button>
-                <div className="mt-2 text-sm">
-                  {flight.seatsLeft} seats left
-                </div>
+                <div className="mt-2 text-sm">{flight.seatsLeft} seats left</div>
               </div>
-              <div className="bg-yellow-500 text-black p-4 flex flex-col justify-between">
+              {/* Business class selection */}
+              <div
+                className="bg-yellow-500 text-black p-4 flex flex-col justify-between cursor-pointer"
+                onClick={() => handleSelectFlight(flight)}
+              >
                 <div className="text-lg font-bold">BUSINESS</div>
-                <div className="text-2xl font-bold">
-                  from {flight.businessPrice.toLocaleString()} VND
-                </div>
+                <div className="text-2xl font-bold">from {flight.businessPrice.toLocaleString()} VND</div>
                 <div className="text-sm">per passenger</div>
                 <Button variant="secondary" className="mt-2">
                   Select
                 </Button>
-                <div className="mt-2 text-sm">
-                  {flight.seatsLeft} seats left
-                </div>
+                <div className="mt-2 text-sm">{flight.seatsLeft} seats left</div>
               </div>
             </div>
           </CardContent>
         </Card>
       ))}
+      {/* Flight Upgrade Modal */}
+      <FlightUpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        onConfirmUpgrade={handleConfirmUpgrade}
+      />
     </div>
   );
 };

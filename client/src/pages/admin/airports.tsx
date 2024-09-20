@@ -5,8 +5,8 @@ import { toast } from "react-hot-toast";
 import { Airport } from '@/schemas/Airport';
 import API from "@/constants/api";
 import SideBarAdmin from "@/components/common/SideBarAdmin";
-import AirportAddModal from "@/components/airport/AirportAddModal";
-import AirportEditModal from "@/components/airport/AirportEditModal";
+import AirportAddModal from "@/components/airport/AirportAdminAddModal";
+import AirportEditModal from "@/components/airport/AirportAdminEditModal";
 import Pagination from "@/components/common/Pagination";
 
 const AdminAirports = () => {
