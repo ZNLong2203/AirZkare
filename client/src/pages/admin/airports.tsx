@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from "axios";
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-hot-toast";
@@ -8,77 +9,112 @@ import SideBarAdmin from "@/components/common/SideBarAdmin";
 import AirportAddModal from "@/components/airport/AirportAdminAddModal";
 import AirportEditModal from "@/components/airport/AirportAdminEditModal";
 import Pagination from "@/components/common/Pagination";
+import ErrorMessage from '@/components/common/ErrorMessageQuery';
+import LoadingQuery from '@/components/common/LoadingQuery';
+
+interface AirportResponse {
+  airports: Airport[];
+  totalPages: number;
+}
+
+const fetchAirports = async (page: number): Promise<AirportResponse> => {
+  const res = await axios.get(`${API.AIRPORT}?page=${page}`, { withCredentials: true });
+  return res.data.metadata;
+}
+
+const addAirport = async (airport: Omit<Airport, 'airport_id'>): Promise<Airport> => {
+  const res = await axios.post(`${API.AIRPORT}`, airport, { withCredentials: true });
+  return res.data;
+}
+
+const editAirport = async (airport: Airport): Promise<Airport> => {
+  const res = await axios.patch(`${API.AIRPORT}/${airport.airport_id}`, airport, { withCredentials: true });
+  return res.data;
+}
+
+const deleteAirport = async (airport_id: string): Promise<void> => {
+  await axios.delete(`${API.AIRPORT}/${airport_id}`, { withCredentials: true });
+}
 
 const AdminAirports = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [allAirports, setAllAirports] = useState<Airport[]>([]);
   const [currentAirport, setCurrentAirport] = useState<Airport | null>(null);
-  const [shouldFetch, setShouldFetch] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    const fetchAirports = async () => {
-      try {
-        const res = await axios.get(`${API.AIRPORT}`, {
-          withCredentials: true,
-        });
-        setAllAirports(res.data.metadata.airports);
-        setCurrentPage(res.data.currentPage);
-        setTotalPages(res.data.totalPages);
-      } catch (err) {
-        toast.error("Error fetching airports");
-      }
-    };
-    fetchAirports();
-  }, [shouldFetch]);
+  const queryClient = useQueryClient();
 
-  const openAddModal = () => setIsAddModalOpen(true);
-  const closeAddModal = () => setIsAddModalOpen(false);
+  const {
+    data,
+    error,
+    isError,
+    isLoading,
+  } = useQuery<AirportResponse, Error>({
+    queryKey: ['airports', currentPage],
+    queryFn: () => fetchAirports(currentPage)
+  })
+
+  const totalPages = data?.totalPages || 1;
+  const allAirports = data?.airports || [];
+
+  const addAirportMutation = useMutation<Airport, Error, Omit<Airport, 'airport_id'>>({
+    mutationFn: addAirport,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['airports'] });
+      toast.success('Airport added successfully');
+      setIsAddModalOpen(false);
+    },
+    onError: () => {
+      toast.error('Error adding airport');
+    },
+  })
+
+  const editAirportMutation = useMutation<Airport, Error, Airport>({
+    mutationFn: editAirport,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['airports'] });
+      toast.success('Airport edited successfully');
+      setIsEditModalOpen(false);
+    },
+    onError: () => {
+      toast.error('Error editing airport');
+    },
+  });
+
+  const deleteAirportMutation  = useMutation<void, Error, string>({
+    mutationFn: deleteAirport,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['airports'] });
+      toast.success('Airport deleted successfully');
+    },
+    onError: () => {
+      toast.error('Error deleting airport');
+    },
+  })
+
+  const openAddModal = () => {
+    setIsAddModalOpen(true);
+  }
+    
+  const closeAddModal = () => {
+    setIsAddModalOpen(false);
+  }
+
   const openEditModal = (airport: Airport) => {
     setCurrentAirport(airport);
     setIsEditModalOpen(true);
   };
-  const closeEditModal = () => setIsEditModalOpen(false);
 
-  const handleAddAirport = async (airport: Airport) => {
-    try {
-      await axios.post(`${API.AIRPORT}`, airport, { withCredentials: true });
-      toast.success("Airport added successfully");
-      setShouldFetch((prev) => !prev);
-      closeAddModal();
-    } catch (err) {
-      toast.error("Error adding airport");
-    }
-  };
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  }
 
-  const handleEditAirport = async (updatedAirport: Airport) => {
-    try {
-      await axios.patch(
-        `${API.AIRPORT}/${updatedAirport.airport_id}`,
-        updatedAirport,
-        { withCredentials: true }
-      );
-      toast.success("Airport edited successfully");
-      setShouldFetch((prev) => !prev);
-      closeEditModal();
-    } catch (err) {
-      toast.error("Error editing airport");
-    }
-  };
-
-  const handleDeleteAirport = async (airport_id: string) => {
-    try {
-      await axios.delete(`${API.AIRPORT}/${airport_id}`, {
-        withCredentials: true,
-      });
-      toast.success("Airport deleted successfully");
-      setShouldFetch((prev) => !prev);
-    } catch (err) {
-      toast.error("Error deleting airport");
-    }
-  };
+  if (isLoading) return <LoadingQuery />;
+  if (isError) {
+    console.error(error);
+    toast.error('Error fetching airports');
+    return <ErrorMessage message='Error fetching airports' />;
+  }
 
   return (
     <div className="min-h-screen flex bg-gray-100">
@@ -131,7 +167,7 @@ const AdminAirports = () => {
                       </button>
                       <button
                         className="text-red-600 hover:text-red-800 flex items-center"
-                        onClick={() => handleDeleteAirport(airport.airport_id)}
+                        onClick={() => deleteAirportMutation.mutate(airport.airport_id)}
                       >
                         <AiOutlineDelete className="mr-1" /> Delete
                       </button>
@@ -147,7 +183,7 @@ const AdminAirports = () => {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={setCurrentPage}
+            onPageChange={(page: number) => setCurrentPage(page)}
           />
         </div>
       </main>
@@ -155,28 +191,19 @@ const AdminAirports = () => {
       <AirportAddModal
         isOpen={isAddModalOpen}
         onClose={closeAddModal}
-        onSubmit={(airport: { code: string; name: string; location: string }) =>
-          handleAddAirport(airport as Airport)
+        onSubmit={(airportData: Omit<Airport, 'airport_id'>) =>
+          addAirportMutation.mutate(airportData)
         }
       />
-      <AirportEditModal
-        isOpen={isEditModalOpen}
-        onClose={closeEditModal}
-        airportData={
-          currentAirport as {
-            airport_id: string;
-            name: string;
-            code: string;
-            location: string;
-          }
-        }
-        onSubmit={(airport: {
-          airport_id: string;
-          name: string;
-          code: string;
-          location: string;
-        }) => handleEditAirport(airport as Airport)}
-      />
+      
+      {currentAirport && (
+        <AirportEditModal
+          isOpen={isEditModalOpen}
+          onClose={closeEditModal}
+          airportData={currentAirport}
+          onSubmit={(updatedAirport: Airport) => editAirportMutation.mutate(updatedAirport)}
+        />
+      )}
     </div>
   );
 }

@@ -3,17 +3,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Airport } from '@/schemas/Airport';
 
 interface AirportEditModalProps {
     isOpen: boolean;
     onClose: () => void;
-    airportData: {
-        airport_id: string;
-        name: string;
-        code: string;
-        location: string;
-    };
-    onSubmit: (data: { airport_id: string; code: string; name: string; location: string }) => void;
+    airportData: Airport;
+    onSubmit: (data: Airport) => void;
 }
 
 const AirportEditModal: FC<AirportEditModalProps> = ({ isOpen, onClose, airportData, onSubmit }) => {

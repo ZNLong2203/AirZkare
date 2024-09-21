@@ -6,11 +6,14 @@ import { Toaster } from "react-hot-toast";
 import Navbar from "@/components/common/Navbar";
 import Footer from "@/components/common/Footer";
 import { useRouter } from 'next/router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 interface MyAppProps {
   Component: React.ComponentType;
   pageProps: Record<string, unknown>;
 }
+
+const queryClient = new QueryClient();
 
 const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
   const router = useRouter();
@@ -25,16 +28,18 @@ const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
   }, []);
 
   return (
-    <StateProvider>
-      <Head>
-        <title>AirZkare</title>
-        <link rel="icon" href="/ZkareLogo.png" />
-      </Head>
-      <Toaster />
-      <Navbar />
-      <Component {...pageProps} />
-      {router.pathname !== '/admin' && <Footer />}
-    </StateProvider>
+    <QueryClientProvider client={queryClient}>
+      <StateProvider>
+        <Head>
+          <title>AirZkare</title>
+          <link rel="icon" href="/ZkareLogo.png" />
+        </Head>
+        <Toaster />
+        <Navbar />
+        <Component {...pageProps} />
+        {router.pathname !== '/admin' && <Footer />}
+      </StateProvider>
+    </QueryClientProvider>
   );
 }
 

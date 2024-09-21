@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
@@ -7,164 +8,202 @@ import API from '@/constants/api';
 import SideBarAdmin from '@/components/common/SideBarAdmin';
 import FlightAddModal from '@/components/flight/FlightAdminAddModal';
 import FlightEditModal from '@/components/flight/FlightAdminEditModal';
-import Pagination from '@/components/common/Pagination'; 
+import Pagination from '@/components/common/Pagination';
+import LoadingSpinner from '@/components/common/LoadingQuery';
+import ErrorMessage from '@/components/common/ErrorMessageQuery';
+
+interface FlightResponse {
+  flights: FlightWithDA[];
+  totalPages: number;
+}
+
+const fetchFlights = async (page: number): Promise<FlightResponse> => {
+  const res = await axios.get(`${API.FLIGHT}?page=${page}`, { withCredentials: true });
+  return res.data.metadata;
+};
+
+const addFlight = async (flight: FlightWithoutId): Promise<Flight> => {
+  const res = await axios.post(`${API.FLIGHT}`, flight, { withCredentials: true });
+  return res.data;
+};
+
+const editFlight = async (flight: Flight): Promise<Flight> => {
+  const res = await axios.put(`${API.FLIGHT}/${flight.flight_id}`, flight, {
+    withCredentials: true,
+  });
+  return res.data;
+};
+
+const deleteFlight = async (flight_id: string): Promise<void> => {
+  await axios.delete(`${API.FLIGHT}/${flight_id}`, { withCredentials: true });
+};
 
 const AdminFlights: React.FC = () => {
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [allFlights, setAllFlights] = useState<FlightWithDA[]>([]);
-    const [currentFlight, setCurrentFlight] = useState<Flight | null>(null);
-    const [shouldFetch, setShouldFetch] = useState(false);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [currentFlight, setCurrentFlight] = useState<Flight | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
-    // Fetch all flights from API
-    useEffect(() => {
-        const fetchFlights = async () => {
-            try {
-                const res = await axios.get(`${API.FLIGHT}?page=${currentPage}`, {
-                    withCredentials: true,
-                });
-                setAllFlights(res.data.metadata.flights);
-                setTotalPages(res.data.metadata.totalPages);
-            } catch (err) {
-                toast.error("Error fetching flights");
-            }
-        };
-        fetchFlights();
-    }, [shouldFetch, currentPage]);
+  const queryClient = useQueryClient();
 
-    const openAddModal = () => setIsAddModalOpen(true);
-    const closeAddModal = () => setIsAddModalOpen(false);
-    
-    const openEditModal = (flight: Flight) => {
-        setCurrentFlight(flight);
-        setIsEditModalOpen(true);
-    };
-    const closeEditModal = () => setIsEditModalOpen(false);
+  const {
+    data,
+    error,
+    isError,
+    isLoading,
+  } = useQuery<FlightResponse, Error>({
+    queryKey: ['flights', currentPage],
+    queryFn: () => fetchFlights(currentPage),
+  });
 
-    const handleAddFlight = async (flight: FlightWithoutId) => {
-        try {
-            await axios.post(`${API.FLIGHT}`, flight, {
-                withCredentials: true,
-            });
-            toast.success("Flight added successfully");
-            setShouldFetch(prev => !prev);
-            closeAddModal();
-        } catch (err) {
-            toast.error("Error adding flight");
-        }
-    };
+  const totalPages = data?.totalPages || 1;
+  const allFlights = data?.flights || [];
 
-    const handleEditFlight = async (updatedFlight: Flight) => {
-        try {
-            await axios.put(`${API.FLIGHT}/${updatedFlight.flight_id}`, updatedFlight, {
-                withCredentials: true,
-            });
-            toast.success("Flight edited successfully");
-            setShouldFetch(prev => !prev);
-            closeEditModal();
-        } catch (err) {
-            toast.error("Error editing flight");
-        }
-    };
+  const addFlightMutation = useMutation<Flight, Error, FlightWithoutId>({
+    mutationFn: addFlight,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flights'] });
+      toast.success('Flight added successfully');
+      setIsAddModalOpen(false);
+    },
+    onError: () => {
+      toast.error('Error adding flight');
+    },
+  });
 
-    const handleDeleteFlight = async (flight_id: string) => {
-        try {
-            await axios.delete(`${API.FLIGHT}/${flight_id}`, {
-                withCredentials: true,
-            });
-            toast.success("Flight deleted successfully");
-            setShouldFetch(prev => !prev);
-        } catch (err) {
-            toast.error("Error deleting flight");
-        }
-    };
+  const editFlightMutation = useMutation<Flight, Error, Flight>({
+    mutationFn: editFlight,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flights'] });
+      toast.success('Flight edited successfully');
+      setIsEditModalOpen(false);
+    },
+    onError: () => {
+      toast.error('Error editing flight');
+    },
+  });
 
-    return (
-        <div className="min-h-screen flex bg-gray-100">
-            <SideBarAdmin />
+  const deleteFlightMutation = useMutation<void, Error, string>({
+    mutationFn: deleteFlight,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['flights'] });
+      toast.success('Flight deleted successfully');
+    },
+    onError: () => {
+      toast.error('Error deleting flight');
+    },
+  });
 
-            <main className="flex-1 p-6">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-semibold text-gray-700">Manage Flights</h1>
-                    <button
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
-                        onClick={openAddModal}
-                    >
-                        <AiOutlinePlus className="mr-2" /> Add New Flight
-                    </button>
-                </div>
+  const openAddModal = () => setIsAddModalOpen(true);
+  const closeAddModal = () => setIsAddModalOpen(false);
 
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <table className="min-w-full table-auto">
-                        <thead>
-                            <tr className="bg-gray-200">
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Code</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Type</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Business Price</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Economy Price</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Departure</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Arrival</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Status</th>
-                                <th className="px-4 py-2 text-left text-gray-600 font-medium">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {allFlights.map((flight) => (
-                                <tr key={flight.flight_id} className="border-t">
-                                    <td className="px-4 py-2">{flight.code}</td>
-                                    <td className="px-4 py-2 capitalize">{flight.type}</td>
-                                    <td className="px-4 py-2">${flight.price_business}</td>
-                                    <td className="px-4 py-2">${flight.price_economy}</td>
-                                    <td className="px-4 py-2">{flight.airport_flight_departure_airportToairport.name}</td>
-                                    <td className="px-4 py-2">{flight.airport_flight_arrival_airportToairport.name}</td>
-                                    <td className="px-4 py-2 capitalize">{flight.status}</td>
-                                    <td className="px-4 py-2">
-                                        <div className="flex space-x-2">
-                                            <button
-                                                className="text-green-600 hover:text-green-800 flex items-center"
-                                                onClick={() => openEditModal(flight)}
-                                            >
-                                                <AiOutlineEdit className="mr-1" /> Edit
-                                            </button>
-                                            <button
-                                                className="text-red-600 hover:text-red-800 flex items-center"
-                                                onClick={() => handleDeleteFlight(flight.flight_id)}
-                                            >
-                                                <AiOutlineDelete className="mr-1" /> Delete
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+  const openEditModal = (flight: Flight) => {
+    setCurrentFlight(flight);
+    setIsEditModalOpen(true);
+  };
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setCurrentFlight(null);
+  };
 
-                <div className="mt-4 flex justify-center">
-                    <Pagination
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={(page: number) => setCurrentPage(page)}
-                    />
-                </div>
-            </main>
+  if (isLoading) return <LoadingSpinner />;
+  if (isError) {
+    console.error(error);
+    return <ErrorMessage message="Error fetching flights." />;
+  }
 
-            <FlightAddModal
-                isOpen={isAddModalOpen}
-                onClose={closeAddModal}
-                onSubmit={(flight: FlightWithoutId) => handleAddFlight(flight)}
-            />
+  return (
+    <div className="min-h-screen flex bg-gray-100">
+      <SideBarAdmin />
 
-            <FlightEditModal
-                isOpen={isEditModalOpen}
-                onClose={closeEditModal}
-                flightData={currentFlight as Flight}
-                onSubmit={(flight: Flight) => handleEditFlight(flight)}
-            />
+      <main className="flex-1 p-6">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-semibold text-gray-700">Manage Flights</h1>
+          <button
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
+            onClick={openAddModal}
+          >
+            <AiOutlinePlus className="mr-2" /> Add New Flight
+          </button>
         </div>
-    );
+
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <table className="min-w-full table-auto">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Code</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Type</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Business Price</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Economy Price</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Departure</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Arrival</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Status</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allFlights.map((flight) => (
+                <tr key={flight.flight_id} className="border-t hover:bg-gray-100">
+                  <td className="px-4 py-2">{flight.code}</td>
+                  <td className="px-4 py-2 capitalize">{flight.type}</td>
+                  <td className="px-4 py-2">${flight.price_business}</td>
+                  <td className="px-4 py-2">${flight.price_economy}</td>
+                  <td className="px-4 py-2">
+                    {flight.airport_flight_departure_airportToairport?.name}
+                  </td>
+                  <td className="px-4 py-2">
+                    {flight.airport_flight_arrival_airportToairport?.name}
+                  </td>
+                  <td className="px-4 py-2 capitalize">{flight.status}</td>
+                  <td className="px-4 py-2">
+                    <div className="flex space-x-4">
+                      <button
+                        className="text-green-600 hover:text-green-800 flex items-center"
+                        onClick={() => openEditModal(flight)}
+                      >
+                        <AiOutlineEdit className="mr-1" /> Edit
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800 flex items-center"
+                        onClick={() => deleteFlightMutation.mutate(flight.flight_id)}
+                      >
+                        <AiOutlineDelete className="mr-1" /> Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page: number) => setCurrentPage(page)}
+          />
+        </div>
+      </main>
+
+      {/* Add Flight Modal */}
+      <FlightAddModal
+        isOpen={isAddModalOpen}
+        onClose={closeAddModal}
+        onSubmit={(flightData: FlightWithoutId) => addFlightMutation.mutate(flightData)}
+      />
+
+      {/* Edit Flight Modal */}
+      {currentFlight && (
+        <FlightEditModal
+          isOpen={isEditModalOpen}
+          onClose={closeEditModal}
+          flightData={currentFlight}
+          onSubmit={(updatedFlight: Flight) => editFlightMutation.mutate(updatedFlight)}
+        />
+      )}
+    </div>
+  );
 };
 
 export default AdminFlights;
