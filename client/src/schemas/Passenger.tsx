@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
 export const PassengerSchema = z.object({
-    user_id: z.string(),
+    user_id: z.string().uuid().optional(),
     username: z.string(),
     email: z.string(),
     role: z.string(),

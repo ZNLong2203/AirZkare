@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
-import { Flight } from '@/schemas/Flight';
+import { Flight, FlightWithDA, FlightWithoutId } from '@/schemas/Flight';
 import API from '@/constants/api';
 import SideBarAdmin from '@/components/common/SideBarAdmin';
 import FlightAddModal from '@/components/flight/FlightAdminAddModal';
@@ -12,7 +12,7 @@ import Pagination from '@/components/common/Pagination';
 const AdminFlights: React.FC = () => {
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [allFlights, setAllFlights] = useState<Flight[]>([]);
+    const [allFlights, setAllFlights] = useState<FlightWithDA[]>([]);
     const [currentFlight, setCurrentFlight] = useState<Flight | null>(null);
     const [shouldFetch, setShouldFetch] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
@@ -43,7 +43,7 @@ const AdminFlights: React.FC = () => {
     };
     const closeEditModal = () => setIsEditModalOpen(false);
 
-    const handleAddFlight = async (flight: Flight) => {
+    const handleAddFlight = async (flight: FlightWithoutId) => {
         try {
             await axios.post(`${API.FLIGHT}`, flight, {
                 withCredentials: true,
@@ -117,8 +117,8 @@ const AdminFlights: React.FC = () => {
                                     <td className="px-4 py-2 capitalize">{flight.type}</td>
                                     <td className="px-4 py-2">${flight.price_business}</td>
                                     <td className="px-4 py-2">${flight.price_economy}</td>
-                                    <td className="px-4 py-2">{flight.departure_airport}</td>
-                                    <td className="px-4 py-2">{flight.arrival_airport}</td>
+                                    <td className="px-4 py-2">{flight.airport_flight_departure_airportToairport.name}</td>
+                                    <td className="px-4 py-2">{flight.airport_flight_arrival_airportToairport.name}</td>
                                     <td className="px-4 py-2 capitalize">{flight.status}</td>
                                     <td className="px-4 py-2">
                                         <div className="flex space-x-2">
@@ -154,7 +154,7 @@ const AdminFlights: React.FC = () => {
             <FlightAddModal
                 isOpen={isAddModalOpen}
                 onClose={closeAddModal}
-                onSubmit={(flight: Flight) => handleAddFlight(flight)}
+                onSubmit={(flight: FlightWithoutId) => handleAddFlight(flight)}
             />
 
             <FlightEditModal

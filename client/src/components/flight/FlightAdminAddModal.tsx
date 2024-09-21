@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
-import { FlightSchema, Flight } from '@/schemas/Flight';
+import { FlightSchemaWithoutId, FlightWithoutId } from '@/schemas/Flight';
 import { Airport } from '@/schemas/Airport';
 import { z } from 'zod';
 import axios from 'axios';
+import moment from 'moment';
 import API from '@/constants/api';
 import { toast } from 'react-hot-toast';
+import { PlaneIcon } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +17,7 @@ import { Label } from "@/components/ui/label"
 interface FlightAddModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (flight: Flight) => void;
+    onSubmit: (flight: FlightWithoutId) => void;
 }
 
 const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubmit }) => {
@@ -57,26 +59,32 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
 
     const handleSubmit = () => {
         try {
-            const validatedData = FlightSchema.parse({
+            const validatedData = FlightSchemaWithoutId.parse({
                 ...formData,
                 price_business: parseFloat(formData.price_business),
                 price_economy: parseFloat(formData.price_economy),
-                departure_time: new Date(formData.departure_time),
-                arrival_time: new Date(formData.arrival_time),
+                departure_time: new Date(moment(formData.departure_time).format('YYYY-MM-DD HH:mm:ss')),
+                arrival_time: new Date(moment(formData.arrival_time).format('YYYY-MM-DD HH:mm:ss')),
             });
             onSubmit(validatedData);
         } catch (error) {
+            console.log(error)
             if (error instanceof z.ZodError) {
                 toast.error('Invalid form data');
             }
         }
     };
 
+    if (!isOpen || !formData) return null;
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[600px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Flight</DialogTitle>
+                    <DialogTitle className='text-2xl font-bold flex items-center'>
+                        <PlaneIcon className="mr-2 h-6 w-6" />
+                        Add New Flight
+                    </DialogTitle>
                 </DialogHeader>
                 <div className="grid grid-cols-2 gap-4 py-4">
                     <div className="grid gap-2">
@@ -131,7 +139,7 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                             </SelectTrigger>
                             <SelectContent>
                                 {airports.map((airport) => (
-                                    <SelectItem key={airport.code} value={airport.code}>
+                                    <SelectItem key={airport.airport_id} value={airport.airport_id}>
                                         {airport.name} ({airport.code})
                                     </SelectItem>
                                 ))}
@@ -146,7 +154,7 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                             </SelectTrigger>
                             <SelectContent>
                                 {airports.map((airport) => (
-                                    <SelectItem key={airport.code} value={airport.code}>
+                                    <SelectItem key={airport.airport_id} value={airport.airport_id}>
                                         {airport.name} ({airport.code})
                                     </SelectItem>
                                 ))}

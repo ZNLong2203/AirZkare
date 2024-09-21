@@ -5,8 +5,8 @@ import { toast } from 'react-hot-toast';
 import { Airplane } from '@/schemas/Airplane'
 import API from '@/constants/api';
 import SideBarAdmin from '@/components/common/SideBarAdmin';
-import AirplaneAddModal from '@/components/airplane/AirPlaneAddModal';
-import AirplaneEditModal from '@/components/airplane/AirPlaneEditModal';
+import AirplaneAddModal from '@/components/airplane/AirPlaneAdminAddModal';
+import AirplaneEditModal from '@/components/airplane/AirPlaneAdminEditModal';
 import Pagination from '@/components/common/Pagination'; 
 
 const AdminAirplane: React.FC = () => {
@@ -119,8 +119,8 @@ const AdminAirplane: React.FC = () => {
                                 <tr key={airplane.airplane_id} className="border-t">
                                     <td className="px-4 py-2">{airplane.name}</td>
                                     <td className="px-4 py-2">{airplane.model}</td>
-                                    <td className="px-4 py-2">{airplane.total_business}</td>
-                                    <td className="px-4 py-2">{airplane.total_economy}</td>
+                                    <td className="px-4 py-2">{airplane.total_business} seats</td>
+                                    <td className="px-4 py-2">{airplane.total_economy} seats</td>
                                     <td className="px-4 py-2">
                                         <div className="flex space-x-2">
                                             <button

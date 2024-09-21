@@ -23,6 +23,8 @@ const AirportAddModal: FC<AirportAddModalProps> = ({ isOpen, onClose, onSubmit }
         onClose();
     };
 
+    if (!isOpen) return null;
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">

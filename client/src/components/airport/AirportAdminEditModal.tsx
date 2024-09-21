@@ -34,6 +34,8 @@ const AirportEditModal: FC<AirportEditModalProps> = ({ isOpen, onClose, airportD
         onClose();
     };
 
+    if (!isOpen) return null;
+
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[425px]">

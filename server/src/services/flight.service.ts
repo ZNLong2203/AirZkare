@@ -41,7 +41,11 @@ class FlightService {
         const totalFlight = await prisma.flight.count();
         const flights = await prisma.flight.findMany({
             skip: skip,
-            take: limit
+            take: limit,
+            include: {
+                airport_flight_departure_airportToairport: true,
+                airport_flight_arrival_airportToairport: true,
+            }
         });
 
         const totalPages = Math.ceil(totalFlight / limit);
