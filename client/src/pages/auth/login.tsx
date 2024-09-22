@@ -9,11 +9,11 @@ import { Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import API from '@/constants/api';
 import { getCookie } from '@/utils/getCookie';
-import { useStateProvider } from '@/redux/StateContext';
+import { useStore } from '@/store/useStore';
 
 const Login: React.FC = () => {
   const router = useRouter();
-  const { dispatch } = useStateProvider();
+  const { setUserInfo, setToken } = useStore();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
@@ -36,10 +36,10 @@ const Login: React.FC = () => {
       }, {
         withCredentials: true,
       });
-      dispatch({
-        type: "SET_USER_INFO",
-        userInfo: response.data.metadata,
-      })
+      
+      setUserInfo(response.data.metadata);
+      setToken(response.data.metadata.token, response.data.metadata.expire);
+
       localStorage.setItem('user_id', response.data.metadata.user_id);
       localStorage.setItem('token', response.data.metadata.token);
       localStorage.setItem('expire', response.data.metadata.expire);

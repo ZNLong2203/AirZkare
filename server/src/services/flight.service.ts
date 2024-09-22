@@ -58,6 +58,40 @@ class FlightService {
         return metadata;
     }
 
+    public async updateFlight(flight_id: string, flightData: Flight): Promise<object> {
+        if(!flight_id || !flightData) throw new HttpException(400, 'No data');
+
+        const existsFlight = await prisma.flight.findUnique({
+            where: {
+                flight_id: flight_id,
+            }
+        })
+        if(!existsFlight) throw new HttpException(404, `Flight with id ${flight_id} not found`);
+
+        const checkAirplane = await prisma.flight.findMany({
+            where: {
+                airplane_id: flightData.airplane_id,
+                status: {
+                    in: ['on-time', 'delayed'],
+                }
+            }
+        })
+        checkAirplane.forEach((flight) => {
+            if(flightData.departure_time >= flight.departure_time! && flightData.departure_time <= flight.arrival_time!) {
+                throw new HttpException(400, 'Airplane is already used');
+            }
+        })
+
+        const updatedFlight = await prisma.flight.update({
+            where: {
+                flight_id: flight_id,
+            },
+            data: flightData
+        })
+
+        return updatedFlight;
+    }
+
     public async deleteFlight(flight_id: string): Promise<void> {
         if(!flight_id) throw new HttpException(400, 'No flight id');
 

@@ -36,6 +36,22 @@ class FlightController {
         }
     }
 
+    public updateFlight = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { flight_id } = req.params;
+            const flightData: Flight = req.body;
+
+            const flights = await this.flightService.updateFlight(flight_id, flightData);
+
+            res.status(200).json({
+                message: 'Flight updated successfully',
+                metadata: flights,
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
+
     public deleteFlight = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { flight_id } = req.params;
