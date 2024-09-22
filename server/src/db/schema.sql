@@ -16,44 +16,44 @@ CREATE TABLE airport (
     airport_id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
     code VARCHAR NOT NULL UNIQUE,
-    location VARCHAR
+    location VARCHAR NOT NULL
 );
 
 CREATE TABLE airplane (
     airplane_id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
-    model VARCHAR,
-    total_business INT,
-    total_economy INT
+    model VARCHAR NOT NULL,
+    total_business INT NOT NULL,
+    total_economy INT NOT NULL
 );
 
 CREATE TABLE flight (
     flight_id UUID PRIMARY KEY,
-    airplane_id UUID REFERENCES airplane(airplane_id),
-    code VARCHAR,
+    airplane_id UUID REFERENCES airplane(airplane_id) NOT NULL,
+    code VARCHAR NOT NULL,
     type VARCHAR DEFAULT 'non-stop',
     status VARCHAR DEFAULT 'on-time'
-    price_business FLOAT,
-    price_economy FLOAT,
-    departure_airport UUID REFERENCES airport(airport_id),
-    arrival_airport UUID REFERENCES airport(airport_id),
-    departure_time TIMESTAMP,
-    arrival_time TIMESTAMP
+    price_business FLOAT NOT NULL,
+    price_economy FLOAT NOT NULL,
+    departure_airport UUID REFERENCES airport(airport_id) NOT NULL,
+    arrival_airport UUID REFERENCES airport(airport_id) NOT NULL,
+    departure_time TIMESTAMP NOT NULL,
+    arrival_time TIMESTAMP NOT NULL
 );
 
 CREATE TABLE seat (
     seat_id UUID PRIMARY KEY,
-    airplane_id UUID REFERENCES airplane(airplane_id),
-    number VARCHAR(10) NOT NULL,
-    class seat_class,
+    airplane_id UUID REFERENCES airplane(airplane_id) NOT NULL,
+    number VARCHAR(10) NOT NULL UNIQUE,
+    class seat_class NOT NULL,
     status seat_status DEFAULT 'available' 
 );
 
 CREATE TABLE flight_seat (
     flight_seat_id UUID PRIMARY KEY,
-    flight_id UUID REFERENCES flight(flight_id),
-    seat_id UUID REFERENCES seat(seat_id),
-    is_booked BOOLEAN DEFAULT FALSE
+    flight_id UUID REFERENCES flight(flight_id) NOT NULL,
+    seat_id UUID REFERENCES seat(seat_id) NOT NULL,
+    is_booked BOOLEAN DEFAULT FALSE 
 );
 
 CREATE TABLE "user" (
@@ -83,17 +83,17 @@ CREATE TABLE passenger (
 
 CREATE TABLE booking (
     booking_id UUID PRIMARY KEY,
-    user_id UUID REFERENCES "user"(user_id),
-    flight_seat_id UUID REFERENCES flight_seat(flight_seat_id),
-    price FLOAT,
-    time TIMESTAMP,
+    user_id UUID REFERENCES "user"(user_id) NOT NULL,
+    flight_seat_id UUID REFERENCES flight_seat(flight_seat_id) NOT NULL,
+    price FLOAT NOT NULL,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status booking_status DEFAULT 'pending' 
 );
 
 CREATE TABLE payment (
     payment_id UUID PRIMARY KEY,
-    booking_id UUID REFERENCES booking(booking_id),
+    booking_id UUID REFERENCES booking(booking_id) NOT NULL,
     method VARCHAR,
-    amount FLOAT,
-    time TIMESTAMP
+    amount FLOAT NOT NULL,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
