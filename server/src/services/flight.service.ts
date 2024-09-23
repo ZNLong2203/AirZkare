@@ -34,12 +34,22 @@ class FlightService {
         return createFlight;
     }
 
-    public async getAllFlight(page: number): Promise<object> {
+    public async getAllFlight(page: number, departure_airport: string, arrival_airport: string, departure_time: Date, arrival_time: Date): Promise<object> {
         const limit = 10;
         const skip = (page - 1) * limit;
 
-        const totalFlight = await prisma.flight.count();
+        const filters: any = {};
+        if(departure_airport) filters.departure_airport = departure_airport;
+        if(arrival_airport) filters.arrival_airport = arrival_airport;  
+        if(departure_time) filters.departure_time = departure_time;
+        if(arrival_time) filters.arrival_time = arrival_time;
+
+        const totalFlight = await prisma.flight.count({
+            where: filters,
+        });
+
         const flights = await prisma.flight.findMany({
+            where: filters,
             skip: skip,
             take: limit,
             include: {
@@ -56,6 +66,24 @@ class FlightService {
         }
 
         return metadata;
+    }
+
+    public async getFlightInfo(flight_id: string): Promise<object> {
+        if(!flight_id) throw new HttpException(400, 'No flight id');
+
+        const flight = await prisma.flight.findUnique({
+            where: {
+                flight_id: flight_id,
+            },
+            include: {
+                airport_flight_departure_airportToairport: true,
+                airport_flight_arrival_airportToairport: true,
+            }
+        })
+
+        if(!flight) throw new HttpException(404, `Flight with id ${flight_id} not found`);
+
+        return flight;
     }
 
     public async updateFlight(flight_id: string, flightData: Flight): Promise<object> {

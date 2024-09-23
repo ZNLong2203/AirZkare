@@ -22,14 +22,34 @@ class FlightController {
 
     public getAllFlight = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { page } = req.query;
-            const pageNumber = parseInt(page as string) | 1;
+            const { page, departure_airport, arrival_airport, departure_time, arrival_time } = req.query;
 
-            const flights = await this.flightService.getAllFlight(pageNumber);
+            const pageNumber = parseInt(page as string) || 1;
+            const departureAirportStr = departure_airport as string || '';
+            const arrivalAirportStr = arrival_airport as string || '';
+            const departureTimeDate = new Date(departure_time as string);
+            const arrivalTimeDate = new Date(arrival_time as string);
+
+            const flights = await this.flightService.getAllFlight(pageNumber, departureAirportStr, arrivalAirportStr, departureTimeDate, arrivalTimeDate);
 
             res.status(200).json({
                 message: 'Flights fetched successfully',
                 metadata: flights,
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    public getFlightInfo = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { flight_id } = req.params;
+
+            const flight = await this.flightService.getFlightInfo(flight_id);
+
+            res.status(200).json({
+                message: 'Flight fetched successfully',
+                metadata: flight,
             })
         } catch(err) {
             next(err);

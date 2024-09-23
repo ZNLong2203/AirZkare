@@ -19,20 +19,38 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Star, CreditCard, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { SelectRangeEventHandler } from "react-day-picker";
 
-interface Destination {
+interface PopularRoute {
   name: string;
-  date: string;
-  price: string;
   image: string;
 }
 
 interface IndexProps {
   className?: string;
 }
+
+const popularRoutes: PopularRoute[] = [
+  {
+    name: "Madrid",
+    image: "/Madrid.jfif",
+  },
+  {
+    name: "Oslo",
+    image: "/Oslo.jfif",
+  },
+  {
+    name: "Paris",
+    image: "/Paris.jpg",
+  },
+  {
+    name: "Germany",
+    image: "/Germany.jfif",
+  },
+];
 
 const Index: React.FC<IndexProps> = () => {
   const router = useRouter();
@@ -53,44 +71,15 @@ const Index: React.FC<IndexProps> = () => {
     const token = router.query.token as string;
     const user_id = router.query.user_id as string;
     const expire = router.query.expire as string;
-    if(token) {
-      localStorage.setItem('token', token);
-      localStorage.setItem('user_id', user_id);
-      localStorage.setItem('expire', expire);
-      router.push('/').then(() => {
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user_id", user_id);
+      localStorage.setItem("expire", expire);
+      router.push("/").then(() => {
         window.location.reload();
       });
     }
   }, [router.query.token, router]);
-
-  const destinations: Destination[] = [
-    {
-      name: "TP. Hồ Chí Minh đến Hà Nội",
-      date: "23/09/2024",
-      price: "1,540,000 VND",
-      image:
-        "https://cdn-images.vtv.vn/Uploaded/lanchi/2013_09_19/10-hinh-anh-dac-trung-cua-ha-noi-0.jpg",
-    },
-    {
-      name: "Hà Nội đến TP. Hồ Chí Minh",
-      date: "29/09/2024",
-      price: "1,540,000 VND",
-      image:
-        "https://vietair.com.vn/Media/Images/bieu-tuong-nuoc-nhat-2.jpg?p=1&w=412",
-    },
-    {
-      name: "TP. Hồ Chí Minh đến Đà Nẵng",
-      date: "10/11/2024",
-      price: "1,167,000 VND",
-      image: "https://airtour.vn/wp-content/uploads/2019/02/eiffel.jpg",
-    },
-    {
-      name: "Hà Nội đến Đà Nẵng",
-      date: "27/10/2024",
-      price: "1,153,000 VND",
-      image: "https://www.immica.org/uploads/images/hinh-anh-nuoc-my%20(2).jpg",
-    },
-  ];
 
   return (
     <div className="bg-white min-h-screen flex flex-col items-center">
@@ -123,7 +112,9 @@ const Index: React.FC<IndexProps> = () => {
         <div className="bg-white rounded-lg shadow-lg p-6 w-5/6 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Departure</label>
+              <label className="text-sm font-medium text-gray-700">
+                Departure
+              </label>
               <div className="relative">
                 <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <Input
@@ -136,7 +127,9 @@ const Index: React.FC<IndexProps> = () => {
               </div>
             </div>
             <div className="space-y-2 relative">
-              <label className="text-sm font-medium text-gray-700">Arrival</label>
+              <label className="text-sm font-medium text-gray-700">
+                Arrival
+              </label>
               <div className="relative">
                 <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <Input
@@ -196,9 +189,9 @@ const Index: React.FC<IndexProps> = () => {
               </Popover>
             </div>
             <div className="space-y-2 flex items-end">
-              <Button 
+              <Button
                 className="w-full"
-                onClick={() => router.push('/booking/availability/come')}
+                onClick={() => router.push("/booking/availability/come")}
               >
                 Search Flights
               </Button>
@@ -210,23 +203,23 @@ const Index: React.FC<IndexProps> = () => {
       {/* Navigation Section */}
       <section className="mt-8 w-full flex justify-center">
         <div className="flex space-x-4 bg-gray-100 py-2 px-4 rounded-lg shadow-lg">
-          <button 
+          <button
             className="text-blue-600 font-semibold flex items-center space-x-2"
-            onClick={() => router.push('/utilities/luggage')}
+            onClick={() => router.push("/utilities/luggage")}
           >
             <FaSuitcase className="text-xl" />
             <span>Luggage</span>
           </button>
-          <button 
+          <button
             className="text-blue-600 font-semibold flex items-center space-x-2"
-            onClick={() => router.push('/utilities/shopping')}
+            onClick={() => router.push("/utilities/shopping")}
           >
             <FaShoppingCart className="text-xl" />
             <span>Shopping</span>
           </button>
-          <button 
+          <button
             className="text-blue-600 font-semibold flex items-center space-x-2"
-            onClick={() => router.push('/utilities/insurance')}
+            onClick={() => router.push("/utilities/insurance")}
           >
             <FaShieldAlt className="text-xl" />
             <span>Insurance</span>
@@ -238,34 +231,58 @@ const Index: React.FC<IndexProps> = () => {
         </div>
       </section>
 
-      {/* Destinations Section */}
-      <section className="w-full max-w-7xl py-12 px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-        {destinations.map((destination) => (
+      <h2 className="text-3xl font-bold m-10">Popular Routes</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+        {popularRoutes.map((route) => (
           <div
-            key={destination.name}
-            className="bg-white rounded-lg shadow-lg overflow-hidden"
+            key={route.name}
+            className="rounded-lg overflow-hidden shadow-lg"
           >
-            <div className="relative h-48">
+            <div className="relative h-56 w-44">
               <Image
-                src={destination.image}
-                alt={destination.name}
-                fill
-                style={{ objectFit: "cover" }}
-                className="w-full h-full"
+                src={route.image}
+                alt={route.name}
+                layout="fill"
+                objectFit="cover"
               />
             </div>
-            <div className="p-4 text-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                {destination.name}
-              </h2>
-              <p className="text-sm text-gray-600">{destination.date}</p>
-              <p className="text-lg text-blue-500 font-semibold mt-2">
-                {destination.price}
-              </p>
+            <div className="p-4 bg-white">
+              <h3 className="text-xl font-semibold">{route.name}</h3>
             </div>
           </div>
         ))}
-      </section>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="text-center">
+          <Star className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+          <h3 className="text-xl font-semibold mb-2">
+            Guarantee of the best price
+          </h3>
+          <p className="text-gray-600">
+            We offer only the best deals, if you find the same flight cheaper
+            elsewhere, contact us!
+          </p>
+        </div>
+        <div className="text-center">
+          <CreditCard className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+          <h3 className="text-xl font-semibold mb-2">
+            Refunds & cancellations
+          </h3>
+          <p className="text-gray-600">
+            Your flight got cancelled? We have you covered with our instant
+            refund services.
+          </p>
+        </div>
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
+          <h3 className="text-xl font-semibold mb-2">Covid-19 information</h3>
+          <p className="text-gray-600">
+            Read about all the travel restrictions due to covid-19 that may
+            affect your flight.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
