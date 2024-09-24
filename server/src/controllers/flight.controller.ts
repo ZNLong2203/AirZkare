@@ -27,8 +27,34 @@ class FlightController {
             const pageNumber = parseInt(page as string) || 1;
             const departureAirportStr = departure_airport as string || '';
             const arrivalAirportStr = arrival_airport as string || '';
-            const departureTimeDate = new Date(departure_time as string);
-            const arrivalTimeDate = new Date(arrival_time as string);
+            let departureTimeDate: Date | undefined; 
+            let arrivalTimeDate: Date | undefined;
+
+            const convertToUTC = (dateString: string): Date | null => {
+                const localDate = new Date(dateString);
+                if (isNaN(localDate.getTime())) {
+                    return null;
+                }
+                return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+            };
+    
+            if (departure_time && typeof departure_time === 'string') {
+                const parsedDepartureTime = convertToUTC(departure_time);
+                if (parsedDepartureTime) {
+                    departureTimeDate = parsedDepartureTime;
+                } else {
+                    return res.status(400).json({ message: 'Departure date time type not valid' });
+                }
+            }
+    
+            if (arrival_time && typeof arrival_time === 'string') {
+                const parsedArrivalTime = convertToUTC(arrival_time);
+                if (parsedArrivalTime) {
+                    arrivalTimeDate = parsedArrivalTime;
+                } else {
+                    return res.status(400).json({ message: 'Arrival date time type not valid' });
+                }
+            }
 
             const flights = await this.flightService.getAllFlight(pageNumber, departureAirportStr, arrivalAirportStr, departureTimeDate, arrivalTimeDate);
 

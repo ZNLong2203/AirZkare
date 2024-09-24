@@ -34,13 +34,13 @@ class FlightService {
         return createFlight;
     }
 
-    public async getAllFlight(page: number, departure_airport: string, arrival_airport: string, departure_time: Date, arrival_time: Date): Promise<object> {
+    public async getAllFlight(page: number, departure_airport?: string, arrival_airport?: string, departure_time?: Date, arrival_time?: Date): Promise<object> {
         const limit = 10;
         const skip = (page - 1) * limit;
 
         const filters: any = {};
-        if(departure_airport) filters.departure_airport = departure_airport;
-        if(arrival_airport) filters.arrival_airport = arrival_airport;  
+        if(departure_airport != '') filters.departure_airport = departure_airport;
+        if(arrival_airport != '') filters.arrival_airport = arrival_airport;  
         if(departure_time) filters.departure_time = departure_time;
         if(arrival_time) filters.arrival_time = arrival_time;
 
