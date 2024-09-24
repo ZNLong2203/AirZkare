@@ -38,7 +38,7 @@ const seats: Seat[] = [
   { id: 24, class: 'Economy', reserved: false, label: '4F' },
 ]
 
-export default function Component() {
+const BookingSeat = () => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([])
 
   const handleSeatSelection = (seat: Seat) => {
@@ -216,3 +216,5 @@ export default function Component() {
     </div>
   )
 }
+
+export default BookingSeat

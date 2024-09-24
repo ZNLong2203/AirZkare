@@ -4,7 +4,7 @@ const Document: React.FC<DocumentProps> = () => {
   return (
     <Html lang="en">
       <Head />
-      <body className="min-h-screen bg-gray-100">
+      <body className="min-h-screen bg-gray-50">
         <Main />
         <NextScript />
       </body>

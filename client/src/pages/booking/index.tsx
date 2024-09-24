@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 
-export default function FlightBooking() {
+const FlightBooking = () => {
   const [tripType, setTripType] = useState("roundTrip");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -194,3 +194,5 @@ export default function FlightBooking() {
     </div>
   );
 }
+
+export default FlightBooking;

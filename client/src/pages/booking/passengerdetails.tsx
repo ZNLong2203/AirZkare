@@ -8,12 +8,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Plane, User, Phone, Mail, Flag, Shield } from "lucide-react"
 import { format } from "date-fns"
 
-export default function Component() {
+const PassengerDetails = () => {
   const [insuranceOption, setInsuranceOption] = useState("yes")
   const [date, setDate] = useState<Date>()
 
   return (
-    <div className="max-w-4xl mx-auto p-6 min-h-screen">
+    <div className="max-w-6xl mx-auto p-6 min-h-screen">
       <div className="mb-12 bg-white rounded-lg shadow-lg p-6 mt-6">
         <div className="flex justify-between items-center mb-6">
           {['Search', 'Choose flight', 'Choose fare', 'Passenger details', 'Payment'].map((step, index) => (
@@ -128,3 +128,5 @@ export default function Component() {
     </div>
   )
 }
+
+export default PassengerDetails

@@ -40,7 +40,6 @@ const AdminSettings = () => {
                                 <option value="GMT">GMT</option>
                                 <option value="EST">EST</option>
                                 <option value="PST">PST</option>
-                                {/* Add more timezones as needed */}
                             </select>
                         </div>
                         <button
