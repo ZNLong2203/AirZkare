@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Separator } from "@/components/ui/separator"
 import { Plane, Cloud, MapPin } from 'lucide-react'
+import { useRouter } from 'next/router'
 
 interface Seat {
   id: number
@@ -39,6 +40,7 @@ const seats: Seat[] = [
 ]
 
 const BookingSeat = () => {
+  const router = useRouter()
   const [selectedSeats, setSelectedSeats] = useState<number[]>([])
 
   const handleSeatSelection = (seat: Seat) => {
@@ -56,6 +58,10 @@ const BookingSeat = () => {
     if (classes.size === 2) return 'Mixed'
     return classes.values().next().value || ''
   }, [selectedSeats])
+
+  const handleCheckout = () => {
+    router.push('/booking/payment')
+  }
 
   const renderSeats = (seatClass: 'Business' | 'Economy') =>
     seats
@@ -103,7 +109,24 @@ const BookingSeat = () => {
         <Cloud className="absolute top-1/4 right-10 text-primary-foreground/20 w-24 h-24" />
         <Cloud className="absolute bottom-1/4 left-1/4 text-primary-foreground/20 w-16 h-16" />
       </div>
+
       <div className="max-w-6xl mx-auto py-12 px-4">
+        <div className="mb-6 bg-white rounded-lg shadow-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            {['Search', 'Choose flight', 'Passenger details', 'Choose seat', 'Payment'].map((step, index) => (
+              <div key={step} className="flex flex-col items-center">
+                <div className={`w-10 h-10 ${index <= 3 ? 'bg-indigo-500' : 'bg-gray-300'} rounded-full flex items-center justify-center text-white font-bold mb-2 transition-all duration-300 ease-in-out transform hover:scale-110`}>
+                  {index + 1}
+                </div>
+                <span className={`text-sm text-center ${index === 3 ? 'font-bold text-indigo-600' : 'text-gray-600'}`}>{step}</span>
+              </div>
+            ))}
+          </div>
+          <div className="h-2 bg-gray-200 rounded-full">
+            <div className="h-2 bg-indigo-500 rounded-full" style={{ width: '75%' }}></div>
+          </div>
+        </div>
+
         <div className="flex gap-6">
           <Card className="w-3/4 shadow-lg">
             <CardHeader className="bg-secondary">
@@ -191,6 +214,7 @@ const BookingSeat = () => {
                 <Button 
                   className="w-full bg-primary hover:bg-primary/90"
                   disabled={selectedSeats.length === 0}
+                  onClick={handleCheckout}
                 >
                   Proceed to Checkout
                 </Button>
@@ -199,7 +223,7 @@ const BookingSeat = () => {
           </Card>
         </div>
       </div>
-      <div className="bg-secondary text-secondary-foreground py-12 px-4 mt-12">
+      <div className="bg-secondary text-secondary-foreground py-12 px-4 mt-8">
         <div className="max-w-6xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <MapPin className="w-6 h-6" />

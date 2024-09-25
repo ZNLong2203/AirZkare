@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import API from "@/constants/api";
+import { toast } from "react-hot-toast";
 import {
   FaSuitcase,
   FaShoppingCart,
@@ -13,7 +16,6 @@ import { addDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import {
@@ -30,8 +32,17 @@ import {
 } from "@/components/ui/select";
 import { Star, CreditCard, AlertCircle } from "lucide-react";
 import Image from "next/image";
+import { useQuery } from "@tanstack/react-query";
+import { Airport } from "@/schemas/Airport";
+import LoadingQuery from "@/components/common/LoadingQuery";
+import ErrorMessage from "@/components/common/ErrorMessageQuery";
 import { useRouter } from "next/router";
 import { SelectRangeEventHandler } from "react-day-picker";
+
+interface AirportResponse {
+  airports: Airport[];
+  totalPages: number;
+}
 
 interface PopularRoute {
   name: string;
@@ -61,6 +72,11 @@ const popularRoutes: PopularRoute[] = [
   },
 ];
 
+const fetchAirports = async (): Promise<AirportResponse> => {
+  const res = await axios.get(`${API.AIRPORT}`, { withCredentials: true });
+  return res.data.metadata;
+}
+
 const Index: React.FC<IndexProps> = () => {
   const router = useRouter();
   const [date, setDate] = useState<DateRange>({
@@ -70,12 +86,6 @@ const Index: React.FC<IndexProps> = () => {
   const [departure, setDeparture] = useState("Ha Noi");
   const [arrival, setArrival] = useState("Paris");
   const [passengers, setPassengers] = useState("1");
-
-  const handleSwapLocations = () => {
-    const temp = departure;
-    setDeparture(arrival);
-    setArrival(temp);
-  };
 
   useEffect(() => {
     const token = router.query.token as string;
@@ -90,6 +100,25 @@ const Index: React.FC<IndexProps> = () => {
       });
     }
   }, [router.query.token, router]);
+
+  const handleSwapLocations = () => {
+    const temp = departure;
+    setDeparture(arrival);
+    setArrival(temp);
+  };
+
+  const { data, isError, isLoading } = useQuery<AirportResponse, Error>({
+    queryKey: ["airports"],
+    queryFn: () => fetchAirports(),
+  });
+
+  const allAirports = data?.airports || [];
+
+  if (isLoading) return <LoadingQuery />;
+  if (isError) {
+    toast.error('Error fetching airports');
+    return <ErrorMessage message='Error fetching airports' />;
+  }
 
   return (
     <div className="bg-white min-h-screen flex flex-col items-center">
@@ -119,117 +148,131 @@ const Index: React.FC<IndexProps> = () => {
 
       {/* Search Section */}
       <section className="mt-8 w-full flex justify-center">
-      <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
-          <div className="space-y-2">
-            <Label htmlFor="departure" className="text-sm font-medium text-gray-700">
-              Departure
-            </Label>
-            <div className="relative">
-              <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                id="departure"
-                type="text"
-                value={departure}
-                onChange={(e) => setDeparture(e.target.value)}
-                className="pl-10"
-                placeholder="Enter city"
-              />
-            </div>
-          </div>
-          <div className="space-y-2 relative">
-            <Label htmlFor="arrival" className="text-sm font-medium text-gray-700">
-              Arrival
-            </Label>
-            <div className="relative">
-              <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Input
-                id="arrival"
-                type="text"
-                value={arrival}
-                onChange={(e) => setArrival(e.target.value)}
-                className="pl-10"
-                placeholder="Enter city"
-              />
-            </div>
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute right-0 top-8 transform translate-x-1/2 -translate-y-1/2 rounded-full"
-              onClick={handleSwapLocations}
-            >
-              <FaExchangeAlt className="h-4 w-4" />
-            </Button>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="date" className="text-sm font-medium text-gray-700">Date</Label>
-            <Popover>
-              <PopoverTrigger asChild>
+        <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl">
+          {isLoading ? (
+            <div>Loading locations...</div>
+          ) : isError ? (
+            <div>Error loading locations</div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
+              <div className="space-y-2">
+                <Label htmlFor="departure" className="text-sm font-medium text-gray-700">
+                  Departure
+                </Label>
+                <div className="relative">
+                  <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Select value={departure} onValueChange={setDeparture}>
+                    <SelectTrigger id="departure" className="pl-10">
+                      <SelectValue placeholder="Select Departure" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allAirports.map((location) => (
+                        <SelectItem key={location.airport_id} value={location.location}>
+                          {location.location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2 relative">
+                <Label htmlFor="arrival" className="text-sm font-medium text-gray-700">
+                  Arrival
+                </Label>
+                <div className="relative">
+                  <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Select value={arrival} onValueChange={setArrival}>
+                    <SelectTrigger id="arrival" className="pl-10">
+                      <SelectValue placeholder="Select Arrival" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allAirports.map((location) => (
+                        <SelectItem key={location.airport_id} value={location.location}>
+                          {location.location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="absolute right-0 top-8 transform translate-x-1/2 -translate-y-1/2 rounded-full"
+                    onClick={handleSwapLocations}
+                  >
+                    <FaExchangeAlt className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-sm font-medium text-gray-700">Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="date"
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      {date?.from ? (
+                        date.to ? (
+                          <>
+                            {format(date.from, "LLL dd, y")} -{" "}
+                            {format(date.to, "LLL dd, y")}
+                          </>
+                        ) : (
+                          format(date.from, "LLL dd, y")
+                        )
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={date?.from}
+                      selected={date}
+                      onSelect={setDate as SelectRangeEventHandler}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="passengers" className="text-sm font-medium text-gray-700">
+                  Passengers
+                </Label>
+                <div className="relative">
+                  <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <Select value={passengers} onValueChange={setPassengers}>
+                    <SelectTrigger id="passengers" className="pl-10">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} {num === 1 ? "Passenger" : "Passengers"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
                 <Button
-                  id="date"
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
+                  className="w-full"
+                  onClick={() => router.push("/booking/availability/come")}
                 >
-                  {date?.from ? (
-                    date.to ? (
-                      <>
-                        {format(date.from, "LLL dd, y")} -{" "}
-                        {format(date.to, "LLL dd, y")}
-                      </>
-                    ) : (
-                      format(date.from, "LLL dd, y")
-                    )
-                  ) : (
-                    <span>Pick a date</span>
-                  )}
+                  Search Flights
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  initialFocus
-                  mode="range"
-                  defaultMonth={date?.from}
-                  selected={date}
-                  onSelect={setDate as SelectRangeEventHandler}
-                  numberOfMonths={2}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="passengers" className="text-sm font-medium text-gray-700">
-              Passengers
-            </Label>
-            <div className="relative">
-              <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <Select value={passengers} onValueChange={setPassengers}>
-                <SelectTrigger id="passengers" className="pl-10">
-                  <SelectValue placeholder="Select" />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num} {num === 1 ? "Passenger" : "Passengers"}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              </div>
             </div>
-          </div>
-          <div>
-            <Button
-              className="w-full"
-              onClick={() => router.push("/booking/availability/come")}
-            >
-              Search Flights
-            </Button>
-          </div>
+          )}
         </div>
-      </div>
-    </section>
+      </section>
 
       {/* Navigation Section */}
       <section className="mt-8 w-full flex justify-center">
@@ -273,8 +316,8 @@ const Index: React.FC<IndexProps> = () => {
               <Image
                 src={route.image}
                 alt={route.name}
-                layout="fill"
-                objectFit="cover"
+                fill
+                style={{ objectFit: "cover" }}
               />
             </div>
             <div className="p-4 bg-white">

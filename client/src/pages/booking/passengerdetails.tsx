@@ -7,26 +7,33 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { CalendarIcon, Plane, User, Phone, Mail, Flag, Shield } from "lucide-react"
 import { format } from "date-fns"
+import { useRouter } from 'next/router'
 
 const PassengerDetails = () => {
+  const router = useRouter()
   const [insuranceOption, setInsuranceOption] = useState("yes")
   const [date, setDate] = useState<Date>()
+
+  const handleSubmit = () => {
+    // e.preventDefault()
+    router.push('/booking/seat')
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6 min-h-screen">
       <div className="mb-12 bg-white rounded-lg shadow-lg p-6 mt-6">
         <div className="flex justify-between items-center mb-6">
-          {['Search', 'Choose flight', 'Choose fare', 'Passenger details', 'Payment'].map((step, index) => (
+          {['Search', 'Choose flight', 'Passenger details', 'Choose seat', 'Payment'].map((step, index) => (
             <div key={step} className="flex flex-col items-center">
-              <div className={`w-10 h-10 ${index <= 3 ? 'bg-indigo-500' : 'bg-gray-300'} rounded-full flex items-center justify-center text-white font-bold mb-2 transition-all duration-300 ease-in-out transform hover:scale-110`}>
+              <div className={`w-10 h-10 ${index <= 2 ? 'bg-indigo-500' : 'bg-gray-300'} rounded-full flex items-center justify-center text-white font-bold mb-2 transition-all duration-300 ease-in-out transform hover:scale-110`}>
                 {index + 1}
               </div>
-              <span className={`text-sm text-center ${index === 3 ? 'font-bold text-indigo-600' : 'text-gray-600'}`}>{step}</span>
+              <span className={`text-sm text-center ${index === 2 ? 'font-bold text-indigo-600' : 'text-gray-600'}`}>{step}</span>
             </div>
           ))}
         </div>
         <div className="h-2 bg-gray-200 rounded-full">
-          <div className="h-2 bg-indigo-500 rounded-full" style={{ width: '75%' }}></div>
+          <div className="h-2 bg-indigo-500 rounded-full" style={{ width: '50%' }}></div>
         </div>
       </div>
 
@@ -120,7 +127,11 @@ const PassengerDetails = () => {
             </RadioGroup>
           </div>
 
-          <Button className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105">
+          <Button 
+            type="button"
+            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105"
+            onClick={handleSubmit}
+          >
             Continue to Payment
           </Button>
         </form>

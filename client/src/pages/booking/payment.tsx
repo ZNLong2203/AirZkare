@@ -37,7 +37,7 @@ const PaymentPage = () => {
       {/* Progress Bar */}
       <div className="mb-12 bg-white rounded-lg shadow-lg p-6 mt-6">
         <div className="flex justify-between items-center mb-6">
-          {["Search", "Choose flight", "Choose fare", "Passenger details", "Payment"].map(
+          {["Search", "Choose flight", "Passenger details", "Choose seat", "Payment"].map(
             (step, index) => (
               <div key={step} className="flex flex-col items-center">
                 <div

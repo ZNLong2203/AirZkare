@@ -1,7 +1,13 @@
 import { useState } from "react";
+import axios from "axios";
+import API from "@/constants/api";
+import { useQuery } from '@tanstack/react-query';
+import { toast } from "react-hot-toast";
+import { Airport } from "@/schemas/Airport";
+import LoadingQuery from "@/components/common/LoadingQuery";
+import ErrorMessage from "@/components/common/ErrorMessageQuery";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
@@ -20,8 +26,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
+import { useRouter } from "next/router";
+
+interface AirportResponse {
+  airports: Airport[];
+  totalPages: number;
+}
+
+const fetchAirports = async () => {
+  const res = await axios.get(`${API.AIRPORT}`, { withCredentials: true });
+  return res.data.metadata;
+}
 
 const FlightBooking = () => {
+  const router = useRouter();
   const [tripType, setTripType] = useState("roundTrip");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -29,17 +47,39 @@ const FlightBooking = () => {
   const [returnDate, setReturnDate] = useState<Date | undefined>();
   const [passengers, setPassengers] = useState("1");
 
-  const handleSearch = (e: React.FormEvent) => {
+  const { data, isError, isLoading } = useQuery<AirportResponse, Error>({
+    queryKey: ["airports"],
+    queryFn: () => fetchAirports(),
+  });
+
+  const allAirports = data?.airports || [];
+
+  if (isLoading) return <LoadingQuery />;
+  if (isError) {
+    toast.error('Error fetching airports');
+    return <ErrorMessage message='Error fetching airports' />;
+  }
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Call the flight search API here
-    console.log("Searching for flights with the following information:", {
-      tripType,
+    if (!origin || !destination || !departDate) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    const searchParams = new URLSearchParams({
       origin,
       destination,
-      departDate,
-      returnDate,
+      departDate: departDate!.toISOString(),
+      tripType,
       passengers,
     });
+
+    if (tripType === "roundTrip" && returnDate) {
+      searchParams.set("returnDate", returnDate.toISOString());
+    }
+
+    router.push(`/booking/availability/come?${searchParams.toString()}`);
   };
 
   return (
@@ -83,36 +123,48 @@ const FlightBooking = () => {
             </RadioGroup>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Origin Field */}
               <div className="space-y-2">
                 <Label htmlFor="origin">Origin</Label>
                 <div className="relative">
                   <Plane className="absolute left-2 top-3 h-4 w-4 opacity-50 ml-2" />
-                  <Input
-                    id="origin"
-                    placeholder="City or Airport"
-                    value={origin}
-                    onChange={(e) => setOrigin(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
+                  <Select value={origin} onValueChange={setOrigin}>
+                    <SelectTrigger id="origin" className="pl-10">
+                      <SelectValue placeholder="Select Origin" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allAirports.map((airport) => (
+                        <SelectItem key={airport.airport_id} value={airport.code}>
+                          {airport.location}, ({airport.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+
+              {/* Destination Field */}
               <div className="space-y-2">
                 <Label htmlFor="destination">Destination</Label>
                 <div className="relative">
                   <Plane className="absolute left-2 top-3 h-4 w-4 opacity-50 ml-2" />
-                  <Input
-                    id="destination"
-                    placeholder="City or Airport"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
+                  <Select value={destination} onValueChange={setDestination}>
+                    <SelectTrigger id="destination" className="pl-10">
+                      <SelectValue placeholder="Select Destination" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allAirports.map((airport) => (
+                        <SelectItem key={airport.airport_id} value={airport.code}>
+                          {airport.location}, ({airport.code})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
 
+            {/* Date Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="departDate">Departure Date</Label>
@@ -166,6 +218,7 @@ const FlightBooking = () => {
               )}
             </div>
 
+            {/* Passengers Field */}
             <div className="space-y-2">
               <Label htmlFor="passengers">Number of Passengers</Label>
               <div className="relative">

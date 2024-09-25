@@ -14,7 +14,7 @@ class AirportRoute implements Routes {
 
     private initializeRoutes() {
         this.router.post(`${this.path}`, authMiddleware, this.airportController.createAirport);
-        this.router.get(`${this.path}`, authMiddleware, this.airportController.getAllAirport);
+        this.router.get(`${this.path}`, this.airportController.getAllAirport);
         this.router.patch(`${this.path}/:airport_id`, authMiddleware, this.airportController.editAirport);
         this.router.delete(`${this.path}/:airport_id`, authMiddleware, this.airportController.deleteAirport);
     }
