@@ -3,11 +3,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Airplane } from "@/schemas/Airplane";
 
 interface AirplaneAddModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onSubmit: (airplane: { name: string; model: string; total_business: number; total_economy: number }) => void;
+    onSubmit: (airplane: Omit<Airplane, 'airplane_id'>) => void;
 }
 
 const AirplaneAddModal: FC<AirplaneAddModalProps> = ({ isOpen, onClose, onSubmit }) => {
@@ -17,11 +18,11 @@ const AirplaneAddModal: FC<AirplaneAddModalProps> = ({ isOpen, onClose, onSubmit
     const [totalEconomy, setTotalEconomy] = useState<number>(0);
 
     const handleSubmit = () => {
-        onSubmit({ 
-            name: airplaneName, 
-            model: airplaneModel, 
-            total_business: totalBusiness, 
-            total_economy: totalEconomy 
+        onSubmit({
+            name: airplaneName,
+            model: airplaneModel,
+            total_business: totalBusiness,
+            total_economy: totalEconomy,
         });
         setAirplaneName('');
         setAirplaneModel('');

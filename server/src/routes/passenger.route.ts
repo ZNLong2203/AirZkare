@@ -15,7 +15,7 @@ class PassengerRoute implements Routes {
     private initializeRoutes() {
         this.router.get(`${this.path}/:user_id`, authMiddleware, this.passengerController.getPassengerInfo);
         this.router.get(`${this.path}`, authMiddleware, this.passengerController.getAllPassenger);
-        this.router.patch(`${this.path}/:user_id`, authMiddleware, this.passengerController.updatePassenger);
+        this.router.put(`${this.path}/:user_id`, authMiddleware, this.passengerController.updatePassenger);
         this.router.delete(`${this.path}/:user_id`, authMiddleware, this.passengerController.deletePassenger);
     }
 }

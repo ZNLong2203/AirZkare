@@ -5,6 +5,7 @@ import { FaEdit } from 'react-icons/fa';
 import Image from 'next/image';
 import toast from 'react-hot-toast';
 import API from '@/constants/api';
+import moment from 'moment';
 
 interface User {
   username: string | null;
@@ -128,16 +129,20 @@ const Profile: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { city, country, username, email, role, image, user , ...userData } = users;
+    const { city, country, username, email, role, dob, image, user, nationality, ...userData } = users;
     const updatedUserData = {
       ...userData,
+      dob: moment(users.dob).format('YYYY-MM-DD'),
+      nationality: nationality?.label,
       city: city?.label,
       country: country?.label
     };
     console.log(updatedUserData);
 
     try {
-      await axios.patch(`${API.PASSENGER}/${userId}`, updatedUserData);
+      await axios.put(`${API.PASSENGER}/${userId}`, updatedUserData, {
+        withCredentials: true,
+      });
       toast.success('User data updated successfully');
     } catch (err) {
       toast.error('Failed to update user data');
@@ -286,7 +291,7 @@ const Profile: React.FC = () => {
                 <div className="font-semibold">Gender:</div>
                 <div>{users.gender}</div>
                 <div className="font-semibold">Date of Birth:</div>
-                <div>{users.dob}</div>
+                <div>{moment(users.dob).format('DD-MM-YYYY')}</div>
                 <div className="font-semibold">Phone Number:</div>
                 <div>{users.phone}</div>
                 <div className="font-semibold">Passport:</div>

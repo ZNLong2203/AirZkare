@@ -7,43 +7,69 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model airplane {
+  airplane_id    String   @id @db.Uuid
+  name           String   @db.VarChar
+  model          String   @db.VarChar
+  total_business Int
+  total_economy  Int
+  flight         flight[]
+  seat           seat[]
+}
+
 model airport {
   airport_id                               String   @id @db.Uuid
   name                                     String   @db.VarChar
   code                                     String   @unique @db.VarChar
-  location                                 String?  @db.VarChar
+  location                                 String   @db.VarChar
   flight_flight_arrival_airportToairport   flight[] @relation("flight_arrival_airportToairport")
   flight_flight_departure_airportToairport flight[] @relation("flight_departure_airportToairport")
 }
 
 model booking {
-  booking_id     String          @id @db.Uuid
-  user_id        String?         @db.Uuid
-  flight_seat_id String?         @db.Uuid
-  price          Float?
-  time           DateTime?       @db.Timestamp(6)
-  status         booking_status? @default(pending)
-  flight_seat    flight_seat?    @relation(fields: [flight_seat_id], references: [flight_seat_id], onDelete: NoAction, onUpdate: NoAction)
-  user           user?           @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  booking_id     String           @id @db.Uuid
+  user_id        String           @db.Uuid
+  status         booking_status?  @default(pending)
+  time           DateTime?        @default(now()) @db.Timestamp(6)
+  user           user             @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  booking_flight booking_flight[]
   payment        payment[]
+}
+
+model booking_flight {
+  booking_flight_id String                 @id @db.Uuid
+  booking_id        String                 @db.Uuid
+  flight_seat_id    String                 @db.Uuid
+  flight_type       booking_flight_status? @default(outbound)
+  booking           booking                @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
+  flight_seat       flight_seat            @relation(fields: [flight_seat_id], references: [flight_seat_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model flight {
   flight_id                                 String        @id @db.Uuid
-  airplane_id                               String?       @db.Uuid
-  code                                      String?       @db.VarChar
-  departure_airport                         String?       @db.Uuid
-  arrival_airport                           String?       @db.Uuid
-  departure_time                            DateTime?     @db.Timestamp(6)
-  arrival_time                              DateTime?     @db.Timestamp(6)
-  price_economy                             Float?
-  price_business                            Float?
+  airplane_id                               String        @db.Uuid
+  code                                      String        @db.VarChar
   type                                      String?       @default("non-stop") @db.VarChar
   status                                    String?       @default("on-time") @db.VarChar
-  airplane                                  airplane?     @relation(fields: [airplane_id], references: [airplane_id], onDelete: NoAction, onUpdate: NoAction)
-  airport_flight_arrival_airportToairport   airport?      @relation("flight_arrival_airportToairport", fields: [arrival_airport], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
-  airport_flight_departure_airportToairport airport?      @relation("flight_departure_airportToairport", fields: [departure_airport], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
+  price_business                            Float
+  price_economy                             Float
+  departure_airport                         String        @db.Uuid
+  arrival_airport                           String        @db.Uuid
+  departure_time                            DateTime      @db.Timestamp(6)
+  arrival_time                              DateTime      @db.Timestamp(6)
+  airplane                                  airplane      @relation(fields: [airplane_id], references: [airplane_id], onDelete: NoAction, onUpdate: NoAction)
+  airport_flight_arrival_airportToairport   airport       @relation("flight_arrival_airportToairport", fields: [arrival_airport], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
+  airport_flight_departure_airportToairport airport       @relation("flight_departure_airportToairport", fields: [departure_airport], references: [airport_id], onDelete: NoAction, onUpdate: NoAction)
   flight_seat                               flight_seat[]
+}
+
+model flight_seat {
+  flight_seat_id String           @id @db.Uuid
+  flight_id      String           @db.Uuid
+  seat_id        String           @db.Uuid
+  booking_flight booking_flight[]
+  flight         flight           @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
+  seat           seat             @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model passenger {
@@ -63,21 +89,20 @@ model passenger {
 
 model payment {
   payment_id String    @id @db.Uuid
-  booking_id String?   @db.Uuid
+  booking_id String    @db.Uuid
   method     String?   @db.VarChar
-  amount     Float?
-  time       DateTime? @db.Timestamp(6)
-  booking    booking?  @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
+  amount     Float
+  time       DateTime? @default(now()) @db.Timestamp(6)
+  booking    booking   @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model seat {
   seat_id     String        @id @db.Uuid
-  airplane_id String?       @db.Uuid
-  number      String        @db.VarChar(10)
-  class       seat_class?
-  status      seat_status?  @default(available)
+  airplane_id String        @db.Uuid
+  number      String        @unique @db.VarChar(10)
+  class       seat_class
   flight_seat flight_seat[]
-  airplane    airplane?     @relation(fields: [airplane_id], references: [airplane_id], onDelete: NoAction, onUpdate: NoAction)
+  airplane    airplane      @relation(fields: [airplane_id], references: [airplane_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model user {
@@ -85,38 +110,35 @@ model user {
   username      String      @unique @db.VarChar
   password      String      @db.VarChar
   email         String      @unique @db.VarChar
+  image         String?     @db.VarChar
   provider      String?     @db.VarChar
   provider_code String?     @db.VarChar
   role          user_role?  @default(user)
-  image         String?     @db.VarChar
   booking       booking[]
   passenger     passenger[]
 }
 
-model airplane {
-  airplane_id    String   @id @db.Uuid
-  name           String   @db.VarChar
-  model          String?  @db.VarChar
-  total_business Int?
-  total_economy  Int?
-  flight         flight[]
-  seat           seat[]
-}
-
-model flight_seat {
-  flight_seat_id String    @id @db.Uuid
-  flight_id      String?   @db.Uuid
-  seat_id        String?   @db.Uuid
-  is_booked      Boolean?  @default(false)
-  booking        booking[]
-  flight         flight?   @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
-  seat           seat?     @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
+enum booking_flight_status {
+  outbound
+  inbound
 }
 
 enum booking_status {
   pending
   confirmed
   cancelled
+}
+
+enum flight_status {
+  on_time   @map("on-time")
+  delayed
+  cancelled
+  done
+}
+
+enum flight_type {
+  non_stop   @map("non-stop")
+  connecting
 }
 
 enum membership_type {
@@ -130,25 +152,7 @@ enum seat_class {
   business
 }
 
-enum seat_status {
-  available
-  booked
-  maintenance
-}
-
 enum user_role {
   user
   admin
-}
-
-enum flight_status {
-  on_time   @map("on-time")
-  delayed
-  cancelled
-  done
-}
-
-enum flight_type {
-  non_stop   @map("non-stop")
-  connecting
 }

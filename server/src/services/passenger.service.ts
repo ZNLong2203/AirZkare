@@ -73,6 +73,7 @@ class PassengerService {
             },
             data: {
                 ...passengerData,
+                dob: new Date(passengerData.dob),
             }
         });
         if(!updatePassenger) throw new HttpException(409, 'Failed to update passenger');

@@ -24,6 +24,7 @@ class AirplaneService {
         })
 
         const columnEconomy = ['A', 'B', 'C', 'D', 'E', 'F'];
+        if(airplaneData.total_economy % 6 != 0 || airplaneData.total_economy < 0) throw new HttpException(400, 'Total economy must be divisible by 6');
         await prisma.seat.createMany({
             data: airplaneData.total_economy % 6 == 0 ? Array.from({ length: airplaneData.total_economy }, (_, index) => {
                 return {
@@ -31,12 +32,12 @@ class AirplaneService {
                     airplane_id: createdAirplane.airplane_id,
                     number: `${Math.floor(index / columnEconomy.length) + 1}${columnEconomy[index % columnEconomy.length]}`,
                     class: 'economy',
-                    status: 'available'
                 }
             }) : []
         })
 
-        const columnBusiness = ['A', 'B'];
+        const columnBusiness = ['A', 'B', 'C', 'D'];
+        if(airplaneData.total_business % 4 != 0 || airplaneData.total_business < 0) throw new HttpException(400, 'Total business must be divisible by 4');
         await prisma.seat.createMany({
             data: airplaneData.total_business % 4 == 0 ? Array.from({ length: airplaneData.total_business }, (_, index) => {
                 return {
@@ -44,7 +45,6 @@ class AirplaneService {
                     airplane_id: createdAirplane.airplane_id,
                     number: `${Math.floor(index / columnBusiness.length) + 1}${columnBusiness[index % columnBusiness.length]}`,
                     class: 'business',
-                    status: 'available'
                 }
             }) : []
         })
@@ -107,7 +107,6 @@ class AirplaneService {
                             airplane_id: airplane_id,
                             number: `${startNum + index}${columnEconomy[index % columnEconomy.length]}`,
                             class: 'economy',
-                            status: 'available'
                         }
                     })
                 })
@@ -138,7 +137,7 @@ class AirplaneService {
         // Change Business Seat if change total_business
         if(airplaneData.total_business != existsAirplane.total_business && existsAirplane.total_business != undefined) {
             const diff = airplaneData.total_business - existsAirplane.total_business;
-            const columnBusiness = ['A', 'B'];
+            const columnBusiness = ['A', 'B', 'C', 'D'];
 
             if(diff > 0) {
                 const startNum = (existsAirplane.total_business / 4) + 1;
@@ -149,7 +148,6 @@ class AirplaneService {
                             airplane_id: airplane_id,
                             number: `${startNum + index}${columnBusiness[index % columnBusiness.length]}`,
                             class: 'business',
-                            status: 'available'
                         }
                     })
                 })

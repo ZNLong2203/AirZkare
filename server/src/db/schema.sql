@@ -1,16 +1,16 @@
 CREATE TYPE seat_class AS ENUM ('economy', 'business');
 
-CREATE TYPE seat_status AS ENUM ('available', 'booked', 'maintenance');
-
 CREATE TYPE user_role AS ENUM ('user', 'admin');
 
 CREATE TYPE membership_type AS ENUM ('silver', 'gold', 'platinum');
 
 CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'cancelled');
 
+CREATE TYPE booking_flight_status AS ENUM ('outbound', 'inbound');
+
 CREATE TYPE flight_type AS ENUM('non-stop', 'connecting');
 
-CREATE TYPE flight_status AS ENUM('on-time', 'delayed', 'cancelled', 'done')
+CREATE TYPE flight_status AS ENUM('on-time', 'delayed', 'cancelled', 'done');
 
 CREATE TABLE airport (
     airport_id UUID PRIMARY KEY,
@@ -32,7 +32,7 @@ CREATE TABLE flight (
     airplane_id UUID REFERENCES airplane(airplane_id) NOT NULL,
     code VARCHAR NOT NULL,
     type VARCHAR DEFAULT 'non-stop',
-    status VARCHAR DEFAULT 'on-time'
+    status VARCHAR DEFAULT 'on-time',
     price_business FLOAT NOT NULL,
     price_economy FLOAT NOT NULL,
     departure_airport UUID REFERENCES airport(airport_id) NOT NULL,
@@ -44,16 +44,14 @@ CREATE TABLE flight (
 CREATE TABLE seat (
     seat_id UUID PRIMARY KEY,
     airplane_id UUID REFERENCES airplane(airplane_id) NOT NULL,
-    number VARCHAR(10) NOT NULL UNIQUE,
-    class seat_class NOT NULL,
-    status seat_status DEFAULT 'available' 
+    number VARCHAR(10) NOT NULL,
+    class seat_class NOT NULL
 );
 
 CREATE TABLE flight_seat (
     flight_seat_id UUID PRIMARY KEY,
     flight_id UUID REFERENCES flight(flight_id) NOT NULL,
-    seat_id UUID REFERENCES seat(seat_id) NOT NULL,
-    is_booked BOOLEAN DEFAULT FALSE 
+    seat_id UUID REFERENCES seat(seat_id) NOT NULL
 );
 
 CREATE TABLE "user" (
@@ -84,10 +82,8 @@ CREATE TABLE passenger (
 CREATE TABLE booking (
     booking_id UUID PRIMARY KEY,
     user_id UUID REFERENCES "user"(user_id) NOT NULL,
-    flight_seat_id UUID REFERENCES flight_seat(flight_seat_id) NOT NULL,
-    price FLOAT NOT NULL,
-    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status booking_status DEFAULT 'pending' 
+    status booking_status DEFAULT 'pending', 
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE payment (
@@ -96,4 +92,11 @@ CREATE TABLE payment (
     method VARCHAR,
     amount FLOAT NOT NULL,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE booking_flight (
+    booking_flight_id UUID PRIMARY KEY,
+    booking_id UUID REFERENCES booking(booking_id) NOT NULL,
+    flight_seat_id UUID REFERENCES flight_seat(flight_seat_id) NOT NULL,
+    flight_type booking_flight_status DEFAULT 'outbound'
 );
