@@ -53,14 +53,21 @@ class FlightService {
             skip: skip,
             take: limit,
             include: {
+                airplane: true,
                 airport_flight_departure_airportToairport: true,
                 airport_flight_arrival_airportToairport: true,
             }
         });
 
+        // Add duration calculation for each flight
+        // const enrichedFlights = flights.map(flight => ({
+        //     ...flight,
+        //     duration: Math.floor((new Date(flight.arrival_time).getTime() - new Date(flight.departure_time).getTime()) / (1000 * 60)), // Duration in minutes
+        // }));
+
         const totalPages = Math.ceil(totalFlight / limit);
         const metadata = {
-            flights: flights,
+            flights: flights ,
             totalPages: totalPages,
             currentPage: page
         }

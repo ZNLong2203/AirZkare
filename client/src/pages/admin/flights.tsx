@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
-import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
 import { Flight, FlightWithDA, FlightWithoutId } from '@/schemas/Flight';
 import API from '@/constants/api';
 import SideBarAdmin from '@/components/common/SideBarAdmin';
 import FlightAddModal from '@/components/flight/FlightAdminAddModal';
 import FlightEditModal from '@/components/flight/FlightAdminEditModal';
+import FlightDetailsModal from '@/components/flight/FlightAdminViewModal';
 import Pagination from '@/components/common/Pagination';
 import LoadingSpinner from '@/components/common/LoadingQuery';
 import ErrorMessage from '@/components/common/ErrorMessageQuery';
@@ -41,17 +42,14 @@ const deleteFlight = async (flight_id: string): Promise<void> => {
 const AdminFlights: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [currentFlightWithDA, setCurrentFlightWithDA] = useState<FlightWithDA | null>(null);
   const [currentFlight, setCurrentFlight] = useState<Flight | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
   const queryClient = useQueryClient();
 
-  const {
-    data,
-    error,
-    isError,
-    isLoading,
-  } = useQuery<FlightResponse, Error>({
+  const { data, error, isError, isLoading } = useQuery<FlightResponse, Error>({
     queryKey: ['flights', currentPage],
     queryFn: () => fetchFlights(currentPage),
   });
@@ -106,6 +104,15 @@ const AdminFlights: React.FC = () => {
     setCurrentFlight(null);
   };
 
+  const openViewModal = (flight: FlightWithDA) => {
+    setCurrentFlightWithDA(flight);
+    setIsViewModalOpen(true); 
+  };
+  const closeViewModal = () => {
+    setIsViewModalOpen(false);
+    setCurrentFlightWithDA(null);
+  };
+
   if (isLoading) return <LoadingSpinner />;
   if (isError) {
     console.error(error);
@@ -132,9 +139,8 @@ const AdminFlights: React.FC = () => {
             <thead>
               <tr className="bg-gray-200">
                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Code</th>
+                <th className="px-4 py-2 text-left text-gray-600 font-medium">Airplane</th>
                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Type</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Business Price</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Economy Price</th>
                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Departure</th>
                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Arrival</th>
                 <th className="px-4 py-2 text-left text-gray-600 font-medium">Status</th>
@@ -145,9 +151,8 @@ const AdminFlights: React.FC = () => {
               {allFlights.map((flight) => (
                 <tr key={flight.flight_id} className="border-t hover:bg-gray-100">
                   <td className="px-4 py-2">{flight.code}</td>
+                  <td className="px-4 py-2">{flight.airplane.name}</td>
                   <td className="px-4 py-2 capitalize">{flight.type}</td>
-                  <td className="px-4 py-2">${flight.price_business}</td>
-                  <td className="px-4 py-2">${flight.price_economy}</td>
                   <td className="px-4 py-2">
                     {flight.airport_flight_departure_airportToairport?.name}
                   </td>
@@ -157,6 +162,12 @@ const AdminFlights: React.FC = () => {
                   <td className="px-4 py-2 capitalize">{flight.status}</td>
                   <td className="px-4 py-2">
                     <div className="flex space-x-4">
+                      <button
+                        className="text-blue-600 hover:text-blue-800 flex items-center"
+                        onClick={() => openViewModal(flight)}
+                      >
+                        <AiOutlineEye className="mr-1" /> View
+                      </button>
                       <button
                         className="text-green-600 hover:text-green-800 flex items-center"
                         onClick={() => openEditModal(flight)}
@@ -200,6 +211,15 @@ const AdminFlights: React.FC = () => {
           onClose={closeEditModal}
           flightData={currentFlight}
           onSubmit={(updatedFlight: Flight) => editFlightMutation.mutate(updatedFlight)}
+        />
+      )}
+
+      {/* View Details Modal */}
+      {currentFlightWithDA && (
+        <FlightDetailsModal
+          isOpen={isViewModalOpen}
+          onClose={closeViewModal}
+          flightData={currentFlightWithDA}
         />
       )}
     </div>

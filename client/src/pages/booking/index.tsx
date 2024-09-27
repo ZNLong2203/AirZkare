@@ -4,6 +4,7 @@ import API from "@/constants/api";
 import { useQuery } from '@tanstack/react-query';
 import { toast } from "react-hot-toast";
 import { Airport } from "@/schemas/Airport";
+import useFlightSearchStore from "@/store/useFlightSearchStore";
 import LoadingQuery from "@/components/common/LoadingQuery";
 import ErrorMessage from "@/components/common/ErrorMessageQuery";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ const fetchAirports = async () => {
 
 const FlightBooking = () => {
   const router = useRouter();
+  const setFlightSearch = useFlightSearchStore((state) => state.setFlightSearch);
   const [tripType, setTripType] = useState("roundTrip");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
@@ -67,19 +69,26 @@ const FlightBooking = () => {
       return;
     }
 
-    const searchParams = new URLSearchParams({
-      origin,
-      destination,
-      departDate: departDate!.toISOString(),
-      tripType,
-      passengers,
-    });
-
-    if (tripType === "roundTrip" && returnDate) {
-      searchParams.set("returnDate", returnDate.toISOString());
+    if(tripType === "roundTrip") {
+      setFlightSearch({
+        departure_airport: origin,
+        arrival_airport: destination,
+        departure_time: departDate,
+        arrival_time: returnDate,
+        type: tripType,
+        passengers,
+      });
+    } else {
+      setFlightSearch({
+        departure_airport: origin,
+        arrival_airport: destination,
+        departure_time: departDate,
+        type: tripType,
+        passengers,
+      });
     }
 
-    router.push(`/booking/availability/come?${searchParams.toString()}`);
+    router.push(`/booking/availability/come`);
   };
 
   return (
@@ -134,7 +143,7 @@ const FlightBooking = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {allAirports.map((airport) => (
-                        <SelectItem key={airport.airport_id} value={airport.code}>
+                        <SelectItem key={airport.airport_id} value={airport.airport_id}>
                           {airport.location}, ({airport.code})
                         </SelectItem>
                       ))}
@@ -154,7 +163,7 @@ const FlightBooking = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {allAirports.map((airport) => (
-                        <SelectItem key={airport.airport_id} value={airport.code}>
+                        <SelectItem key={airport.airport_id} value={airport.airport_id}>
                           {airport.location}, ({airport.code})
                         </SelectItem>
                       ))}

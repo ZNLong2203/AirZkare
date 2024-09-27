@@ -1,18 +1,18 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from 'react';
 import { FlightSchemaWithoutId, FlightWithoutId } from '@/schemas/Flight';
 import { Airport } from '@/schemas/Airport';
+import { Airplane } from '@/schemas/Airplane';
 import { z } from 'zod';
 import axios from 'axios';
 import moment from 'moment';
 import API from '@/constants/api';
 import { toast } from 'react-hot-toast';
-import { PlaneIcon } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
+import { PlaneIcon } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 interface FlightAddModalProps {
     isOpen: boolean;
@@ -31,22 +31,25 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
         departure_time: '',
         arrival_time: '',
         status: 'on-time',
+        airplane_id: '',  
     });
     const [airports, setAirports] = useState<Airport[]>([]);
+    const [airplanes, setAirplanes] = useState<Airplane[]>([]);
 
     useEffect(() => {
-        if(isOpen) {
-            const fetchAirport = async() => {
+        if (isOpen) {
+            const fetchData = async () => {
                 try {
-                    const res = await axios.get(`${API.AIRPORT}`, {
-                        withCredentials: true,
-                    })
-                    setAirports(res.data.metadata.airports);
-                } catch(err) {
-                    toast.error("Error fetching airplanes");
+                    const airportRes = await axios.get(`${API.AIRPORT}`, { withCredentials: true });
+                    const airplaneRes = await axios.get(`${API.AIRPLANE}`, { withCredentials: true });
+
+                    setAirports(airportRes.data.metadata.airports);
+                    setAirplanes(airplaneRes.data.metadata.airplanes);
+                } catch (err) {
+                    toast.error("Error fetching data");
                 }
             }
-            fetchAirport();
+            fetchData();
         }
     }, [isOpen]);
 
@@ -68,7 +71,6 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
             });
             onSubmit(validatedData);
         } catch (error) {
-            console.log(error)
             if (error instanceof z.ZodError) {
                 toast.error('Invalid form data');
             }
@@ -99,13 +101,41 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="type">Type</Label>
-                        <Select name="type" value={formData.type} onValueChange={(value) => handleChange({ target: { name: 'type', value } } as any)}>
+                        <Select name="type" value={formData.type} onValueChange={(value) => handleChange({ target: { name: 'type', value } } as React.ChangeEvent<HTMLInputElement>)}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select flight type" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="non-stop">Non-stop</SelectItem>
                                 <SelectItem value="connecting">Connecting</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="airplane">Airplane</Label>
+                        <Select name="airplane_id" value={formData.airplane_id} onValueChange={(value) => handleChange({ target: { name: 'airplane_id', value } } as React.ChangeEvent<HTMLInputElement>)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select Airplane" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {airplanes.map((airplane) => (
+                                    <SelectItem key={airplane.airplane_id} value={airplane.airplane_id}>
+                                        {airplane.name} ({airplane.model})
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="status">Status</Label>
+                        <Select name="status" value={formData.status} onValueChange={(value) => handleChange({ target: { name: 'status', value } } as React.ChangeEvent<HTMLInputElement>)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select flight status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="on-time">On-time</SelectItem>
+                                <SelectItem value="delayed">Delayed</SelectItem>
+                                <SelectItem value="cancelled">Cancelled</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -133,7 +163,7 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="departure_airport">Departure Airport</Label>
-                        <Select name="departure_airport" value={formData.departure_airport} onValueChange={(value) => handleChange({ target: { name: 'departure_airport', value } } as any)}>
+                        <Select name="departure_airport" value={formData.departure_airport} onValueChange={(value) => handleChange({ target: { name: 'departure_airport', value } } as React.ChangeEvent<HTMLInputElement>)}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select Departure Airport" />
                             </SelectTrigger>
@@ -148,7 +178,7 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="arrival_airport">Arrival Airport</Label>
-                        <Select name="arrival_airport" value={formData.arrival_airport} onValueChange={(value) => handleChange({ target: { name: 'arrival_airport', value } } as any)}>
+                        <Select name="arrival_airport" value={formData.arrival_airport} onValueChange={(value) => handleChange({ target: { name: 'arrival_airport', value } } as React.ChangeEvent<HTMLInputElement>)}>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select Arrival Airport" />
                             </SelectTrigger>
@@ -180,19 +210,6 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                             value={formData.arrival_time}
                             onChange={handleChange}
                         />
-                    </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="status">Status</Label>
-                        <Select name="status" value={formData.status} onValueChange={(value) => handleChange({ target: { name: 'status', value } } as any)}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select flight status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="on-time">On-time</SelectItem>
-                                <SelectItem value="delayed">Delayed</SelectItem>
-                                <SelectItem value="cancelled">Cancelled</SelectItem>
-                            </SelectContent>
-                        </Select>
                     </div>
                 </div>
                 <div className="flex justify-end space-x-4">

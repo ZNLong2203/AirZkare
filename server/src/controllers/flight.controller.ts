@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { Flight } from "../interfaces/flight.interface";
 import FlightService from "../services/flight.service";
+import moment from "moment";
 
 class FlightController {
     private flightService = new FlightService();
@@ -8,6 +9,7 @@ class FlightController {
     public createFlight = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const flightData: Flight = req.body;
+            console.log(flightData);
 
             const createFlight = await this.flightService.createFlight(flightData);
 
@@ -30,30 +32,11 @@ class FlightController {
             let departureTimeDate: Date | undefined; 
             let arrivalTimeDate: Date | undefined;
 
-            const convertToUTC = (dateString: string): Date | null => {
-                const localDate = new Date(dateString);
-                if (isNaN(localDate.getTime())) {
-                    return null;
-                }
-                return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
-            };
-    
-            if (departure_time && typeof departure_time === 'string') {
-                const parsedDepartureTime = convertToUTC(departure_time);
-                if (parsedDepartureTime) {
-                    departureTimeDate = parsedDepartureTime;
-                } else {
-                    return res.status(400).json({ message: 'Departure date time type not valid' });
-                }
+            if(departure_time) {
+                departureTimeDate = moment(departure_time as string).toDate();
             }
-    
-            if (arrival_time && typeof arrival_time === 'string') {
-                const parsedArrivalTime = convertToUTC(arrival_time);
-                if (parsedArrivalTime) {
-                    arrivalTimeDate = parsedArrivalTime;
-                } else {
-                    return res.status(400).json({ message: 'Arrival date time type not valid' });
-                }
+            if(arrival_time) {
+                arrivalTimeDate = moment(arrival_time as string).toDate();
             }
 
             const flights = await this.flightService.getAllFlight(pageNumber, departureAirportStr, arrivalAirportStr, departureTimeDate, arrivalTimeDate);
