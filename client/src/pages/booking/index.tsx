@@ -71,18 +71,23 @@ const FlightBooking = () => {
 
     if(tripType === "roundTrip") {
       setFlightSearch({
-        departure_airport: origin,
-        arrival_airport: destination,
-        departure_time: departDate,
-        arrival_time: returnDate,
+        departure_come_airport: origin,
+        arrival_come_airport: destination,
+        departure_come_time: departDate,
+
+        departure_return_airport: destination,
+        arrival_return_airport: origin,
+        departure_return_time: returnDate,
+
         type: tripType,
         passengers,
       });
     } else {
       setFlightSearch({
-        departure_airport: origin,
-        arrival_airport: destination,
-        departure_time: departDate,
+        departure_come_airport: origin,
+        arrival_come_airport: destination,
+        departure_come_time: departDate,
+        
         type: tripType,
         passengers,
       });

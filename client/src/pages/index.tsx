@@ -34,6 +34,7 @@ import { Star, CreditCard, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { Airport } from "@/schemas/Airport";
+import useFlightSearchStore from "@/store/useFlightSearchStore";
 import LoadingQuery from "@/components/common/LoadingQuery";
 import ErrorMessage from "@/components/common/ErrorMessageQuery";
 import { useRouter } from "next/router";
@@ -79,6 +80,7 @@ const fetchAirports = async (): Promise<AirportResponse> => {
 
 const Index: React.FC<IndexProps> = () => {
   const router = useRouter();
+  const setFlightSearch = useFlightSearchStore((state) => state.setFlightSearch);
   const [date, setDate] = useState<DateRange>({
     from: new Date(2024, 0, 20),
     to: addDays(new Date(2024, 0, 20), 20),
@@ -118,6 +120,18 @@ const Index: React.FC<IndexProps> = () => {
   if (isError) {
     toast.error('Error fetching airports');
     return <ErrorMessage message='Error fetching airports' />;
+  }
+
+  const handleSearchFlights = () => {
+    setFlightSearch({
+      departure_come_airport: departure,
+      arrival_come_airport: arrival,
+      departure_come_time: date.from,
+
+      type: "roundTrip",
+      passengers,
+    });
+    router.push("/booking/availability/come");  
   }
 
   return (
@@ -264,7 +278,7 @@ const Index: React.FC<IndexProps> = () => {
               <div>
                 <Button
                   className="w-full"
-                  onClick={() => router.push("/booking/availability/come")}
+                  onClick={() => handleSearchFlights()}
                 >
                   Search Flights
                 </Button>
