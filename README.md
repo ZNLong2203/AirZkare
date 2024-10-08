@@ -11,6 +11,12 @@
     - Prisma ORM
     - Docker
 
+## Architecture:
+![alt text](uploads/architecture.png)
+
+## ERD:
+![alt text](uploads/erd.png)
+
 ## Features:
 
 1. **User:**

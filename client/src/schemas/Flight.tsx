@@ -22,9 +22,9 @@ export const FlightSchema = BaseFlightSchema.extend({
 export type Flight = z.infer<typeof FlightSchema>;
 
 export const FlightSchemaWithDA = FlightSchema.extend({
-  airplane: AirplaneSchema,
   departure_airport: z.string().uuid(),
   arrival_airport: z.string().uuid(),
+  airplane: AirplaneSchema,
   airport_flight_departure_airportToairport: AirportSchema,
   airport_flight_arrival_airportToairport: AirportSchema,
 });
