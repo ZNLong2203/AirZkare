@@ -61,7 +61,7 @@ const AdminPassengers: React.FC = () => {
   });
 
   const totalPages = data?.totalPages || 1;
-  const allPassengers = data?.passengers || [];
+  const allPassengers = useMemo(() => data?.passengers || [], [data]);
 
   const filteredPassengers = useMemo(() => {
     return allPassengers.filter(passenger => 

@@ -59,9 +59,8 @@ const AdminFlights: React.FC = () => {
   });
 
   const totalPages = data?.totalPages || 1;
-  const allFlights = data?.flights || [];
-
   const filteredFlights = useMemo(() => {
+    const allFlights = data?.flights || [];
     return allFlights.filter(flight => 
       flight.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       flight.airplane.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -69,7 +68,7 @@ const AdminFlights: React.FC = () => {
       flight.airport_flight_arrival_airportToairport?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       flight.status.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [allFlights, searchTerm]);
+  }, [data?.flights, searchTerm]);
 
   const addFlightMutation = useMutation<Flight, Error, FlightWithoutId>({
     mutationFn: addFlight,

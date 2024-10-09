@@ -59,15 +59,14 @@ const AdminAirports = () => {
   })
 
   const totalPages = data?.totalPages || 1;
-  const allAirports = data?.airports || [];
-
   const filteredAirports = useMemo(() => {
+    const allAirports = data?.airports || [];
     return allAirports.filter(airport => 
       airport.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       airport.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       airport.location.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [allAirports, searchTerm]);
+  }, [data?.airports, searchTerm]);
 
   const addAirportMutation = useMutation<Airport, Error, Omit<Airport, 'airport_id'>>({
     mutationFn: addAirport,

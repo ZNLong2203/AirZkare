@@ -59,7 +59,7 @@ const AdminAirplane: React.FC = () => {
   });
 
   const totalPages = data?.totalPages || 1;
-  const allAirplanes = data?.airplanes || [];
+  const allAirplanes = useMemo(() => data?.airplanes || [], [data]);
 
   const filteredAirplanes = useMemo(() => {
     return allAirplanes.filter(airplane => 
