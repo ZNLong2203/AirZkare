@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
@@ -11,6 +11,9 @@ import AirplaneEditModal from '@/components/airplane/AirPlaneAdminEditModal';
 import Pagination from '@/components/common/Pagination';
 import ErrorMessage from '@/components/common/ErrorMessageQuery';
 import LoadingQuery from '@/components/common/LoadingQuery';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Search } from "lucide-react"
 
 interface AirplaneResponse {
   airplanes: Airplane[];
@@ -41,6 +44,7 @@ const AdminAirplane: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentAirplane, setCurrentAirplane] = useState<Airplane | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -56,6 +60,13 @@ const AdminAirplane: React.FC = () => {
 
   const totalPages = data?.totalPages || 1;
   const allAirplanes = data?.airplanes || [];
+
+  const filteredAirplanes = useMemo(() => {
+    return allAirplanes.filter(airplane => 
+      airplane.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      airplane.model.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allAirplanes, searchTerm]);
 
   const addAirplaneMutation = useMutation<Airplane, Error, Omit<Airplane, 'airplane_id'>>({
     mutationFn: addAirplane,
@@ -92,22 +103,9 @@ const AdminAirplane: React.FC = () => {
     },
   });
 
-  const openAddModal = () => {
-    setIsAddModalOpen(true);
-  };
-
-  const closeAddModal = () => {
-    setIsAddModalOpen(false);
-  };
-
-  const openEditModal = (airplane: Airplane) => {
-    setCurrentAirplane(airplane);
-    setIsEditModalOpen(true);
-  };
-
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-    setCurrentAirplane(null);
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
   };
 
   if (isLoading) return <LoadingQuery />;
@@ -124,46 +122,66 @@ const AdminAirplane: React.FC = () => {
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-semibold text-gray-700">Manage Airplanes</h1>
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
-            onClick={openAddModal}
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <AiOutlinePlus className="mr-2" /> Add New Airplane
-          </button>
+          </Button>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search airplanes by name or model..."
+              className="pl-10 w-full"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Name</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Model</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Business Class</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Economy Class</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Actions</th>
+              <tr className="bg-gray-50">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business Class</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Economy Class</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {allAirplanes.map((airplane) => (
-                <tr key={airplane.airplane_id} className="border-t">
-                  <td className="px-4 py-2">{airplane.name}</td>
-                  <td className="px-4 py-2">{airplane.model}</td>
-                  <td className="px-4 py-2">{airplane.total_business} seats</td>
-                  <td className="px-4 py-2">{airplane.total_economy} seats</td>
-                  <td className="px-4 py-2">
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredAirplanes.map((airplane) => (
+                <tr key={airplane.airplane_id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 whitespace-nowrap">{airplane.name}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{airplane.model}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{airplane.total_business} seats</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{airplane.total_economy} seats</td>
+                  <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <button
-                        className="text-green-600 hover:text-green-800 flex items-center"
-                        onClick={() => openEditModal(airplane)}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-green-600 hover:text-green-800 hover:bg-green-100"
+                        onClick={() => {
+                          setCurrentAirplane(airplane);
+                          setIsEditModalOpen(true);
+                        }}
                       >
                         <AiOutlineEdit className="mr-1" /> Edit
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-800 flex items-center"
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
                         onClick={() => deleteAirplaneMutation.mutate(airplane.airplane_id)}
                       >
                         <AiOutlineDelete className="mr-1" /> Delete
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -171,6 +189,12 @@ const AdminAirplane: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {filteredAirplanes.length === 0 && (
+          <div className="text-center mt-4 text-gray-500">
+            No airplanes found matching your search.
+          </div>
+        )}
 
         <div className="mt-4 flex justify-center">
           <Pagination
@@ -181,20 +205,21 @@ const AdminAirplane: React.FC = () => {
         </div>
       </main>
 
-      {/* Add Airplane Modal */}
       <AirplaneAddModal
         isOpen={isAddModalOpen}
-        onClose={closeAddModal}
+        onClose={() => setIsAddModalOpen(false)}
         onSubmit={(airplaneData: Omit<Airplane, 'airplane_id'>) =>
           addAirplaneMutation.mutate(airplaneData)
         }
       />
 
-      {/* Edit Airplane Modal */}
       {currentAirplane && (
         <AirplaneEditModal
           isOpen={isEditModalOpen}
-          onClose={closeEditModal}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setCurrentAirplane(null);
+          }}
           airplaneData={currentAirplane}
           onSubmit={(updatedAirplane: Airplane) => editAirplaneMutation.mutate(updatedAirplane)}
         />

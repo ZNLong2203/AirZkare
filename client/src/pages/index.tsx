@@ -155,7 +155,7 @@ const Index: React.FC<IndexProps> = () => {
             onClick={() => router.push("/booking")}
           >
             <FaPlane className="text-blue-500 text-3xl pt-1" />
-            <h1 className="text-blue-500 text-2xl font-bold">Booking Flight</h1>
+            <h1 className="text-blue-500 text-2xl font-bold">Book Flight</h1>
           </div>
         </div>
       </header>

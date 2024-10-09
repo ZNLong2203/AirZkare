@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
@@ -12,6 +12,9 @@ import FlightDetailsModal from '@/components/flight/FlightAdminViewModal';
 import Pagination from '@/components/common/Pagination';
 import LoadingSpinner from '@/components/common/LoadingQuery';
 import ErrorMessage from '@/components/common/ErrorMessageQuery';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Search } from "lucide-react"
 
 interface FlightResponse {
   flights: FlightWithDA[];
@@ -46,6 +49,7 @@ const AdminFlights: React.FC = () => {
   const [currentFlightWithDA, setCurrentFlightWithDA] = useState<FlightWithDA | null>(null);
   const [currentFlight, setCurrentFlight] = useState<Flight | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -56,6 +60,16 @@ const AdminFlights: React.FC = () => {
 
   const totalPages = data?.totalPages || 1;
   const allFlights = data?.flights || [];
+
+  const filteredFlights = useMemo(() => {
+    return allFlights.filter(flight => 
+      flight.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      flight.airplane.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      flight.airport_flight_departure_airportToairport?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      flight.airport_flight_arrival_airportToairport?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      flight.status.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allFlights, searchTerm]);
 
   const addFlightMutation = useMutation<Flight, Error, FlightWithoutId>({
     mutationFn: addFlight,
@@ -113,6 +127,11 @@ const AdminFlights: React.FC = () => {
     setCurrentFlightWithDA(null);
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
   if (isLoading) return <LoadingSpinner />;
   if (isError) {
     console.error(error);
@@ -126,60 +145,79 @@ const AdminFlights: React.FC = () => {
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-semibold text-gray-700">Manage Flights</h1>
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
+          <Button
             onClick={openAddModal}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <AiOutlinePlus className="mr-2" /> Add New Flight
-          </button>
+          </Button>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search flights by code, airplane, airports, or status..."
+              className="pl-10 w-full"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Code</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Airplane</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Type</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Departure</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Arrival</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Status</th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">Actions</th>
+              <tr className="bg-gray-50">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Code</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Airplane</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departure</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Arrival</th>
+                {/* <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th> */}
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {allFlights.map((flight) => (
-                <tr key={flight.flight_id} className="border-t hover:bg-gray-100">
-                  <td className="px-4 py-2">{flight.code}</td>
-                  <td className="px-4 py-2">{flight.airplane.name}</td>
-                  <td className="px-4 py-2 capitalize">{flight.type}</td>
-                  <td className="px-4 py-2">
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredFlights.map((flight) => (
+                <tr key={flight.flight_id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 whitespace-nowrap truncate">{flight.code}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{flight.airplane.name}</td>
+                  <td className="px-4 py-2 whitespace-nowrap capitalize">{flight.type}</td>
+                  <td className="px-4 py-2 whitespace-nowrap truncate">
                     {flight.airport_flight_departure_airportToairport?.name}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2 whitespace-nowrap truncate">
                     {flight.airport_flight_arrival_airportToairport?.name}
                   </td>
-                  <td className="px-4 py-2 capitalize">{flight.status}</td>
-                  <td className="px-4 py-2">
-                    <div className="flex space-x-4">
-                      <button
-                        className="text-blue-600 hover:text-blue-800 flex items-center"
+                  {/* <td className="px-4 py-2 whitespace-nowrap capitalize">{flight.status}</td> */}
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
                         onClick={() => openViewModal(flight)}
                       >
                         <AiOutlineEye className="mr-1" /> View
-                      </button>
-                      <button
-                        className="text-green-600 hover:text-green-800 flex items-center"
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-green-600 hover:text-green-800 hover:bg-green-100"
                         onClick={() => openEditModal(flight)}
                       >
                         <AiOutlineEdit className="mr-1" /> Edit
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-800 flex items-center"
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
                         onClick={() => deleteFlightMutation.mutate(flight.flight_id)}
                       >
                         <AiOutlineDelete className="mr-1" /> Delete
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -187,6 +225,12 @@ const AdminFlights: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {filteredFlights.length === 0 && (
+          <div className="text-center mt-4 text-gray-500">
+            No flights found matching your search.
+          </div>
+        )}
 
         <div className="mt-6 flex justify-center">
           <Pagination
@@ -197,14 +241,12 @@ const AdminFlights: React.FC = () => {
         </div>
       </main>
 
-      {/* Add Flight Modal */}
       <FlightAddModal
         isOpen={isAddModalOpen}
         onClose={closeAddModal}
         onSubmit={(flightData: FlightWithoutId) => addFlightMutation.mutate(flightData)}
       />
 
-      {/* Edit Flight Modal */}
       {currentFlight && (
         <FlightEditModal
           isOpen={isEditModalOpen}
@@ -214,7 +256,6 @@ const AdminFlights: React.FC = () => {
         />
       )}
 
-      {/* View Details Modal */}
       {currentFlightWithDA && (
         <FlightDetailsModal
           isOpen={isViewModalOpen}

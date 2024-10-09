@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from "axios";
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
@@ -11,6 +11,9 @@ import AirportEditModal from "@/components/airport/AirportAdminEditModal";
 import Pagination from "@/components/common/Pagination";
 import ErrorMessage from '@/components/common/ErrorMessageQuery';
 import LoadingQuery from '@/components/common/LoadingQuery';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Search } from "lucide-react"
 
 interface AirportResponse {
   airports: Airport[];
@@ -41,6 +44,7 @@ const AdminAirports = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [currentAirport, setCurrentAirport] = useState<Airport | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -56,6 +60,14 @@ const AdminAirports = () => {
 
   const totalPages = data?.totalPages || 1;
   const allAirports = data?.airports || [];
+
+  const filteredAirports = useMemo(() => {
+    return allAirports.filter(airport => 
+      airport.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      airport.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      airport.location.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allAirports, searchTerm]);
 
   const addAirportMutation = useMutation<Airport, Error, Omit<Airport, 'airport_id'>>({
     mutationFn: addAirport,
@@ -107,7 +119,13 @@ const AdminAirports = () => {
 
   const closeEditModal = () => {
     setIsEditModalOpen(false);
+    setCurrentAirport(null);
   }
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
 
   if (isLoading) return <LoadingQuery />;
   if (isError) {
@@ -125,52 +143,69 @@ const AdminAirports = () => {
           <h1 className="text-3xl font-semibold text-gray-700">
             Manage Airports
           </h1>
-          <button
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center"
+          <Button
             onClick={openAddModal}
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <AiOutlinePlus className="mr-2" /> Add New Airport
-          </button>
+          </Button>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search airports by code, name, or location..."
+              className="pl-10 w-full"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
+              <tr className="bg-gray-50">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Code
                 </th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Airport Name
                 </th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Location
                 </th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody>
-              {allAirports.map((airport) => (
-                <tr key={airport.airport_id} className="border-t">
-                  <td className="px-4 py-2">{airport.code}</td>
-                  <td className="px-4 py-2">{airport.name}</td>
-                  <td className="px-4 py-2">{airport.location}</td>
-                  <td className="px-4 py-2">
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredAirports.map((airport) => (
+                <tr key={airport.airport_id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 whitespace-nowrap">{airport.code}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{airport.name}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{airport.location}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <button
-                        className="text-green-600 hover:text-green-800 flex items-center"
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-green-600 hover:text-green-800 hover:bg-green-100"
                         onClick={() => openEditModal(airport)}
                       >
                         <AiOutlineEdit className="mr-1" /> Edit
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-800 flex items-center"
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
                         onClick={() => deleteAirportMutation.mutate(airport.airport_id)}
                       >
                         <AiOutlineDelete className="mr-1" /> Delete
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -178,6 +213,12 @@ const AdminAirports = () => {
             </tbody>
           </table>
         </div>
+
+        {filteredAirports.length === 0 && (
+          <div className="text-center mt-4 text-gray-500">
+            No airports found matching your search.
+          </div>
+        )}
 
         <div className="mt-4 flex justify-center">
           <Pagination

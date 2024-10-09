@@ -1,5 +1,6 @@
 import React from 'react';
-import { FaShieldAlt, FaMedkit, FaPlane } from 'react-icons/fa';
+import { Shield, Stethoscope, Plane } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface InsurancePackage {
   name: string;
@@ -31,38 +32,53 @@ const insurancePackages: InsurancePackage[] = [
 
 const InsurancePackages: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-r from-green-50 to-blue-100">
-      <div className="container mx-auto py-16 px-6">
-        <h1 className="text-5xl font-extrabold text-center mb-16">
-          Choose the Right Travel Insurance Package
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+    <div className="min-h-screen bg-gradient-to-br from-blue-100 via-indigo-200 to-purple-100 py-16 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <motion.h1 
+          className="text-4xl sm:text-5xl font-extrabold text-center mb-16 text-indigo-900"
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          Choose Your Perfect Travel Shield
+        </motion.h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {insurancePackages.map((pkg, index) => (
-            <div
+            <motion.div
               key={index}
-              className="relative bg-white shadow-lg rounded-lg p-8 transition-transform transform hover:-translate-y-2 hover:shadow-2xl duration-300"
+              className="bg-white rounded-2xl shadow-xl overflow-hidden transform hover:scale-105 transition-transform duration-300"
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.2 }}
             >
-              <div className="absolute top-0 right-0 -mt-10 -mr-10 w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-blue-500 text-white flex justify-center items-center shadow-lg">
-                {index === 0 && <FaShieldAlt className="text-4xl" />}
-                {index === 1 && <FaMedkit className="text-4xl" />}
-                {index === 2 && <FaPlane className="text-4xl" />}
+              <div className="p-8">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                  {index === 0 && <Shield className="w-8 h-8 text-white" />}
+                  {index === 1 && <Stethoscope className="w-8 h-8 text-white" />}
+                  {index === 2 && <Plane className="w-8 h-8 text-white" />}
+                </div>
+                <h2 className="text-2xl font-bold text-center mb-4 text-indigo-900">
+                  {pkg.name}
+                </h2>
+                <p className="text-center text-lg font-semibold text-indigo-700 mb-4">
+                  Coverage: {pkg.coverage}
+                </p>
+                <p className="text-center text-gray-600 mb-6">{pkg.description}</p>
+                <p className="text-center text-3xl font-bold text-indigo-900 mb-6">
+                  {pkg.price}
+                </p>
+                <div className="text-center">
+                  <motion.button 
+                    className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-3 px-8 rounded-full font-semibold hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Select Package
+                  </motion.button>
+                </div>
               </div>
-              <h2 className="text-3xl font-semibold text-center mb-4 text-blue-700">
-                {pkg.name}
-              </h2>
-              <p className="text-center text-lg text-gray-700 mb-4">
-                Coverage: <span className="font-bold">{pkg.coverage}</span>
-              </p>
-              <p className="text-center text-gray-500 mb-6">{pkg.description}</p>
-              <p className="text-center text-2xl font-bold text-indigo-800 mb-6">
-                {pkg.price}
-              </p>
-              <div className="flex justify-center">
-                <button className="bg-gradient-to-r from-green-500 to-blue-600 text-white py-3 px-6 rounded-full font-semibold hover:bg-blue-700 transition-colors duration-300">
-                  Select Package
-                </button>
-              </div>
-            </div>
+              <div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+            </motion.div>
           ))}
         </div>
       </div>

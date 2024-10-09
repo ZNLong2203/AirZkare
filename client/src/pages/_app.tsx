@@ -24,6 +24,8 @@ const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
     initializeAuth();
   }, [initializeAuth]);
 
+  const isAdminPage = router.pathname.startsWith('/admin');
+
   return (
     <QueryClientProvider client={queryClient}>
       <Head>
@@ -33,7 +35,7 @@ const MyApp: React.FC<MyAppProps> = ({ Component, pageProps }) => {
       <Toaster />
       <Navbar />
       <Component {...pageProps} />
-      {router.pathname !== '/admin' && <Footer />}
+      {!isAdminPage && <Footer />}
     </QueryClientProvider>
   );
 };

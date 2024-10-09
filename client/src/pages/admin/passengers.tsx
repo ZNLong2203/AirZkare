@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
@@ -10,6 +10,9 @@ import PassengerDetailsModal from '@/components/passenger/PassengerDetailsModal'
 import Pagination from '@/components/common/Pagination';
 import ErrorMessage from '@/components/common/ErrorMessageQuery';
 import LoadingQuery from '@/components/common/LoadingQuery';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Search } from "lucide-react"
 
 interface PassengerResponse {
   passengers: Passenger[];
@@ -41,10 +44,9 @@ const deletePassenger = async (user_id: string): Promise<void> => {
 
 const AdminPassengers: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedPassengerId, setSelectedPassengerId] = useState<string | null>(
-    null
-  );
+  const [selectedPassengerId, setSelectedPassengerId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -60,6 +62,14 @@ const AdminPassengers: React.FC = () => {
 
   const totalPages = data?.totalPages || 1;
   const allPassengers = data?.passengers || [];
+
+  const filteredPassengers = useMemo(() => {
+    return allPassengers.filter(passenger => 
+      passenger.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      passenger.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      passenger.user_id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [allPassengers, searchTerm]);
 
   const deletePassengerMutation = useMutation<void, Error, string>({
     mutationFn: deletePassenger,
@@ -94,6 +104,11 @@ const AdminPassengers: React.FC = () => {
     setSelectedPassengerId(null);
   };
 
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
   if (isLoading) return <LoadingQuery />;
   if (isError) {
     console.error(error);
@@ -108,53 +123,60 @@ const AdminPassengers: React.FC = () => {
       <main className="flex-1 p-6">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-semibold text-gray-700">Manage Passengers</h1>
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center">
+          <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
             <AiOutlinePlus className="mr-2" /> Add New Customer
-          </button>
+          </Button>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search passengers by name, email, or ID..."
+              className="pl-10 w-full"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
           <table className="min-w-full table-auto">
             <thead>
-              <tr className="bg-gray-200">
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
-                  Customer ID
-                </th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
-                  Name
-                </th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
-                  Email
-                </th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
-                  Role
-                </th>
-                <th className="px-4 py-2 text-left text-gray-600 font-medium">
-                  Actions
-                </th>
+              <tr className="bg-gray-50">
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer ID</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {allPassengers.map((passenger) => (
-                <tr key={passenger.user_id} className="border-t">
-                  <td className="px-4 py-2">{passenger.user_id}</td>
-                  <td className="px-4 py-2">{passenger.username}</td>
-                  <td className="px-4 py-2">{passenger.email}</td>
-                  <td className="px-4 py-2">{passenger.role}</td>
-                  <td className="px-4 py-2">
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredPassengers.map((passenger) => (
+                <tr key={passenger.user_id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 whitespace-nowrap">{passenger.user_id}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{passenger.username}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{passenger.email}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">{passenger.role}</td>
+                  <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex space-x-2">
-                      <button
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
                         onClick={() => handleViewPassenger(passenger.user_id)}
-                        className="text-blue-600 hover:text-blue-800 flex items-center"
                       >
                         <AiOutlineEye className="mr-1" /> View
-                      </button>
-                      <button
-                        className="text-red-600 hover:text-red-800 flex items-center"
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
                         onClick={() => handleDeletePassenger(passenger.user_id)}
                       >
                         <AiOutlineDelete className="mr-1" /> Delete
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -162,6 +184,12 @@ const AdminPassengers: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {filteredPassengers.length === 0 && (
+          <div className="text-center mt-4 text-gray-500">
+            No passengers found matching your search.
+          </div>
+        )}
 
         <div className="mt-4 flex justify-center">
           <Pagination
@@ -172,7 +200,6 @@ const AdminPassengers: React.FC = () => {
         </div>
       </main>
 
-      {/* Passenger Details Modal */}
       {selectedPassenger && (
         <PassengerDetailsModal
           isOpen={isModalOpen}
