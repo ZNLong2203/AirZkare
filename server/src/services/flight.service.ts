@@ -6,6 +6,7 @@ import { randomUUID } from "crypto";
 const prisma = PrismaClientInstance();
 
 class FlightService {
+    // Flight
     public async createFlight(flightData: Flight): Promise<object> {
         if(!flightData) throw new HttpException(400, 'No data');
 
@@ -150,6 +151,33 @@ class FlightService {
         });
 
         return;
+    }
+
+    // Flight Seat
+    public async getSeatLeftInFlight(flight_id: string): Promise<object> {
+        if(!flight_id) throw new HttpException(400, 'No flight id');
+
+        const flight = await prisma.flight.findUnique({
+            where: {
+                flight_id: flight_id,
+            }
+        })
+
+        if(!flight) throw new HttpException(404, `Flight with id ${flight_id} not found`);
+
+        const getSeat = prisma.airplane.findUnique({
+            where: {
+                airplane_id: flight.airplane_id,
+            }
+        })
+
+        const totalSeat = getSeat.total_business + getSeat.total_economy;
+
+        const bookedSeat = await prisma.flight_seat.count({
+            where: {
+                flight_id: flight_id,
+            }
+        })
     }
 }
 

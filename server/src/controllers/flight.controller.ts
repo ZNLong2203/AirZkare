@@ -6,6 +6,7 @@ import moment from "moment";
 class FlightController {
     private flightService = new FlightService();
 
+    //Flight
     public createFlight = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const flightData: Flight = req.body;
@@ -91,6 +92,22 @@ class FlightController {
                 message: 'Flight deleted successfully',
             })
         } catch(err) {
+            next(err);
+        }
+    }
+
+    //Seat left in flight
+    public getSeatLeftInFlight = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { flight_id } = req.params;
+
+            const seatLeft = await this.flightService.getSeatLeftInFlight(flight_id);
+
+            res.status(200).json({
+                message: 'Seat left fetched successfully',
+                metadata: seatLeft,
+            })
+        } catch (err) {
             next(err);
         }
     }

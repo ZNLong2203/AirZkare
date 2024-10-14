@@ -23,8 +23,8 @@ CREATE TABLE airplane (
     airplane_id UUID PRIMARY KEY,
     name VARCHAR NOT NULL,
     model VARCHAR NOT NULL,
-    total_business INT NOT NULL,
-    total_economy INT NOT NULL
+    total_business FLOAT NOT NULL,
+    total_economy FLOAT NOT NULL
 );
 
 CREATE TABLE flight (
