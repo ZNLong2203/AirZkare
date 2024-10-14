@@ -67,6 +67,7 @@ model flight_seat {
   flight_seat_id String           @id @db.Uuid
   flight_id      String           @db.Uuid
   seat_id        String           @db.Uuid
+  is_booked      Boolean?         @default(false)
   booking_flight booking_flight[]
   flight         flight           @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
   seat           seat             @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
@@ -99,7 +100,7 @@ model payment {
 model seat {
   seat_id     String        @id @db.Uuid
   airplane_id String        @db.Uuid
-  number      String        @unique @db.VarChar(10)
+  number      String        @db.VarChar(10)
   class       seat_class
   flight_seat flight_seat[]
   airplane    airplane      @relation(fields: [airplane_id], references: [airplane_id], onDelete: NoAction, onUpdate: NoAction)

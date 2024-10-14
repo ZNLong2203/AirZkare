@@ -27,6 +27,8 @@ export const FlightSchemaWithDA = FlightSchema.extend({
   airplane: AirplaneSchema,
   airport_flight_departure_airportToairport: AirportSchema,
   airport_flight_arrival_airportToairport: AirportSchema,
+  availableEconomySeats: z.number().positive(),
+  availableBusinessSeats: z.number().positive(),
 });
 
 export type FlightWithDA = z.infer<typeof FlightSchemaWithDA>;
