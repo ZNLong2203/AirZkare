@@ -37,6 +37,45 @@ class BookingService {
 
         return createBooking;
     }
+
+    public async getPassengerBookingHistory(user_id: string): Promise<object> {
+        const bookingData = await prisma.booking.findMany({
+            where: {
+                user_id,
+            },
+            include: {
+                booking_flight: {
+                    include: {
+                        flight_seat: true,
+                    }
+                }
+            }
+        })
+
+        return bookingData;
+    } 
+
+    public async cancelBooking(user_id: string, booking_id: string): Promise<void> {
+        const bookingData = await prisma.booking.findFirst({
+            where: {
+                booking_id,
+                user_id,
+            }
+        })
+
+        if(!bookingData) throw new HttpException(404, 'Booking not found');
+
+        await prisma.booking.update({
+            where: {
+                booking_id,
+            },
+            data: {
+                status: 'cancelled',
+            }
+        })
+
+        return;
+    }
 }
 
 export default BookingService;

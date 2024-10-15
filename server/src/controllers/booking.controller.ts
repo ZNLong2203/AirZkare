@@ -29,8 +29,40 @@ class BookingController {
                 message: 'Booking created',
                 metadata: createBookingData
             });
-        } catch (error) {
-            next(error);
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public getPassengerBookingHistory = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userData = req.user as any;
+            const user_id = userData.user_id;
+
+            const bookingData = await this.BookingService.getPassengerBookingHistory(user_id);
+
+            res.status(200).json({
+                message: 'Booking history fetched',
+                metadata: bookingData
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
+    public cancelBooking = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userData = req.user as any;
+            const user_id = userData.user_id;
+            const { booking_id } = req.params;
+            
+            const cancelBookingData = await this.BookingService.cancelBooking(user_id, booking_id);
+
+            res.status(200).json({
+                message: 'Booking cancelled',
+            });
+        } catch (err) {
+            next(err);
         }
     }
 }
