@@ -1,5 +1,4 @@
 import 'dotenv/config';
-import './types/express';
 import compression from 'compression';
 import express from 'express';
 import session from 'express-session';

@@ -181,7 +181,7 @@ const Index: React.FC<IndexProps> = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {allAirports.map((location) => (
-                        <SelectItem key={location.airport_id} value={location.location}>
+                        <SelectItem key={location.airport_id} value={location.airport_id}>
                           {location.location}
                         </SelectItem>
                       ))}
@@ -201,7 +201,7 @@ const Index: React.FC<IndexProps> = () => {
                     </SelectTrigger>
                     <SelectContent>
                       {allAirports.map((location) => (
-                        <SelectItem key={location.airport_id} value={location.location}>
+                        <SelectItem key={location.airport_id} value={location.airport_id}>
                           {location.location}
                         </SelectItem>
                       ))}
@@ -248,6 +248,7 @@ const Index: React.FC<IndexProps> = () => {
                       initialFocus
                       mode="range"
                       defaultMonth={date?.from}
+                      fromDate={new Date()}
                       selected={date}
                       onSelect={setDate as SelectRangeEventHandler}
                       numberOfMonths={2}

@@ -40,10 +40,10 @@ class FlightService {
         const skip = (page - 1) * limit;
 
         const filters: any = {};
-        if(departure_airport != '') filters.departure_airport = departure_airport;
-        if(arrival_airport != '') filters.arrival_airport = arrival_airport;  
-        if(departure_time) filters.departure_time = departure_time;
-        if(arrival_time) filters.arrival_time = arrival_time;
+        if (departure_airport != '') filters.departure_airport = departure_airport;
+        if (arrival_airport != '') filters.arrival_airport = arrival_airport;
+        if (departure_time) filters.departure_time = { gte: departure_time };
+        if (arrival_time) filters.arrival_time = { lte: arrival_time };
 
         const totalFlight = await prisma.flight.count({
             where: filters,

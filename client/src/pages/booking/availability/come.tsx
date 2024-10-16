@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import axios from "axios";
 import API from "@/constants/api";
 import { useQuery } from "@tanstack/react-query";
@@ -22,9 +22,9 @@ import FlightInfoBar from "@/components/flight/FlightInfoBar";
 // import { useRouter } from 'next/router';
 import FlightUpgradeModal from "@/components/booking/FlightUpgradeModal";
 
-const fetchFlights = async (params: string): Promise<FlightWithDA[]> => {
+const fetchFlights = async (params: any): Promise<FlightWithDA[]> => {
   const res = await axios.get(`${API.FLIGHT}`, { params });
-  console.log(res.data.metadata.flights);
+  console.log("API response:", res.data);
   return res.data.metadata.flights;
 };
 
@@ -34,7 +34,6 @@ const SelectFlightPage: React.FC = () => {
     departure_come_airport,
     arrival_come_airport,
     departure_come_time,
-
     passengers,
   } = useFlightSearchStore();
 
@@ -51,14 +50,13 @@ const SelectFlightPage: React.FC = () => {
     departure_airport: departure_come_airport,
     arrival_airport: arrival_come_airport,
     departure_time: departure_come_time?.toISOString() || "",
-
-    passengers,
-  }.toString();
-
+    passengers: passengers?.toString(),
+  };
+  
   // Fetch flights using useQuery
-  const { data, isLoading, isError } = useQuery<FlightWithDA[], Error>({ 
+  const { data, isLoading, isError, error } = useQuery<FlightWithDA[], Error>({
     queryKey: ["flights_come", searchParams],
-    queryFn: () => fetchFlights(searchParams),
+    queryFn: () => fetchFlights(searchParams), 
   });
 
   const flights = data || [];
@@ -69,9 +67,13 @@ const SelectFlightPage: React.FC = () => {
 
     // Filter flights based on stops
     if (stopFilter === "non-stop") {
-      filteredFlights = filteredFlights.filter((flight) => flight.type === "non-stop");
+      filteredFlights = filteredFlights.filter(
+        (flight) => flight.type === "non-stop"
+      );
     } else if (stopFilter === "connecting") {
-      filteredFlights = filteredFlights.filter((flight) => flight.type === "connecting");
+      filteredFlights = filteredFlights.filter(
+        (flight) => flight.type === "connecting"
+      );
     }
 
     // Sort flights based on selected criteria
@@ -84,9 +86,12 @@ const SelectFlightPage: React.FC = () => {
           new Date(b.departure_time).getTime()
       );
     } else if (sortBy === "duration") {
-      filteredFlights.sort((a, b) => 
-        new Date(a.arrival_time).getTime() - new Date(a.departure_time).getTime() - 
-        (new Date(b.arrival_time).getTime() - new Date(b.departure_time).getTime())
+      filteredFlights.sort(
+        (a, b) =>
+          new Date(a.arrival_time).getTime() -
+            new Date(a.departure_time).getTime() -
+          (new Date(b.arrival_time).getTime() -
+            new Date(b.departure_time).getTime())
       );
     }
 
@@ -104,8 +109,13 @@ const SelectFlightPage: React.FC = () => {
 
   const handleSelectFlight = (flight: FlightWithDA) => {
     setSelectedFlight(flight);
-    setIsUpgradeModalOpen(true);
   };
+
+  useEffect(() => {
+    if (selectedFlight) {
+      setIsUpgradeModalOpen(true);
+    }
+  }, [selectedFlight]);
 
   const handleConfirmUpgrade = () => {
     console.log("Upgrade confirmed for flight:", selectedFlight);
@@ -115,8 +125,8 @@ const SelectFlightPage: React.FC = () => {
 
   if (isLoading) return <LoadingQuery />;
   if (isError) {
-    toast.error("Error fetching flights");
-    return <ErrorMessage message="Error fetching flights" />;
+    toast.error(`Error fetching flights: ${error.message}`);
+    return <ErrorMessage message={`Error fetching flights: ${error.message}`} />;
   }
 
   return (
@@ -139,8 +149,8 @@ const SelectFlightPage: React.FC = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All flights</SelectItem>
-            <SelectItem value="nonstop">Non-stop</SelectItem>
-            <SelectItem value="withstops">With stops</SelectItem>
+            <SelectItem value="non-stop">Non-stop</SelectItem>
+            <SelectItem value="connecting">With stops</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -153,7 +163,7 @@ const SelectFlightPage: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="text-lg font-bold">
-                      {new Date(flight.airport_flight_departure_airportToairport.code).toLocaleTimeString([], {
+                      {new Date(flight.departure_time).toLocaleTimeString([], {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
@@ -184,10 +194,10 @@ const SelectFlightPage: React.FC = () => {
                 </div>
                 <div className="mt-2 flex items-center justify-center text-sm text-muted-foreground">
                   <Clock className="w-4 h-4 mr-1" />
-                    {new Date(flight.arrival_time).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                    })}{" "}
+                  {new Date(flight.arrival_time).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
                 <div className="mt-2 text-sm">
                   <div>
@@ -202,15 +212,12 @@ const SelectFlightPage: React.FC = () => {
               >
                 <div className="text-lg font-bold">ECONOMY</div>
                 <div className="text-2xl font-bold">
-                  from {flight.price_economy.toLocaleString()} VND
+                  from {flight.price_economy.toLocaleString()}$
                 </div>
                 <div className="text-sm">per passenger</div>
                 <Button variant="secondary" className="mt-2">
                   Select
                 </Button>
-                {/* <div className="mt-2 text-sm">
-                  {flight.seats_left} seats left
-                </div> */}
               </div>
               {/* Business class selection (if applicable) */}
               <div
@@ -219,13 +226,12 @@ const SelectFlightPage: React.FC = () => {
               >
                 <div className="text-lg font-bold">BUSINESS</div>
                 <div className="text-2xl font-bold">
-                  from {flight.price_business.toLocaleString()} VND
+                  from {flight.price_business.toLocaleString()}$
                 </div>
                 <div className="text-sm">per passenger</div>
                 <Button variant="secondary" className="mt-2">
                   Select
                 </Button>
-                {/* <div className="mt-2 text-sm">{flight.seatsLeft} seats left</div> */}
               </div>
             </div>
           </CardContent>

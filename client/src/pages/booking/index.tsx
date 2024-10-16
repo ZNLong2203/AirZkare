@@ -93,6 +93,8 @@ const FlightBooking = () => {
       });
     }
 
+    console.log("Flight search data:", useFlightSearchStore.getState());
+
     router.push(`/booking/availability/come`);
   };
 
@@ -198,6 +200,7 @@ const FlightBooking = () => {
                     <Calendar
                       mode="single"
                       selected={departDate}
+                      fromDate={new Date()}
                       onSelect={setDepartDate}
                       initialFocus
                     />
