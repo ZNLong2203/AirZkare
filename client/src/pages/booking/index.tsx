@@ -43,8 +43,8 @@ const FlightBooking = () => {
   const router = useRouter();
   const setFlightSearch = useFlightSearchStore((state) => state.setFlightSearch);
   const [tripType, setTripType] = useState("roundTrip");
-  const [origin, setOrigin] = useState("");
-  const [destination, setDestination] = useState("");
+  const [origin, setOrigin] = useState<Airport | null>(null);
+  const [destination, setDestination] = useState<Airport | null>(null);
   const [departDate, setDepartDate] = useState<Date | undefined>();
   const [returnDate, setReturnDate] = useState<Date | undefined>();
   const [passengers, setPassengers] = useState("1");
@@ -69,29 +69,42 @@ const FlightBooking = () => {
       return;
     }
 
-    if(tripType === "roundTrip") {
-      setFlightSearch({
-        departure_come_airport: origin,
-        arrival_come_airport: destination,
-        departure_come_time: departDate,
-
-        departure_return_airport: destination,
-        arrival_return_airport: origin,
-        departure_return_time: returnDate,
-
-        type: tripType,
-        passengers,
-      });
-    } else {
-      setFlightSearch({
-        departure_come_airport: origin,
-        arrival_come_airport: destination,
-        departure_come_time: departDate,
-        
-        type: tripType,
-        passengers,
-      });
+    const flightSearchData = {
+      departure_come_airport: {
+        airport_id: origin.airport_id,
+        name: origin.location,
+        code: origin.code,
+        location: origin.location,
+      },
+      arrival_come_airport: {
+        airport_id: destination.airport_id,
+        name: destination.location,
+        code: destination.code,
+        location: destination.location,
+      },
+      departure_come_time: departDate,
+      type: tripType,
+      passengers,
+      departure_return_airport: {},
+      arrival_return_airport: {},
+      departure_return_time: null as Date | null,
+    };
+  
+    if (tripType === "roundTrip") {
+      flightSearchData.departure_return_airport = {
+        id: destination.airport_id,
+        name: destination.location,
+        code: destination.code,
+      };
+      flightSearchData.arrival_return_airport = {
+        id: origin.airport_id,
+        name: origin.location,
+        code: origin.code,
+      };
+      flightSearchData.departure_return_time = returnDate || null;
     }
+  
+    setFlightSearch(flightSearchData);
 
     console.log("Flight search data:", useFlightSearchStore.getState());
 
@@ -144,7 +157,10 @@ const FlightBooking = () => {
                 <Label htmlFor="origin">Origin</Label>
                 <div className="relative">
                   <Plane className="absolute left-2 top-3 h-4 w-4 opacity-50 ml-2" />
-                  <Select value={origin} onValueChange={setOrigin}>
+                  <Select onValueChange={(airportId) => {
+                    const selectedAirport = allAirports.find(a => a.airport_id === airportId);
+                    setOrigin(selectedAirport || null);
+                  }}>
                     <SelectTrigger id="origin" className="pl-10">
                       <SelectValue placeholder="Select Origin" />
                     </SelectTrigger>
@@ -164,7 +180,10 @@ const FlightBooking = () => {
                 <Label htmlFor="destination">Destination</Label>
                 <div className="relative">
                   <Plane className="absolute left-2 top-3 h-4 w-4 opacity-50 ml-2" />
-                  <Select value={destination} onValueChange={setDestination}>
+                  <Select onValueChange={(airportId) => {
+                    const selectedAirport = allAirports.find(a => a.airport_id === airportId);
+                    setDestination(selectedAirport || null);
+                  }}>
                     <SelectTrigger id="destination" className="pl-10">
                       <SelectValue placeholder="Select Destination" />
                     </SelectTrigger>

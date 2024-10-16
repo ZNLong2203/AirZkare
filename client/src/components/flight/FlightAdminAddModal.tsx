@@ -35,6 +35,7 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
     });
     const [airports, setAirports] = useState<Airport[]>([]);
     const [airplanes, setAirplanes] = useState<Airplane[]>([]);
+    const [minDateTime, setMinDateTime] = useState('');
 
     useEffect(() => {
         if (isOpen) {
@@ -50,6 +51,11 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                 }
             }
             fetchData();
+
+            const now = new Date();
+            const offset = now.getTimezoneOffset();
+            now.setMinutes(now.getMinutes() - offset);
+            setMinDateTime(now.toISOString().slice(0, 16));
         }
     }, [isOpen]);
 
@@ -199,6 +205,7 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                             type="datetime-local"
                             value={formData.departure_time}
                             onChange={handleChange}
+                            min={minDateTime}
                         />
                     </div>
                     <div className="grid gap-2">
@@ -209,6 +216,7 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
                             type="datetime-local"
                             value={formData.arrival_time}
                             onChange={handleChange}
+                            min={minDateTime}
                         />
                     </div>
                 </div>

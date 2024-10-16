@@ -36,6 +36,7 @@ const FlightEditModal = ({ isOpen, onClose, flightData, onSubmit }: FlightEditMo
   const [formData, setFormData] = useState<Flight>(flightData);
   const [airports, setAirports] = useState<Airport[]>([]);
   const [airplanes, setAirplanes] = useState<Airplane[]>([]);
+  const [minDateTime, setMinDateTime] = useState('');
 
   useEffect(() => {
     const fetchAirports = async () => {
@@ -68,6 +69,15 @@ const FlightEditModal = ({ isOpen, onClose, flightData, onSubmit }: FlightEditMo
   useEffect(() => {
     setFormData(flightData);
   }, [flightData]);
+
+  useEffect(() => {
+    if (isOpen) {
+      const now = new Date();
+      const offset = now.getTimezoneOffset();
+      now.setMinutes(now.getMinutes() - offset);
+      setMinDateTime(now.toISOString().slice(0, 16));
+    }
+  }, [isOpen]);
 
   const handleChange = (name: keyof Flight, value: string | number | Date) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -255,6 +265,7 @@ const FlightEditModal = ({ isOpen, onClose, flightData, onSubmit }: FlightEditMo
                 value={moment(formData.departure_time).format('YYYY-MM-DDTHH:mm')}
                 onChange={(e) => handleChange('departure_time', e.target.value)}
                 className="col-span-3"
+                min={minDateTime}
               />
             </div>
 
@@ -268,6 +279,7 @@ const FlightEditModal = ({ isOpen, onClose, flightData, onSubmit }: FlightEditMo
                 value={moment(formData.arrival_time).format('YYYY-MM-DDTHH:mm')}
                 onChange={(e) => handleChange('arrival_time', e.target.value)}
                 className="col-span-3"
+                min={minDateTime}
               />
             </div>
           </div>

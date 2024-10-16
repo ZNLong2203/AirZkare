@@ -85,8 +85,8 @@ const Index: React.FC<IndexProps> = () => {
     from: new Date(2024, 0, 20),
     to: addDays(new Date(2024, 0, 20), 20),
   });
-  const [departure, setDeparture] = useState("Ha Noi");
-  const [arrival, setArrival] = useState("Paris");
+  const [departure, setDeparture] = useState<Airport | null>(null);
+  const [arrival, setArrival] = useState<Airport | null>(null);
   const [passengers, setPassengers] = useState("1");
 
   useEffect(() => {
@@ -123,15 +123,51 @@ const Index: React.FC<IndexProps> = () => {
   }
 
   const handleSearchFlights = () => {
-    setFlightSearch({
-      departure_come_airport: departure,
-      arrival_come_airport: arrival,
+    if (!departure || !arrival || !date.from) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+  
+    const flightSearchData = {
+      departure_come_airport: {
+        airport_id: departure!.airport_id,
+        name: departure!.location,
+        code: departure!.code,
+        location: departure!.location,
+      },
+      arrival_come_airport: {
+        airport_id: arrival!.airport_id,
+        name: arrival!.location,
+        code: arrival!.code,
+        location: arrival!.location,
+      },
       departure_come_time: date.from,
-
       type: "roundTrip",
       passengers,
-    });
-    router.push("/booking/availability/come");  
+      departure_return_airport: {},
+      arrival_return_airport: {},
+      departure_return_time: null as Date | null,
+    };
+  
+    // Handle return trip details if round trip is selected
+    if (date.to) {
+      flightSearchData.departure_return_airport = {
+        airport_id: arrival!.airport_id,
+        name: arrival!.location,
+        code: arrival!.code,
+        location: arrival!.location,
+      };
+      flightSearchData.arrival_return_airport = {
+        airport_id: departure!.airport_id,
+        name: departure!.location,
+        code: departure!.code,
+        location: departure!.location,
+      };
+      flightSearchData.departure_return_time = date.to;
+    }
+  
+    setFlightSearch(flightSearchData);
+    router.push("/booking/availability/come");
   }
 
   return (
@@ -175,8 +211,8 @@ const Index: React.FC<IndexProps> = () => {
                 </Label>
                 <div className="relative">
                   <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Select value={departure} onValueChange={setDeparture}>
-                    <SelectTrigger id="departure" className="pl-10">
+                  <Select onValueChange={(value) => setDeparture(allAirports.find(a => a.airport_id === value) || null)}>
+                  <SelectTrigger id="departure" className="pl-10">
                       <SelectValue placeholder="Select Departure" />
                     </SelectTrigger>
                     <SelectContent>
@@ -195,7 +231,7 @@ const Index: React.FC<IndexProps> = () => {
                 </Label>
                 <div className="relative">
                   <FaPlane className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Select value={arrival} onValueChange={setArrival}>
+                  <Select onValueChange={(value) => setArrival(allAirports.find(a => a.airport_id === value) || null)}>
                     <SelectTrigger id="arrival" className="pl-10">
                       <SelectValue placeholder="Select Arrival" />
                     </SelectTrigger>
