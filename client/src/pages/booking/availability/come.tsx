@@ -1,12 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo, useEffect } from "react";
-import axios from "axios";
-import API from "@/constants/api";
 import { useQuery } from "@tanstack/react-query";
-import useFlightSearchStore from "@/store/useFlightSearchStore";
-import LoadingQuery from "@/components/common/LoadingQuery";
-import ErrorMessage from "@/components/common/ErrorMessageQuery";
-import { FlightWithDA } from "@/schemas/Flight";
 import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,9 +12,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Clock, Plane, ArrowRight } from "lucide-react";
-import FlightInfoBar from "@/components/flight/FlightInfoBar";
-import FlightUpgradeModal from "@/components/booking/FlightUpgradeModal";
 import { motion } from "framer-motion";
+import { useRouter } from "next/router";
+import axios from "axios";
+import API from "@/constants/api";
+import useFlightSearchStore from "@/store/useFlightSearchStore";
+import LoadingQuery from "@/components/common/LoadingQuery";
+import ErrorMessage from "@/components/common/ErrorMessageQuery";
+import { FlightWithDA } from "@/schemas/Flight";
+import FlightInfoBar from "@/components/flight/FlightInfoBar";
+import FlightUpgradeModal from "@/components/booking/ClassChoosing";
 
 const fetchFlights = async (params: any): Promise<FlightWithDA[]> => {
   const res = await axios.get(`${API.FLIGHT}`, { params });
@@ -38,7 +39,23 @@ const SeatRibbon: React.FC<{ seats: number; type: 'economy' | 'business' }> = ({
   );
 };
 
-export default function SelectFlightPage() {
+const FlightDuration: React.FC<{ departure: string; arrival: string }> = ({ departure, arrival }) => {
+  const getDuration = (dep: string, arr: string) => {
+    const diff = new Date(arr).getTime() - new Date(dep).getTime();
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    return `${hours}h ${minutes}m`;
+  };
+
+  return (
+    <div className="flex items-center text-sm text-gray-500">
+      <Clock className="w-4 h-4 mr-1" />
+      {getDuration(departure, arrival)}
+    </div>
+  );
+};
+const SelectFlightPage = () => {
+  const router = useRouter();
   const {
     departure_come_airport,
     arrival_come_airport,
@@ -52,9 +69,7 @@ export default function SelectFlightPage() {
   const [sortBy, setSortBy] = useState("departureTime");
   const [stopFilter, setStopFilter] = useState("all");
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const [selectedFlight, setSelectedFlight] = useState<FlightWithDA | null>(
-    null
-  );
+  const [selectedFlight, setSelectedFlight] = useState<FlightWithDA | null>(null);
 
   const searchParams = {
     page: "1",
@@ -75,30 +90,19 @@ export default function SelectFlightPage() {
     let filteredFlights = [...flights];
 
     if (stopFilter === "non-stop") {
-      filteredFlights = filteredFlights.filter(
-        (flight) => flight.type === "non-stop"
-      );
+      filteredFlights = filteredFlights.filter((flight) => flight.type === "non-stop");
     } else if (stopFilter === "connecting") {
-      filteredFlights = filteredFlights.filter(
-        (flight) => flight.type === "connecting"
-      );
+      filteredFlights = filteredFlights.filter((flight) => flight.type === "connecting");
     }
 
     if (sortBy === "price") {
       filteredFlights.sort((a, b) => a.price_economy - b.price_economy);
     } else if (sortBy === "departureTime") {
-      filteredFlights.sort(
-        (a, b) =>
-          new Date(a.departure_time).getTime() -
-          new Date(b.departure_time).getTime()
-      );
+      filteredFlights.sort((a, b) => new Date(a.departure_time).getTime() - new Date(b.departure_time).getTime());
     } else if (sortBy === "duration") {
-      filteredFlights.sort(
-        (a, b) =>
-          new Date(a.arrival_time).getTime() -
-            new Date(a.departure_time).getTime() -
-          (new Date(b.arrival_time).getTime() -
-            new Date(b.departure_time).getTime())
+      filteredFlights.sort((a, b) => 
+        (new Date(a.arrival_time).getTime() - new Date(a.departure_time).getTime()) -
+        (new Date(b.arrival_time).getTime() - new Date(b.departure_time).getTime())
       );
     }
 
@@ -115,10 +119,14 @@ export default function SelectFlightPage() {
     }
   }, [selectedFlight]);
 
-  const handleConfirmUpgrade = () => {
-    console.log("Upgrade confirmed for flight:", selectedFlight);
+  const handleBusiness = () => {
     setIsUpgradeModalOpen(false);
-    // Implement navigation to checkout page here
+    router.push(`/booking/passengerdetails?${selectedFlight?.flight_id}`);
+  };
+
+  const handleClose = () => {
+    setSelectedFlight(null);
+    setIsUpgradeModalOpen(false);
   };
 
   if (isLoading) return <LoadingQuery />;
@@ -168,51 +176,50 @@ export default function SelectFlightPage() {
             >
               <Card className="w-full overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <CardContent className="p-0">
-                  <div className="grid grid-cols-1 md:grid-cols-3">
-                    <div className="p-6 bg-white">
-                      <div className="flex justify-between items-center mb-4">
-                        <div>
-                          <div className="text-2xl font-bold">
-                            {new Date(flight.departure_time).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {flight.airport_flight_departure_airportToairport.code}
-                          </div>
+                  <div className="grid grid-cols-1 md:grid-cols-4">
+                    {/* Flight Information */}
+                    <div className="p-6 bg-white flex items-center justify-between">
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {new Date(flight.departure_time).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </div>
-                        <div className="text-center">
-                          <div className="text-gray-400 mb-1">
-                            <Plane className="inline-block w-6 h-6 rotate-90" />
-                          </div>
-                          <div className="text-xs text-gray-500">
-                            {flight.type === "non-stop" ? "Non-stop" : `${flight.type} stops`}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-2xl font-bold">
-                            {new Date(flight.arrival_time).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
-                          </div>
-                          <div className="text-sm text-gray-500">
-                            {flight.airport_flight_arrival_airportToairport.code}
-                          </div>
+                        <div className="text-sm text-gray-500">
+                          {flight.airport_flight_departure_airportToairport.code}
                         </div>
                       </div>
-                      <div className="flex items-center justify-center text-sm text-gray-500 mb-4">
-                        <Clock className="w-4 h-4 mr-1" />
-                        {new Date(flight.arrival_time).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                      <div className="flex flex-col items-center">
+                        <Plane className="text-gray-400 w-6 h-6 rotate-90" />
+                        <div className="text-xs text-gray-500 mt-1">
+                          {flight.type === "non-stop" ? "Non-stop" : `${flight.type} stops`}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {flight.code} Operated by {flight.airplane.name}
+                      <div className="text-center">
+                        <div className="text-2xl font-bold">
+                          {new Date(flight.arrival_time).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {flight.airport_flight_arrival_airportToairport.code}
+                        </div>
                       </div>
                     </div>
+                    {/* Airplane Code, Duration, and Additional Info */}
+                    <div className="p-6 bg-white border-l border-gray-200 flex flex-col justify-center">
+                      <div className="text-sm text-gray-500 mb-2">
+                        <span className="font-semibold">{flight.code}</span> operated by {flight.airplane.name}
+                      </div>
+                      <FlightDuration departure={flight.departure_time.toString()} arrival={flight.arrival_time.toString()} />
+                      <div className="mt-4 text-xs text-gray-400">
+                        <div className="mb-1">Aircraft: {flight.airplane.model}</div>
+                        <div>In-flight entertainment available</div>
+                      </div>
+                    </div>
+                    {/* Economy Class */}
                     <div
                       className="bg-teal-700 text-white p-6 flex flex-col justify-between cursor-pointer transition-colors duration-300 hover:bg-teal-800 relative"
                       onClick={() => handleSelectFlight(flight)}
@@ -220,21 +227,22 @@ export default function SelectFlightPage() {
                       <SeatRibbon seats={flight.availableEconomySeats} type="economy" />
                       <div className="text-lg font-semibold mb-2">ECONOMY</div>
                       <div className="text-3xl font-bold mb-1">
-                        ${flight.price_economy.toLocaleString()}
+                        {flight.price_economy.toLocaleString()} VND
                       </div>
                       <div className="text-sm mb-4">per passenger</div>
                       <Button variant="secondary" className="w-full">
                         Select <ArrowRight className="ml-2 w-4 h-4" />
                       </Button>
                     </div>
+                    {/* Business Class */}
                     <div
                       className="bg-yellow-500 text-black p-6 flex flex-col justify-between cursor-pointer transition-colors duration-300 hover:bg-yellow-600 relative"
-                      onClick={() => handleSelectFlight(flight)}
+                      onClick={() => handleBusiness()}
                     >
                       <SeatRibbon seats={flight.availableBusinessSeats} type="business" />
                       <div className="text-lg font-semibold mb-2">BUSINESS</div>
                       <div className="text-3xl font-bold mb-1">
-                        ${flight.price_business.toLocaleString()}
+                        {flight.price_business.toLocaleString()} VND
                       </div>
                       <div className="text-sm mb-4">per passenger</div>
                       <Button variant="secondary" className="w-full">
@@ -249,10 +257,15 @@ export default function SelectFlightPage() {
         </motion.div>
         <FlightUpgradeModal
           isOpen={isUpgradeModalOpen}
-          onClose={() => setIsUpgradeModalOpen(false)}
-          onConfirmUpgrade={handleConfirmUpgrade}
+          onClose={handleClose}
+          onConfirmUpgrade={handleBusiness}
+          onKeepCurrent={handleClose}
+          flightEconomyPrice={selectedFlight?.price_economy}
+          flightBusinessPrice={selectedFlight?.price_business}
         />
       </div>
     </div>
   );
 }
+
+export default SelectFlightPage;

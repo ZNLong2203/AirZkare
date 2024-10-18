@@ -12,6 +12,7 @@ interface FlightSearchState {
 
     type: string; // oneWay, roundTrip
     passengers: string;
+    class: string; // economy, business
     setFlightSearch: (searchData: Partial<FlightSearchState>) => void;
 }
 
@@ -26,6 +27,7 @@ const useFlightSearchStore = create<FlightSearchState>((set) => ({
 
     type: 'roundTrip',
     passengers: '1',
+    class: '',
     setFlightSearch: (searchData) => set((state) => ({ ...state, ...searchData })),
 }));
 
