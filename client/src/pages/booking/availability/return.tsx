@@ -11,11 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Clock, Plane, ArrowRight } from "lucide-react";
+import { Clock, Plane, ArrowRight, ArrowLeftRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
 import axios from "axios";
 import API from "@/constants/api";
+// import { useStore } from "@/store/useStore";
 import useFlightSearchStore from "@/store/useFlightSearchStore";
 import LoadingQuery from "@/components/common/LoadingQuery";
 import ErrorMessage from "@/components/common/ErrorMessageQuery";
@@ -54,13 +55,18 @@ const FlightDuration: React.FC<{ departure: string; arrival: string }> = ({ depa
     </div>
   );
 };
+
 const SelectFlightPage = () => {
   const router = useRouter();
+  // const { userInfo } = useStore();
   const {
     departure_come_airport,
     arrival_come_airport,
     departure_come_time,
+
     passengers,
+
+    setFlightSearch,
   } = useFlightSearchStore();
 
   const departureAirportid = departure_come_airport?.airport_id;
@@ -121,8 +127,27 @@ const SelectFlightPage = () => {
 
   const handleBusiness = () => {
     setIsUpgradeModalOpen(false);
-    router.push(`/booking/passengerdetails?${selectedFlight?.flight_id}`);
+    setFlightSearch({
+      isSearching: true,
+    })
+    if (!localStorage.getItem("token")) {
+      router.push("/auth/alertlogin");
+    } else {
+      router.push(`/booking/passengerdetails?${selectedFlight?.flight_id}`);
+    }
   };
+
+  const handleKeepEconomy = () => {
+    setIsUpgradeModalOpen(false);
+    setFlightSearch({
+      isSearching: true,
+    })
+    if (!localStorage.getItem("token")) {
+      router.push("/auth/alertlogin");
+    } else {
+      router.push(`/booking/passengerdetails?${selectedFlight?.flight_id}`);
+    }
+  }
 
   const handleClose = () => {
     setSelectedFlight(null);
@@ -139,6 +164,32 @@ const SelectFlightPage = () => {
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto p-4 space-y-6">
         <FlightInfoBar />
+
+          {/* Flight Type and Route Information */}
+          <motion.div 
+          className="bg-white rounded-lg shadow-md p-6 mb-6"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <div className="bg-blue-600 text-white rounded-full p-2">
+                <Plane className="w-6 h-6" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">Return Flight</h2>
+                <p className="text-gray-600">Select your inbound flight</p>
+              </div>
+            </div>
+            <div className="hidden md:flex items-center space-x-2 text-lg text-gray-700">
+              <span className="font-semibold">{departure_come_airport?.location}</span>
+              <ArrowLeftRight className="w-5 h-5 text-blue-600" />
+              <span className="font-semibold">{arrival_come_airport?.location}</span>
+            </div>
+          </div>
+        </motion.div>
+
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <Select onValueChange={handleSortChange} value={sortBy}>
             <SelectTrigger className="w-full sm:w-[180px]">
@@ -161,6 +212,7 @@ const SelectFlightPage = () => {
             </SelectContent>
           </Select>
         </div>
+
         <motion.div 
           className="space-y-4"
           initial={{ opacity: 0 }}
@@ -259,7 +311,7 @@ const SelectFlightPage = () => {
           isOpen={isUpgradeModalOpen}
           onClose={handleClose}
           onConfirmUpgrade={handleBusiness}
-          onKeepCurrent={handleClose}
+          onKeepCurrent={handleKeepEconomy}
           flightEconomyPrice={selectedFlight?.price_economy}
           flightBusinessPrice={selectedFlight?.price_business}
         />

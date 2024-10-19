@@ -3,11 +3,13 @@ import { FaPlane, FaUser, FaSignInAlt } from 'react-icons/fa';
 import Link from 'next/link';
 // import axios from 'axios';
 // import API from '../constants/api';
+import useFlightSearchStore from '@/store/useFlightSearchStore';
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router';
 
 const Navbar = () => {
   const router = useRouter();
+  const { setFlightSearch } = useFlightSearchStore();
   const [isLogin, setIsLogin] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -44,6 +46,8 @@ const Navbar = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user_id');
         localStorage.removeItem('expire');
+        setFlightSearch({ isSearching: false });
+        
         router.push('/').then(() => {
           window.location.reload();
         });

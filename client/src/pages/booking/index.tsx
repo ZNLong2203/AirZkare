@@ -42,6 +42,7 @@ const fetchAirports = async () => {
 const FlightBooking = () => {
   const router = useRouter();
   const setFlightSearch = useFlightSearchStore((state) => state.setFlightSearch);
+  
   const [tripType, setTripType] = useState("roundTrip");
   const [origin, setOrigin] = useState<Airport | null>(null);
   const [destination, setDestination] = useState<Airport | null>(null);

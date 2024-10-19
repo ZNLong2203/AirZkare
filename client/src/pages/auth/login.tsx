@@ -8,12 +8,15 @@ import { toast } from 'react-hot-toast';
 import { Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import API from '@/constants/api';
+import useFlightSearchStore from '@/store/useFlightSearchStore';
 import { getCookie } from '@/utils/getCookie';
 import { useStore } from '@/store/useStore';
 
 const Login: React.FC = () => {
   const router = useRouter();
   const { setUserInfo, setToken } = useStore();
+  const { isSearching } = useFlightSearchStore();
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
@@ -43,7 +46,13 @@ const Login: React.FC = () => {
       localStorage.setItem('user_id', response.data.metadata.user_id);
       localStorage.setItem('token', response.data.metadata.token);
       localStorage.setItem('expire', response.data.metadata.expire);
-      router.push('/');
+      
+      if(isSearching) {
+        router.push('/booking/passengerdetails');
+      } else {
+        router.push('/');
+      }
+      
       setTimeout(() => {
         window.location.reload();
       }, 1000);
