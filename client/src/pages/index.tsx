@@ -87,7 +87,7 @@ const Index: React.FC<IndexProps> = () => {
   });
   const [departure, setDeparture] = useState<Airport | null>(null);
   const [arrival, setArrival] = useState<Airport | null>(null);
-  const [passengers, setPassengers] = useState("1");
+  const [passengers, setPassengers] = useState<number>(1);
 
   useEffect(() => {
     const token = router.query.token as string;
@@ -298,7 +298,7 @@ const Index: React.FC<IndexProps> = () => {
                 </Label>
                 <div className="relative">
                   <FaUsers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <Select value={passengers} onValueChange={setPassengers}>
+                  <Select value={passengers.toString()} onValueChange={(value) => setPassengers(Number(value))}>
                     <SelectTrigger id="passengers" className="pl-10">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>

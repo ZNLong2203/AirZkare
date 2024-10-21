@@ -14,11 +14,12 @@ interface FlightSearchState {
 
     // Flight type
     type: string; // oneWay, roundTrip
-    passengers: string;
+    passengers: number;
     class: string; // economy, business
 
     // Check doing flight search
     isSearching: boolean;
+    setPassengers: (passengers: number) => void;
     setFlightSearch: (searchData: Partial<FlightSearchState>) => void;
 }
 
@@ -32,10 +33,12 @@ const useFlightSearchStore = create<FlightSearchState>((set) => ({
     departure_return_time: null,
 
     type: 'roundTrip',
-    passengers: '1',
+    passengers: 1,
     class: '',
 
     isSearching: false,
+
+    setPassengers: (passengers: number) => set((state) => ({ ...state, passengers })),
     setFlightSearch: (searchData) => set((state) => ({ ...state, ...searchData })),
 }));
 

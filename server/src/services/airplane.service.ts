@@ -2,6 +2,7 @@ import { PrismaClientInstance } from "../db/PrismaClient";
 import { HttpException } from "../exceptions/HttpException";
 import { Airplane } from "../interfaces/airplane.interface";
 import { randomUUID } from "crypto";
+import redisClient from "../configs/redis";
 
 const prisma = PrismaClientInstance();
 
@@ -53,6 +54,10 @@ class AirplaneService {
     }
 
     public async getAllAirplane(page: number): Promise<object> {
+        const redisKey = `airplane:${page}`;
+        const cache = await redisClient.get(redisKey);
+        if(cache) return JSON.parse(cache);
+
         const limit = 10;
         const skip = (page - 1) * limit;
 
@@ -69,16 +74,24 @@ class AirplaneService {
             currentPage: page
         }
 
+        await redisClient.set(redisKey, JSON.stringify(metadata), { EX: 60 * 5});
+
         return metadata;
     }
 
     public async getAirplaneInfo(airplane_id: string): Promise<object> {
+        const redisKey = `airplane:${airplane_id}`;
+        const cache = await redisClient.get(redisKey);
+        if(cache) return JSON.parse(cache);
+
         const airplane = await prisma.airplane.findUnique({
             where: {
                 airplane_id: airplane_id
             }
         })
         if(!airplane) throw new HttpException(404, `Airplane with id ${airplane_id} not found`);
+
+        await redisClient.set(redisKey, JSON.stringify(airplane), { EX: 60 * 5});
 
         return airplane;
     }
@@ -183,6 +196,11 @@ class AirplaneService {
             }
         })
 
+        const keys = await redisClient.keys('airplane:*');
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
+
         return updatedAirplane;
     }
 
@@ -212,6 +230,11 @@ class AirplaneService {
                 throw new HttpException(500, 'Transaction failed');
             }
         })
+
+        const keys = await redisClient.keys('airplane:*');
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
 
         return;
     }

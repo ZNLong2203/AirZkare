@@ -85,7 +85,7 @@ const FlightBooking = () => {
       },
       departure_come_time: departDate,
       type: tripType,
-      passengers,
+      passengers: Number(passengers),
       departure_return_airport: {},
       arrival_return_airport: {},
       departure_return_time: null as Date | null,
