@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { HttpException } from "../exceptions/HttpException";
-import { Booking } from "../interfaces/booking.interface";
 import { randomUUID } from "crypto";
+import { Passenger } from "../interfaces/passsenger.interface";
 
 const prisma = new PrismaClient();
 
 class BookingService {
-    public async createBooking(user_id: string, bookingData: any): Promise<object> {
+    public async createBookingPassenger(user_id: string, bookingData: any): Promise<void> {
         if(!bookingData) throw new HttpException(400, 'No data');
 
-        const createBooking = await prisma.booking.create({
+        await prisma.booking.create({
             data: {
                 user_id,
                 booking_id: randomUUID(),
@@ -17,7 +17,36 @@ class BookingService {
             }
         })
 
-       const flight_seat = await prisma.flight_seat.create({
+        const passengerPromises = bookingData.map((passenger: Passenger) => {
+            return prisma.passenger.create({
+                data: {
+                    ...passenger,
+                    passenger_id: randomUUID(),
+                    user_id: user_id,
+                }
+            })
+        })
+
+        await Promise.all(passengerPromises);
+
+        return;
+    }
+
+    public async createBookingFlight(user_id: string, bookingData: any): Promise<void> {
+        if(!bookingData) throw new HttpException(400, 'No data');
+
+        const createBooking = await prisma.booking.findFirst({
+            where: {
+                user_id,
+                status: 'pending',
+            }
+        })
+
+        if (!createBooking) {
+            throw new HttpException(404, 'Pending booking not found');
+        }
+
+        const flight_seat = await prisma.flight_seat.create({
             data: {
                 flight_seat_id: randomUUID(),
                 flight_id: bookingData.flight_id,
@@ -35,7 +64,7 @@ class BookingService {
             }
         })
 
-        return createBooking;
+        return;
     }
 
     public async getPassengerBookingHistory(user_id: string): Promise<object> {

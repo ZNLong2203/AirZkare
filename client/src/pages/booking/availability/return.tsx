@@ -125,10 +125,12 @@ const SelectFlightPage = () => {
     }
   }, [selectedFlight]);
 
-  const handleBusiness = () => {
+  const handleBusiness = (flight_id: string) => {
     setIsUpgradeModalOpen(false);
     setFlightSearch({
       isSearching: true,
+      class_return: "business",
+      flight_return_id: flight_id,
     })
     if (!localStorage.getItem("token")) {
       router.push("/auth/alertlogin");
@@ -137,10 +139,12 @@ const SelectFlightPage = () => {
     }
   };
 
-  const handleKeepEconomy = () => {
+  const handleKeepEconomy = (flight_id: string) => {
     setIsUpgradeModalOpen(false);
     setFlightSearch({
       isSearching: true,
+      class_return: "economy",
+      flight_return_id: flight_id, 
     })
     if (!localStorage.getItem("token")) {
       router.push("/auth/alertlogin");
@@ -289,7 +293,7 @@ const SelectFlightPage = () => {
                     {/* Business Class */}
                     <div
                       className="bg-yellow-500 text-black p-6 flex flex-col justify-between cursor-pointer transition-colors duration-300 hover:bg-yellow-600 relative"
-                      onClick={() => handleBusiness()}
+                      onClick={() => handleBusiness(flight.flight_id)}
                     >
                       <SeatRibbon seats={flight.availableBusinessSeats} type="business" />
                       <div className="text-lg font-semibold mb-2">BUSINESS</div>
@@ -310,8 +314,8 @@ const SelectFlightPage = () => {
         <FlightUpgradeModal
           isOpen={isUpgradeModalOpen}
           onClose={handleClose}
-          onConfirmUpgrade={handleBusiness}
-          onKeepCurrent={handleKeepEconomy}
+          onConfirmUpgrade={() => selectedFlight && handleBusiness(selectedFlight.flight_id)}
+          onKeepCurrent={() => selectedFlight && handleKeepEconomy(selectedFlight.flight_id)}
           flightEconomyPrice={selectedFlight?.price_economy}
           flightBusinessPrice={selectedFlight?.price_business}
         />

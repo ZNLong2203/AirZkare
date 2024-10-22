@@ -2,6 +2,7 @@ import { PrismaClientInstance } from "../db/PrismaClient";
 import { HttpException } from "../exceptions/HttpException";
 import { Airport } from "../interfaces/airport.interface";
 import { randomUUID } from "crypto";
+import redisClient from "../configs/redis";
 
 const prisma = PrismaClientInstance();
 
@@ -27,6 +28,10 @@ class AirportService {
     }
 
     public async getAllAirport(page: number): Promise<object> {
+        const redisKey = `airport:${page}`;
+        const cache = await redisClient.get(redisKey);
+        if(cache) return JSON.parse(cache);
+
         const limit = 10;
         const skip = (page - 1) * limit;
 
@@ -42,6 +47,8 @@ class AirportService {
             totalPages: totalPages,
             currentPage: page
         }
+
+        await redisClient.set(redisKey, JSON.stringify(metadata), { EX: 60 * 5});
 
         return metadata;
     }
@@ -59,6 +66,11 @@ class AirportService {
         })
         if(!editAirport) throw new HttpException(404, 'Airport not found');
 
+        const keys = await redisClient.keys('airplane:*');
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
+
         return editAirport;
     }
 
@@ -71,6 +83,11 @@ class AirportService {
             }
         })
         if(!deleteAirport) throw new HttpException(404, 'Airport not found');
+
+        const keys = await redisClient.keys('airplane:*');
+        if (keys.length > 0) {
+            await redisClient.del(keys);
+        }
 
         return;
     }
