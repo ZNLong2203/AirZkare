@@ -69,6 +69,7 @@ CREATE TABLE "user" (
 CREATE TABLE passenger (
     passenger_id UUID PRIMARY KEY,
     user_id UUID REFERENCES "user"(user_id),
+    name VARCHAR,
     age INT,
     gender VARCHAR,
     dob DATE,

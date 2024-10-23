@@ -9,6 +9,9 @@ const API = {
     AIRPORT: `${BE}/airport`,
     AIRPLANE: `${BE}/airplane`,
     FLIGHT: `${BE}/flight`,
+    BOOKING: `${BE}/booking`,
+    BOOKINGPASSENGER: `${BE}/booking/passenger`,
+    BOOKINGFLIGHT: `${BE}/booking/flight`,
 }
 
 export default API;

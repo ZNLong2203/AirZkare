@@ -85,6 +85,7 @@ model passenger {
   nationality  String?          @db.VarChar
   passport     String?          @db.VarChar
   membership   membership_type? @default(silver)
+  name         String?          @db.VarChar
   user         user?            @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 

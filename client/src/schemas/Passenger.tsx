@@ -4,6 +4,7 @@ export const PassengerSchema = z.object({
     user_id: z.string().uuid(),
     username: z.string(),
     email: z.string(),
+    name: z.string(),
     role: z.string(),
     phone: z.string(),
     age: z.number().positive(),

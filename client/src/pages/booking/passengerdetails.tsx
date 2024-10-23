@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// import axios from 'axios'
+import axios from 'axios'
+import moment from 'moment'
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon, Plane, User, Phone, Mail, Flag, Shield, PlusCircle, MinusCircle } from "lucide-react"
 import { format } from "date-fns"
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
+import API from '@/constants/api'
 import useFlightSearchStore from '@/store/useFlightSearchStore'
 
 interface PassengerFormProps {
@@ -27,12 +30,20 @@ interface PassengerFormProps {
 }
 
 const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onChange }: PassengerFormProps) => {
-  const [date, setDate] = useState<Date | null>(passengerData.dob ? new Date(passengerData.dob) : null);
+  const [date, setDate] = useState<Date | null>(passengerData.dob ? moment(passengerData.dob, "YYYY-MM-DD").toDate() : null);
 
   const handleInputChange = (field: string, value: any) => {
-    const updatedPassenger = { ...passengerData, [field]: value };
-    onChange(index, updatedPassenger);
-  };
+    if (field === 'dob') {
+        const formattedDate = value ? moment(value).format('YYYY-MM-DD') : null;
+        setDate(value);
+        const updatedPassenger = { ...passengerData, [field]: formattedDate };
+        onChange(index, updatedPassenger);
+      } else {
+        const updatedPassenger = { ...passengerData, [field]: value };
+        onChange(index, updatedPassenger);
+      }
+    };
+  
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -126,6 +137,8 @@ const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onCha
 const PassengerDetails = () => {
   const router = useRouter();
   const { passengers, departure_come_airport, arrival_come_airport, setPassengers } = useFlightSearchStore();
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [insuranceOption, setInsuranceOption] = useState("yes");
   const [passengerForms, setPassengerForms] = useState([{ id: 1, name: '', dob: '', gender: '', nationality: '' }]);
 
@@ -134,14 +147,17 @@ const PassengerDetails = () => {
 
   const handleSubmit = async () => {
     try {
-      // const response = await axios.post('/api/booking', {
-      //   passengers: passengerForms, // Collect all passenger data
-      //   insuranceOption,
-      // });
+      await axios.post(`${API.BOOKINGPASSENGER}`, {
+        email,
+        phone,
+        passengersData: passengerForms, 
+      }, {
+        withCredentials: true,
+      });
 
       router.push('/booking/seat');
     } catch (error) {
-      console.error("Failed to submit booking:", error);
+      toast.error('An error occurred. Please try again.');
     }
   };
 
@@ -193,14 +209,28 @@ const PassengerDetails = () => {
             <Label htmlFor="email" className="text-indigo-700">Contact Email Address</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input id="email" placeholder="your@email.com" type="email" className="pl-10 border-indigo-200 focus:border-indigo-500" />
+              <Input 
+                id="email" 
+                placeholder="your@email.com" 
+                type="email" 
+                className="pl-10 border-indigo-200 focus:border-indigo-500"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)} 
+              />
             </div>
           </div>
           <div className="space-y-2 mb-8">
             <Label htmlFor="phone" className="text-indigo-700">Contact Phone Number</Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <Input id="phone" placeholder="+1 234 567 890" type="tel" className="pl-10 border-indigo-200 focus:border-indigo-500" />
+              <Input 
+                id="phone" 
+                placeholder="+1 234 567 890" 
+                type="tel" 
+                className="pl-10 border-indigo-200 focus:border-indigo-500"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)} 
+              />
             </div>
           </div>
 

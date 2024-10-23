@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const PassengerSchema = z.object({
   passenger_id: z.string().uuid(), 
   user_id: z.string().uuid(), 
+  name: z.string(),
   age: z.number().int().min(0), 
   gender: z.string(), 
   dob: z.date(), 

@@ -9,6 +9,24 @@ class BookingService {
     public async createBookingPassenger(user_id: string, bookingData: any): Promise<void> {
         if(!bookingData) throw new HttpException(400, 'No data');
 
+        const checkOtherBookingPending = await prisma.booking.findMany({
+            where: {
+                user_id,
+                status: 'pending',
+            }
+        })
+
+        if(checkOtherBookingPending.length > 0) {
+            await prisma.booking.deleteMany({
+                where: {
+                    user_id,
+                    status: 'pending',
+                }
+            })
+
+            // Consider this logic
+        }
+
         await prisma.booking.create({
             data: {
                 user_id,
@@ -17,12 +35,15 @@ class BookingService {
             }
         })
 
-        const passengerPromises = bookingData.map((passenger: Passenger) => {
+        const passengerPromises = bookingData.passengersData.map((passenger: Passenger) => {
             return prisma.passenger.create({
                 data: {
-                    ...passenger,
                     passenger_id: randomUUID(),
                     user_id: user_id,
+                    name: passenger.name,
+                    dob: new Date(passenger.dob),
+                    gender: passenger.gender,
+                    nationality: passenger.nationality,
                 }
             })
         })
@@ -35,10 +56,23 @@ class BookingService {
     public async createBookingFlight(user_id: string, bookingData: any): Promise<void> {
         if(!bookingData) throw new HttpException(400, 'No data');
 
-        const createBooking = await prisma.booking.findFirst({
+        const bookingPending = await prisma.booking.findFirst({
             where: {
                 user_id,
                 status: 'pending',
+            }
+        })
+
+        if (!bookingPending) {
+            throw new HttpException(404, 'Booking not found');
+        }
+
+        const createBooking = await prisma.booking.update({
+            where: {
+                booking_id: bookingPending.booking_id,
+            },
+            data: {
+                status: 'confirmed',
             }
         })
 
