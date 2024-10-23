@@ -2,7 +2,7 @@ import { PrismaClientInstance } from "../db/PrismaClient";
 import { HttpException } from "../exceptions/HttpException";
 import { Airport } from "../interfaces/airport.interface";
 import { randomUUID } from "crypto";
-import redisClient from "../configs/redis";
+import redisClient from "../configs/redis.config";
 
 const prisma = PrismaClientInstance();
 

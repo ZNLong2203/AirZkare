@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// import axios from 'axios'
 import { useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,10 +16,23 @@ interface PassengerFormProps {
   index: number;
   isLeader?: boolean;
   onRemove: () => void;
+  passengerData: {
+    id: number;
+    name: string;
+    dob: string;
+    gender: string;
+    nationality: string;
+  };
+  onChange: (index: number, data: any) => void;
 }
 
-const PassengerForm = ({ index, isLeader = false, onRemove }: PassengerFormProps) => {
-  const [date, setDate] = useState<Date>()
+const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onChange }: PassengerFormProps) => {
+  const [date, setDate] = useState<Date | null>(passengerData.dob ? new Date(passengerData.dob) : null);
+
+  const handleInputChange = (field: string, value: any) => {
+    const updatedPassenger = { ...passengerData, [field]: value };
+    onChange(index, updatedPassenger);
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -29,7 +44,13 @@ const PassengerForm = ({ index, isLeader = false, onRemove }: PassengerFormProps
           <Label htmlFor={`name-${index}`} className="text-indigo-700">Passenger Name</Label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <Input id={`name-${index}`} placeholder="Full Name" className="pl-10 border-indigo-200 focus:border-indigo-500" />
+            <Input
+              id={`name-${index}`}
+              placeholder="Full Name"
+              className="pl-10 border-indigo-200 focus:border-indigo-500"
+              value={passengerData.name || ''}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+            />
           </div>
         </div>
         <div className="space-y-2">
@@ -47,8 +68,11 @@ const PassengerForm = ({ index, isLeader = false, onRemove }: PassengerFormProps
             <PopoverContent className="w-auto p-0">
               <Calendar
                 mode="single"
-                selected={date}
-                onSelect={setDate}
+                selected={date || undefined}
+                onSelect={(d) => {
+                  setDate(d ?? null);
+                  handleInputChange('dob', d);
+                }}
                 initialFocus
               />
             </PopoverContent>
@@ -58,12 +82,22 @@ const PassengerForm = ({ index, isLeader = false, onRemove }: PassengerFormProps
           <Label htmlFor={`nationality-${index}`} className="text-indigo-700">Nationality</Label>
           <div className="relative">
             <Flag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-            <Input id={`nationality-${index}`} placeholder="Your Nationality" className="pl-10 border-indigo-200 focus:border-indigo-500" />
+            <Input
+              id={`nationality-${index}`}
+              placeholder="Your Nationality"
+              className="pl-10 border-indigo-200 focus:border-indigo-500"
+              value={passengerData.nationality || ''}
+              onChange={(e) => handleInputChange('nationality', e.target.value)}
+            />
           </div>
         </div>
         <div className="space-y-2">
           <Label className="text-indigo-700">Gender</Label>
-          <RadioGroup defaultValue="male" className="flex space-x-4">
+          <RadioGroup
+            defaultValue={passengerData.gender || "male"}
+            className="flex space-x-4"
+            onValueChange={(value) => handleInputChange('gender', value)}
+          >
             {['Male', 'Female', 'Other'].map((gender) => (
               <div key={gender} className="flex items-center space-x-2">
                 <RadioGroupItem value={gender.toLowerCase()} id={`gender-${index}-${gender.toLowerCase()}`} />
@@ -85,31 +119,47 @@ const PassengerForm = ({ index, isLeader = false, onRemove }: PassengerFormProps
         </Button>
       )}
     </div>
-  )
-}
+  );
+};
+
 
 const PassengerDetails = () => {
-  const router = useRouter()
-  const { passengers, departure_come_airport, arrival_come_airport, setPassengers } = useFlightSearchStore()
-  const [insuranceOption, setInsuranceOption] = useState("yes")
-  const [passengerForms, setPassengerForms] = useState([{ id: 1 }])
+  const router = useRouter();
+  const { passengers, departure_come_airport, arrival_come_airport, setPassengers } = useFlightSearchStore();
+  const [insuranceOption, setInsuranceOption] = useState("yes");
+  const [passengerForms, setPassengerForms] = useState([{ id: 1, name: '', dob: '', gender: '', nationality: '' }]);
 
-  const departure_come_name = departure_come_airport?.name
-  const arrival_come_name = arrival_come_airport?.name
+  const departure_come_name = departure_come_airport?.name;
+  const arrival_come_name = arrival_come_airport?.name;
 
-  const handleSubmit = () => {
-    router.push('/booking/seat')
-  }
+  const handleSubmit = async () => {
+    try {
+      // const response = await axios.post('/api/booking', {
+      //   passengers: passengerForms, // Collect all passenger data
+      //   insuranceOption,
+      // });
+
+      router.push('/booking/seat');
+    } catch (error) {
+      console.error("Failed to submit booking:", error);
+    }
+  };
 
   const addPassenger = () => {
-    setPassengerForms(prev => [...prev, { id: prev.length + 1 }])
-    setPassengers(passengers + 1)
-  }
+    setPassengerForms(prev => [...prev, { id: prev.length + 1, name: '', dob: '', gender: '', nationality: '' }]);
+    setPassengers(passengers + 1);
+  };
 
   const removePassenger = (id: number) => {
-    setPassengerForms(prev => prev.filter(form => form.id !== id))
-    setPassengers(passengers - 1)
-  }
+    setPassengerForms(prev => prev.filter((_, index) => index !== id - 1));
+    setPassengers(passengers - 1);
+  };
+
+  const updatePassenger = (index: number, data: any) => {
+    const updatedForms = [...passengerForms];
+    updatedForms[index - 1] = data;
+    setPassengerForms(updatedForms);
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6 min-h-screen">
@@ -159,6 +209,8 @@ const PassengerDetails = () => {
               key={form.id}
               index={index + 1}
               isLeader={index === 0}
+              passengerData={form}
+              onChange={updatePassenger}
               onRemove={() => removePassenger(form.id)}
             />
           ))}
@@ -189,7 +241,7 @@ const PassengerDetails = () => {
             </RadioGroup>
           </div>
 
-          <Button 
+          <Button
             type="button"
             className="w-full bg-indigo-500 hover:bg-indigo-600 text-white py-3 text-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105"
             onClick={handleSubmit}
@@ -199,7 +251,7 @@ const PassengerDetails = () => {
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PassengerDetails
+export default PassengerDetails;
