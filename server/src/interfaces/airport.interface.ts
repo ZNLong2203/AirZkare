@@ -6,5 +6,4 @@ export const AirportSchema = z.object({
     code: z.string(),
     location: z.string(),
 });
-
 export type Airport = z.infer<typeof AirportSchema>;

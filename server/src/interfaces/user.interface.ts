@@ -10,5 +10,4 @@ export const UserSchema = z.object({
   provider_code: z.string().nullable(),
   role: z.enum(['user', 'admin']).nullable(),
 });
-
 export type User = z.infer<typeof UserSchema>;

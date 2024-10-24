@@ -7,5 +7,4 @@ export const RoutesSchema = z.object({
     message: 'router must be an instance of express.Router',
   }),
 });
-
 export type Routes = z.infer<typeof RoutesSchema>;

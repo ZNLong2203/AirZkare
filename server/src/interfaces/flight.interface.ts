@@ -13,5 +13,4 @@ export const FlightSchema = z.object({
   departure_time: z.date(),
   arrival_time: z.date(), 
 });
-
 export type Flight = z.infer<typeof FlightSchema>;

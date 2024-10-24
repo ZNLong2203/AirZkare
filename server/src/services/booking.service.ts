@@ -1,9 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClientInstance } from "../db/PrismaClient";
 import { HttpException } from "../exceptions/HttpException";
 import { randomUUID } from "crypto";
 import { Passenger } from "../interfaces/passsenger.interface";
 
-const prisma = new PrismaClient();
+const prisma = PrismaClientInstance();
 
 class BookingService {
     public async createBookingPassenger(user_id: string, bookingData: any): Promise<void> {

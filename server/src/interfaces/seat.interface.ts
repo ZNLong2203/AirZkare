@@ -6,5 +6,4 @@ export const SeatSchema = z.object({
   number: z.string(),
   class: z.enum(['economy', 'business']),
 });
-
 export type Seat = z.infer<typeof SeatSchema>;

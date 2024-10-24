@@ -1,7 +1,6 @@
 import moment from 'moment';
 import { Request, Response, NextFunction } from 'express';
-import { Booking } from '../interfaces/booking.interface';
-import { FlightSeat } from '../interfaces/flight_seat.interface';
+import { BookingFlightInfo } from '../interfaces/booking.interface';
 import { User } from '../interfaces/user.interface';
 import BookingService from '../services/booking.service';
 
@@ -32,8 +31,10 @@ class BookingController {
     public createBookingFlight = async (req: Request, res: Response, next: NextFunction) => {
         try {
             // Booking data:
-            // flight_id: string;
-            // seat_id: string;
+            // flight_come_id: string;
+            // fligh_return_id: string;
+            // seat_come_id: string;
+            // seat_return_id: string;
             // flight_type: string;
             if (!req.user) {
                 return res.status(401).json({
@@ -42,7 +43,7 @@ class BookingController {
             }
 
             const userData = req.user as any;
-            const bookingData: object = req.body;
+            const bookingData: BookingFlightInfo = req.body;
 
             await this.BookingService.createBookingFlight(userData.user_id, bookingData);
 
@@ -76,7 +77,7 @@ class BookingController {
             const user_id = userData.user_id;
             const { booking_id } = req.params;
             
-            const cancelBookingData = await this.BookingService.cancelBooking(user_id, booking_id);
+            await this.BookingService.cancelBooking(user_id, booking_id);
 
             res.status(200).json({
                 message: 'Booking cancelled',

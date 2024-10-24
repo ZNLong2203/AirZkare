@@ -6,5 +6,4 @@ export const BookingFlightSchema = z.object({
     flight_seat_id: z.string().uuid(),
     flight_type: z.enum(['outbound', 'inbound']),
 });
-
 export type BookingFlight = z.infer<typeof BookingFlightSchema>;

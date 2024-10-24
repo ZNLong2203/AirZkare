@@ -61,7 +61,7 @@ const BookingSeat = () => {
   }, [selectedSeats])
 
   const handleCheckout = () => {
-    router.push('/booking/payment')
+    router.push('/payment')
   }
 
   const renderSeats = (seatClass: 'Business' | 'Economy') =>

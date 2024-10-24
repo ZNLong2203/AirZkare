@@ -7,5 +7,4 @@ export const PaymentSchema = z.object({
   amount: z.number().positive(),
   time: z.date(),
 });
-
 export type Payment = z.infer<typeof PaymentSchema>;

@@ -14,5 +14,4 @@ export const PassengerSchema = z.object({
   passport: z.string(), 
   membership: z.enum(['silver', 'gold', 'platinum']), 
 });
-
 export type Passenger = z.infer<typeof PassengerSchema>;

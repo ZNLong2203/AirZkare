@@ -7,5 +7,4 @@ export const AirplaneSchema= z.object({
   total_business: z.number().positive(),
   total_economy: z.number().positive(),
 });
-
 export type Airplane = z.infer<typeof AirplaneSchema>;
