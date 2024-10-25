@@ -67,14 +67,16 @@ class PassengerService {
     public async updatePassenger(user_id: string, passengerData: Passenger): Promise<object> {
         if(!user_id || !passengerData) throw new HttpException(400, 'No data');
 
+        const updateData: Passenger = { ...passengerData };
+        if(passengerData.dob) {
+            updateData.dob = new Date(passengerData.dob);
+        }
+
         const updatePassenger = await prisma.passenger.update({
             where: {
                 passenger_id: user_id,
             },
-            data: {
-                ...passengerData,
-                dob: new Date(passengerData.dob),
-            }
+            data: updateData,
         });
         if(!updatePassenger) throw new HttpException(409, 'Failed to update passenger');
 

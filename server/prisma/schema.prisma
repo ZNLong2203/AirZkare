@@ -27,22 +27,14 @@ model airport {
 }
 
 model booking {
-  booking_id     String           @id @db.Uuid
-  user_id        String           @db.Uuid
-  status         booking_status?  @default(pending)
-  time           DateTime?        @default(now()) @db.Timestamp(6)
-  user           user             @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  booking_flight booking_flight[]
-  payment        payment[]
-}
-
-model booking_flight {
-  booking_flight_id String                 @id @db.Uuid
-  booking_id        String                 @db.Uuid
-  flight_seat_id    String                 @db.Uuid
-  flight_type       booking_flight_status? @default(outbound)
-  booking           booking                @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
-  flight_seat       flight_seat            @relation(fields: [flight_seat_id], references: [flight_seat_id], onDelete: NoAction, onUpdate: NoAction)
+  booking_id        String              @id @db.Uuid
+  user_id           String              @db.Uuid
+  type              flight_type?        @default(roundTrip)
+  status            booking_status?     @default(pending)
+  time              DateTime?           @default(now()) @db.Timestamp(6)
+  user              user                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  booking_passenger booking_passenger[]
+  payment           payment[]
 }
 
 model flight {
@@ -64,29 +56,32 @@ model flight {
 }
 
 model flight_seat {
-  flight_seat_id String           @id @db.Uuid
-  flight_id      String           @db.Uuid
-  seat_id        String           @db.Uuid
-  is_booked      Boolean?         @default(false)
-  booking_flight booking_flight[]
-  flight         flight           @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
-  seat           seat             @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
+  flight_seat_id String    @id @db.Uuid
+  flight_id      String    @db.Uuid
+  passenger_id   String    @db.Uuid
+  seat_id        String    @db.Uuid
+  is_booked      Boolean?  @default(false)
+  flight         flight    @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
+  passenger      passenger @relation(fields: [passenger_id], references: [passenger_id], onDelete: NoAction, onUpdate: NoAction)
+  seat           seat      @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model passenger {
-  passenger_id String           @id @db.Uuid
-  user_id      String?          @db.Uuid
-  age          Int?
-  gender       String?          @db.VarChar
-  dob          DateTime?        @db.Date
-  phone        String?          @db.VarChar
-  city         String?          @db.VarChar
-  country      String?          @db.VarChar
-  nationality  String?          @db.VarChar
-  passport     String?          @db.VarChar
-  membership   membership_type? @default(silver)
-  name         String?          @db.VarChar
-  user         user?            @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  passenger_id      String              @id @db.Uuid
+  user_id           String?             @db.Uuid
+  name              String?             @db.VarChar
+  age               Int?
+  gender            String?             @db.VarChar
+  dob               DateTime?           @db.Date
+  phone             String?             @db.VarChar
+  city              String?             @db.VarChar
+  country           String?             @db.VarChar
+  nationality       String?             @db.VarChar
+  passport          String?             @db.VarChar
+  membership        membership_type?    @default(silver)
+  booking_passenger booking_passenger[]
+  flight_seat       flight_seat[]
+  user              user?               @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model payment {
@@ -120,9 +115,12 @@ model user {
   passenger     passenger[]
 }
 
-enum booking_flight_status {
-  outbound
-  inbound
+model booking_passenger {
+  booking_passenger_id String    @id @db.Uuid
+  booking_id           String    @db.Uuid
+  passenger_id         String    @db.Uuid
+  booking              booking   @relation(fields: [booking_id], references: [booking_id], onDelete: NoAction, onUpdate: NoAction)
+  passenger            passenger @relation(fields: [passenger_id], references: [passenger_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum booking_status {
@@ -132,15 +130,15 @@ enum booking_status {
 }
 
 enum flight_status {
-  on_time   @map("on-time")
+  onTime
   delayed
   cancelled
   done
 }
 
 enum flight_type {
-  non_stop   @map("non-stop")
-  connecting
+  oneWay
+  roundTrip
 }
 
 enum membership_type {

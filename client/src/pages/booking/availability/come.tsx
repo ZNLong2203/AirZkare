@@ -287,7 +287,7 @@ const SelectFlightPage = () => {
                     </div>
                     {/* Business Class */}
                     <div
-                      className="bg-yellow-500 text-black p-6 flex flex-col justify-between cursor-pointer transition-colors duration-300 hover:bg-yellow-600 relative"
+                      className="bg-yellow-500 text-black p-6 flex flex-col justify-between cursor-pointer transition-colors duration-300 hover:bg-yellow-700 relative"
                       onClick={() => handleBusiness(flight.flight_id)}
                     >
                       <SeatRibbon seats={flight.availableBusinessSeats} type="business" />

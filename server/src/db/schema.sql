@@ -6,11 +6,9 @@ CREATE TYPE membership_type AS ENUM ('silver', 'gold', 'platinum');
 
 CREATE TYPE booking_status AS ENUM ('pending', 'confirmed', 'cancelled');
 
-CREATE TYPE booking_flight_status AS ENUM ('outbound', 'inbound');
+CREATE TYPE flight_type AS ENUM('oneWay', 'roundTrip');
 
-CREATE TYPE flight_type AS ENUM('non-stop', 'connecting');
-
-CREATE TYPE flight_status AS ENUM('on-time', 'delayed', 'cancelled', 'done');
+CREATE TYPE flight_status AS ENUM('onTime', 'delayed', 'cancelled', 'done');
 
 CREATE TABLE airport (
     airport_id UUID PRIMARY KEY,
@@ -48,13 +46,6 @@ CREATE TABLE seat (
     class seat_class NOT NULL
 );
 
-CREATE TABLE flight_seat (
-    flight_seat_id UUID PRIMARY KEY,
-    flight_id UUID REFERENCES flight(flight_id) NOT NULL,
-    seat_id UUID REFERENCES seat(seat_id) NOT NULL,
-    is_booked BOOLEAN DEFAULT FALSE
-);
-
 CREATE TABLE "user" (
     user_id UUID PRIMARY KEY,
     username VARCHAR UNIQUE NOT NULL,
@@ -81,9 +72,18 @@ CREATE TABLE passenger (
     membership membership_type DEFAULT 'silver' 
 );
 
+CREATE TABLE flight_seat (
+    flight_seat_id UUID PRIMARY KEY,
+    flight_id UUID REFERENCES flight(flight_id) NOT NULL,
+    passenger_id UUID REFERENCES passenger(passenger_id) NOT NULL,
+    seat_id UUID REFERENCES seat(seat_id) NOT NULL,
+    is_booked BOOLEAN DEFAULT FALSE
+);
+
 CREATE TABLE booking (
     booking_id UUID PRIMARY KEY,
     user_id UUID REFERENCES "user"(user_id) NOT NULL,
+    type flight_type DEFAULT 'roundTrip',
     status booking_status DEFAULT 'pending', 
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -96,9 +96,8 @@ CREATE TABLE payment (
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE booking_flight (
-    booking_flight_id UUID PRIMARY KEY,
+CREATE TABLE booking_passenger (
+    booking_passenger_id UUID PRIMARY KEY,
     booking_id UUID REFERENCES booking(booking_id) NOT NULL,
-    flight_seat_id UUID REFERENCES flight_seat(flight_seat_id) NOT NULL,
-    flight_type booking_flight_status DEFAULT 'outbound'
-);
+    passenger_id UUID REFERENCES passenger(passenger_id) NOT NULL
+)

@@ -41,6 +41,8 @@ class FlightController {
             }
 
             const flights = await this.flightService.getAllFlight(pageNumber, departureAirportStr, arrivalAirportStr, departureTimeDate, arrivalTimeDate);
+            
+            console.log(flights);
 
             res.status(200).json({
                 message: 'Flights fetched successfully',

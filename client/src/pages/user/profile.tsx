@@ -34,6 +34,7 @@ interface Option {
 }
 
 const Profile: React.FC = () => {
+  const token = localStorage.getItem('token');
   const [users, setUsers] = useState<User>({
     username: null,
     email: null,
@@ -140,7 +141,10 @@ const Profile: React.FC = () => {
     console.log(updatedUserData);
 
     try {
-      await axios.put(`${API.PASSENGER}/${userId}`, updatedUserData, {
+      await axios.patch(`${API.PASSENGER}/${userId}`, updatedUserData, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        },
         withCredentials: true,
       });
       toast.success('User data updated successfully');

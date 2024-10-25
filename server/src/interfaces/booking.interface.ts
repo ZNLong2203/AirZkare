@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const BookingSchema= z.object({
   booking_id: z.string().uuid(), 
   user_id: z.string().uuid(), 
+  type: z.enum(['oneWay', 'roundTrip']),
   status: z.enum(['pending', 'confirmed', 'cancelled']), 
   time: z.date(), 
 });

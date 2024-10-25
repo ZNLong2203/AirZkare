@@ -62,15 +62,15 @@ const FlightInfoBar = () => {
           </div>
 
           <div className="flex space-x-4">
-            <DateInfo label="Departure" date={ moment(departure_come_time).format('dddd, MMMM D')} />
+            <DateInfo label="Departure" date={ moment(departure_come_time).format('ddd, MMM D')} />
             {departure_return_time && (
-              <DateInfo label="Return" date={moment(departure_return_time).format('dddd, MMMM D')} />
+              <DateInfo label="Return" date={moment(departure_return_time).format('ddd, MMM D')} />
             )}
           </div>
 
           <div className="flex items-center space-x-2">
             <User className="h-5 w-5 text-muted-foreground" />
-            <span className="text-sm font-medium">{passengers} Passenger{parseInt(passengers) !== 1 ? 's' : ''}</span>
+            <span className="text-sm font-medium">{passengers} Passenger{parseInt(passengers.toString()) !== 1 ? 's' : ''}</span>
           </div>
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

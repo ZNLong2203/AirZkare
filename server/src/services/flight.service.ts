@@ -38,17 +38,17 @@ class FlightService {
     public async getAllFlight(page: number, departure_airport?: string, arrival_airport?: string, departure_time?: Date, arrival_time?: Date): Promise<object> {
         const limit = 10;
         const skip = (page - 1) * limit;
-
+    
         const filters: any = {};
-        if (departure_airport != '') filters.departure_airport = departure_airport;
-        if (arrival_airport != '') filters.arrival_airport = arrival_airport;
+        if (departure_airport) filters.departure_airport = departure_airport;
+        if (arrival_airport) filters.arrival_airport = arrival_airport;
         if (departure_time) filters.departure_time = { gte: departure_time };
         if (arrival_time) filters.arrival_time = { lte: arrival_time };
-
+    
         const totalFlight = await prisma.flight.count({
             where: filters,
         });
-
+    
         const flights = await prisma.flight.findMany({
             where: filters,
             skip: skip,
@@ -64,37 +64,43 @@ class FlightService {
                 }
             }
         });
-
-        // Calculate available seats for each flight
+    
         const enrichedFlights = flights.map(flight => {
-            const economySeats = flight.flight_seat.filter(seat => seat.seat.class === 'economy');
-            const businessSeats = flight.flight_seat.filter(seat => seat.seat.class === 'business');
-
-            const availableEconomySeats = economySeats.filter(seat => !seat.is_booked).length;
-            const availableBusinessSeats = businessSeats.filter(seat => !seat.is_booked).length;
-
+            const totalEconomySeats = flight.airplane.total_economy;
+            const totalBusinessSeats = flight.airplane.total_business;
+    
+            // Count booked economy and business seats
+            const bookedEconomySeats = flight.flight_seat.filter(
+                seat => seat.seat.class?.toLowerCase() === 'economy' && seat.is_booked === true
+            ).length;
+    
+            const bookedBusinessSeats = flight.flight_seat.filter(
+                seat => seat.seat.class?.toLowerCase() === 'business' && seat.is_booked === true
+            ).length;
+    
+            // Calculate available seats by subtracting the booked seats from the total seats
+            const availableEconomySeats = totalEconomySeats - bookedEconomySeats;
+            const availableBusinessSeats = totalBusinessSeats - bookedBusinessSeats;
+    
             return {
                 ...flight,
                 availableEconomySeats: availableEconomySeats,
                 availableBusinessSeats: availableBusinessSeats,
-            }
-        })
-
-        // Add duration calculation for each flight
-        // const enrichedFlights = flights.map(flight => ({
-        //     ...flight,
-        //     duration: Math.floor((new Date(flight.arrival_time).getTime() - new Date(flight.departure_time).getTime()) / (1000 * 60)), // Duration in minutes
-        // }));
-
+            };
+        });
+    
+        // Calculate total pages for pagination
         const totalPages = Math.ceil(totalFlight / limit);
         const metadata = {
             flights: enrichedFlights,
             totalPages: totalPages,
             currentPage: page
-        }
-
+        };
+    
         return metadata;
     }
+    
+    
 
     public async getFlightInfo(flight_id: string): Promise<object> {
         if(!flight_id) throw new HttpException(400, 'No flight id');
