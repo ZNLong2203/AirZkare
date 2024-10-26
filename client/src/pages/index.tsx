@@ -411,10 +411,9 @@ const Index: React.FC<IndexProps> = () => {
         </div>
         <div className="text-center">
           <AlertCircle className="w-12 h-12 mx-auto mb-4 text-yellow-400" />
-          <h3 className="text-xl font-semibold mb-2">Covid-19 information</h3>
+          <h3 className="text-xl font-semibold mb-2">Health & Safety Information</h3>
           <p className="text-gray-600">
-            Read about all the travel restrictions due to covid-19 that may
-            affect your flight.
+            Stay informed about health and safety measures that may affect your travel plans.
           </p>
         </div>
       </div>

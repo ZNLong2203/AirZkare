@@ -82,27 +82,37 @@ class BookingService {
                 status: 'pending',
             }
         })
-
         if (!bookingPending) {
             throw new HttpException(404, 'Booking not found');
         }
 
-        await prisma.flight_seat.update({
-            where: {
-                flight_seat_id: bookingData.seat_come_id,
-            },
-            data: {
-                is_booked: true,
-            }
-        })
-        await prisma.flight_seat.update({
-            where: {
-                flight_seat_id: bookingData.seat_return_id,
-            },
-            data: {
-                is_booked: true,
-            }
-        })
+        if(bookingData.seat_come_id) {
+            bookingData.seat_come_id.map(async (flight_seat_id) => {
+                await prisma.flight_seat.update({
+                    where: {
+                        flight_seat_id,
+                    },
+                    data: {
+                        passenger_id: user_id,
+                        is_booked: true,
+                    }
+                })
+            })
+        }
+
+        if(bookingData.seat_return_id) {
+            bookingData.seat_return_id.map(async (flight_seat_id) => {
+                await prisma.flight_seat.update({
+                    where: {
+                        flight_seat_id,
+                    },
+                    data: {
+                        passenger_id: user_id,
+                        is_booked: true,
+                    }
+                })
+            })
+        }
 
         return;
     }

@@ -2,6 +2,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import API from '@/constants/api'
 import useFlightSearchStore from '@/store/useFlightSearchStore'
+import { useStore } from '@/store/useStore'
 import { useState, useMemo, useEffect } from 'react'
 import { MdAirplanemodeActive, MdAirlineSeatReclineNormal, MdFlightTakeoff, MdFlightLand } from "react-icons/md"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -30,10 +31,14 @@ interface Seat {
 
 const SeatSelecting = () => {
   const router = useRouter()
-  const token = localStorage.getItem('token')
+  const { token } = useStore((state) => state)
+  const { departure_come_airport, arrival_come_airport, passengers } = useFlightSearchStore((state) => state)
   const { flight_come_id } = useFlightSearchStore((state) => state)
   const [seats, setSeats] = useState<Seat[]>([])
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
+
+  const departureCode = departure_come_airport.code
+  const arrivalCode = arrival_come_airport.code
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -63,11 +68,14 @@ const SeatSelecting = () => {
 
   const handleSeatSelection = (seat: Seat) => {
     if (!seat.is_booked) {
-      setSelectedSeats((prev) =>
-        prev.includes(seat.flight_seat_id)
-          ? prev.filter((id) => id !== seat.flight_seat_id)
-          : [...prev, seat.flight_seat_id]
-      )
+      setSelectedSeats((prev) => {
+        if (prev.includes(seat.flight_seat_id)) {
+          return prev.filter((id) => id !== seat.flight_seat_id)
+        } else if (prev.length < passengers) {
+          return [...prev, seat.flight_seat_id]
+        }
+        return prev
+      })
     }
   }
 
@@ -78,6 +86,7 @@ const SeatSelecting = () => {
   }, [selectedSeats, seats])
 
   const handleCheckout = () => {
+    console.log(selectedSeats)
     router.push('/payment')
   }
 
@@ -172,11 +181,11 @@ const SeatSelecting = () => {
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <MdFlightTakeoff className="text-2xl" />
-                    <span>HAN</span>
+                    <span>{departureCode}</span>
                   </div>
                   <div className="h-px w-16 bg-secondary-foreground/50"></div>
                   <div className="flex items-center space-x-2">
-                    <span>SGN</span>
+                    <span>{arrivalCode}</span>
                     <MdFlightLand className="text-2xl" />
                   </div>
                 </CardTitle>
@@ -185,6 +194,7 @@ const SeatSelecting = () => {
                 <div className="mb-6">
                   <h2 className="text-2xl font-semibold mb-2 text-gray-800">Flight Details</h2>
                   <p className="text-gray-600">Flight VN123 • Boeing 787 • 2h 5m</p>
+                  <p className="text-gray-600">Passengers: {passengers}</p>
                 </div>
                 <Separator className="my-4" />
                 <div className="space-y-6">
