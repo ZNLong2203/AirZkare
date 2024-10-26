@@ -136,6 +136,7 @@ const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onCha
 
 const PassengerDetails = () => {
   const router = useRouter();
+  const token = localStorage.getItem('token');
   const { passengers, departure_come_airport, arrival_come_airport, setPassengers } = useFlightSearchStore();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -152,6 +153,9 @@ const PassengerDetails = () => {
         phone,
         passengersData: passengerForms, 
       }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         withCredentials: true,
       });
 

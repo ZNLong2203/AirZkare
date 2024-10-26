@@ -20,18 +20,18 @@ class BookingService {
         if(checkOtherBookingPending.length > 0) {
             await prisma.$transaction(async (prisma) => {
                 try {
-                    await prisma.booking.deleteMany({
-                        where: {
-                            user_id,
-                            status: 'pending',
-                        }
-                    })
-
                     await prisma.booking_passenger.deleteMany({
                         where: {
                             booking_id: {
                                 in: checkOtherBookingPending.map(booking => booking.booking_id)
                             }
+                        }
+                    })
+                    
+                    await prisma.booking.deleteMany({
+                        where: {
+                            user_id,
+                            status: 'pending',
                         }
                     })
                 } catch (error) {

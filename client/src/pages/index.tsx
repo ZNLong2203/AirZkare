@@ -144,8 +144,18 @@ const Index: React.FC<IndexProps> = () => {
       departure_come_time: date.from,
       type: "roundTrip",
       passengers,
-      departure_return_airport: {},
-      arrival_return_airport: {},
+      departure_return_airport: {
+        airport_id: "",
+        name: "",
+        code: "",
+        location: "",
+      },
+      arrival_return_airport: {
+        airport_id: "",
+        name: "",
+        code: "",
+        location: "",
+      },
       departure_return_time: null as Date | null,
     };
   

@@ -60,17 +60,17 @@ const SelectFlightPage = () => {
   const router = useRouter();
   // const { userInfo } = useStore();
   const {
-    departure_come_airport,
-    arrival_come_airport,
-    departure_come_time,
+    departure_return_airport,
+    arrival_return_airport,
+    departure_return_time,
 
     passengers,
 
     setFlightSearch,
   } = useFlightSearchStore();
 
-  const departureAirportid = departure_come_airport?.airport_id;
-  const arrivalAirportid = arrival_come_airport?.airport_id;
+  const departureAirportid = departure_return_airport?.airport_id;
+  const arrivalAirportid = arrival_return_airport?.airport_id;
 
   const [sortBy, setSortBy] = useState("departureTime");
   const [stopFilter, setStopFilter] = useState("all");
@@ -81,12 +81,12 @@ const SelectFlightPage = () => {
     page: "1",
     departure_airport: departureAirportid,
     arrival_airport: arrivalAirportid,
-    departure_time: departure_come_time?.toISOString() || "",
+    departure_time: departure_return_time?.toISOString() || "",
     passengers: passengers?.toString(),
   };
   
   const { data, isLoading, isError, error } = useQuery<FlightWithDA[], Error>({
-    queryKey: ["flights_come", searchParams],
+    queryKey: ["flights_return", searchParams],
     queryFn: () => fetchFlights(searchParams), 
   });
 
@@ -187,9 +187,9 @@ const SelectFlightPage = () => {
               </div>
             </div>
             <div className="hidden md:flex items-center space-x-2 text-lg text-gray-700">
-              <span className="font-semibold">{departure_come_airport?.location}</span>
+              <span className="font-semibold">{departure_return_airport?.location}</span>
               <ArrowLeftRight className="w-5 h-5 text-blue-600" />
-              <span className="font-semibold">{arrival_come_airport?.location}</span>
+              <span className="font-semibold">{arrival_return_airport?.location}</span>
             </div>
           </div>
         </motion.div>

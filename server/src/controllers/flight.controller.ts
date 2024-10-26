@@ -42,8 +42,6 @@ class FlightController {
 
             const flights = await this.flightService.getAllFlight(pageNumber, departureAirportStr, arrivalAirportStr, departureTimeDate, arrivalTimeDate);
             
-            console.log(flights);
-
             res.status(200).json({
                 message: 'Flights fetched successfully',
                 metadata: flights,
@@ -62,6 +60,21 @@ class FlightController {
             res.status(200).json({
                 message: 'Flight fetched successfully',
                 metadata: flight,
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    public getFlightSeat = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { flight_id } = req.params;
+
+            const flightSeat = await this.flightService.getFlightSeat(flight_id);
+
+            res.status(200).json({
+                message: 'Flight seat fetched successfully',
+                metadata: flightSeat,
             })
         } catch(err) {
             next(err);

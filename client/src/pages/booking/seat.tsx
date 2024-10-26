@@ -1,4 +1,8 @@
-import { useState, useMemo } from 'react'
+import axios from 'axios'
+import toast from 'react-hot-toast'
+import API from '@/constants/api'
+import useFlightSearchStore from '@/store/useFlightSearchStore'
+import { useState, useMemo, useEffect } from 'react'
 import { MdAirplanemodeActive, MdAirlineSeatReclineNormal, MdFlightTakeoff, MdFlightLand } from "react-icons/md"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,64 +15,77 @@ import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
 
 interface Seat {
-  id: number
-  class: 'Business' | 'Economy'
-  reserved: boolean
-  label: string
+  flight_seat_id: string;
+  flight_id: string;
+  passenger_id: string | null;
+  seat_id: string;
+  is_booked: boolean;
+  seat: {
+    seat_id: string;
+    airplane_id: string;
+    number: string;
+    class: 'business' | 'economy';
+  };
 }
 
-const seats: Seat[] = [
-  { id: 1, class: 'Business', reserved: false, label: '1A' },
-  { id: 2, class: 'Business', reserved: false, label: '1B' },
-  { id: 3, class: 'Business', reserved: true, label: '1C' },
-  { id: 4, class: 'Business', reserved: false, label: '1D' },
-  { id: 7, class: 'Business', reserved: false, label: '2A' },
-  { id: 8, class: 'Business', reserved: true, label: '2B' },
-  { id: 9, class: 'Business', reserved: false, label: '2C' },
-  { id: 10, class: 'Business', reserved: false, label: '2D' },
-  { id: 13, class: 'Economy', reserved: false, label: '3A' },
-  { id: 14, class: 'Economy', reserved: false, label: '3B' },
-  { id: 15, class: 'Economy', reserved: false, label: '3C' },
-  { id: 16, class: 'Economy', reserved: false, label: '3D' },
-  { id: 17, class: 'Economy', reserved: true, label: '3E' },
-  { id: 18, class: 'Economy', reserved: false, label: '3F' },
-  { id: 19, class: 'Economy', reserved: false, label: '4A' },
-  { id: 20, class: 'Economy', reserved: false, label: '4B' },
-  { id: 21, class: 'Economy', reserved: false, label: '4C' },
-  { id: 22, class: 'Economy', reserved: false, label: '4D' },
-  { id: 23, class: 'Economy', reserved: false, label: '4E' },
-  { id: 24, class: 'Economy', reserved: false, label: '4F' },
-]
-
-const BookingSeat = () => {
+const SeatSelecting = () => {
   const router = useRouter()
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([])
+  const token = localStorage.getItem('token')
+  const { flight_come_id } = useFlightSearchStore((state) => state)
+  const [seats, setSeats] = useState<Seat[]>([])
+  const [selectedSeats, setSelectedSeats] = useState<string[]>([])
+
+  useEffect(() => {
+    const fetchSeats = async () => {
+      try {
+        const res = await axios.get(`${API.FLIGHT}/${flight_come_id}/seat`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          withCredentials: true
+        })
+        setSeats(res.data.metadata)
+      } catch(error) {
+        toast.error('Failed to fetch seats')
+      }
+    }
+    fetchSeats()
+  }, [])
+
+  const sortedSeats = seats.sort((a, b) => {
+    const [aRow, aCol] = [parseInt(a.seat.number.slice(0, -1)), a.seat.number.slice(-1)]
+    const [bRow, bCol] = [parseInt(b.seat.number.slice(0, -1)), b.seat.number.slice(-1)]
+    if (aRow === bRow) {
+      return aCol.localeCompare(bCol) 
+    }
+    return aRow - bRow 
+  })
 
   const handleSeatSelection = (seat: Seat) => {
-    if (!seat.reserved) {
+    if (!seat.is_booked) {
       setSelectedSeats((prev) =>
-        prev.includes(seat.id)
-          ? prev.filter((id) => id !== seat.id)
-          : [...prev, seat.id]
+        prev.includes(seat.flight_seat_id)
+          ? prev.filter((id) => id !== seat.flight_seat_id)
+          : [...prev, seat.flight_seat_id]
       )
     }
   }
 
   const selectedClasses = useMemo(() => {
-    const classes = new Set(selectedSeats.map(id => seats.find(seat => seat.id === id)?.class))
+    const classes = new Set(selectedSeats.map(id => seats.find(seat => seat.flight_seat_id === id)?.seat.class))
     if (classes.size === 2) return 'Mixed'
     return classes.values().next().value || ''
-  }, [selectedSeats])
+  }, [selectedSeats, seats])
 
   const handleCheckout = () => {
     router.push('/payment')
   }
 
-  const renderSeats = (seatClass: 'Business' | 'Economy') =>
-    seats
-      .filter((seat) => seat.class === seatClass)
+  const renderSeats = (seatClass: 'business' | 'economy') =>
+    sortedSeats
+      .filter((seat) => seat.seat.class === seatClass)
       .map((seat) => (
-        <TooltipProvider key={seat.id}>
+        <TooltipProvider key={seat.flight_seat_id}>
           <Tooltip>
             <TooltipTrigger asChild>
               <motion.div
@@ -77,28 +94,28 @@ const BookingSeat = () => {
               >
                 <Button
                   onClick={() => handleSeatSelection(seat)}
-                  variant={seat.reserved ? "secondary" : selectedSeats.includes(seat.id) ? "default" : "outline"}
+                  variant={seat.is_booked ? "secondary" : selectedSeats.includes(seat.flight_seat_id) ? "default" : "outline"}
                   className={`w-12 h-12 p-0 ${
-                    seat.class === 'Business' 
+                    seat.seat.class === 'business' 
                       ? 'bg-amber-100 hover:bg-amber-200' 
                       : 'bg-emerald-100 hover:bg-emerald-200'
-                  } ${seat.reserved ? 'bg-gray-300 hover:bg-gray-300 cursor-not-allowed' : ''} 
-                    ${selectedSeats.includes(seat.id) ? 'bg-primary text-primary-foreground' : ''}`}
-                  disabled={seat.reserved}
+                  } ${seat.is_booked ? 'bg-gray-300 hover:bg-gray-300 cursor-not-allowed' : ''} 
+                    ${selectedSeats.includes(seat.flight_seat_id) ? 'bg-primary text-primary-foreground' : ''}`}
+                  disabled={seat.is_booked}
                 >
                   <div className="flex flex-col items-center">
-                    {seat.reserved ? (
+                    {seat.is_booked ? (
                       <MdAirlineSeatReclineNormal className="text-gray-500" />
                     ) : (
-                      <MdAirplanemodeActive className={selectedSeats.includes(seat.id) ? "text-primary-foreground" : "text-primary"} />
+                      <MdAirplanemodeActive className={selectedSeats.includes(seat.flight_seat_id) ? "text-primary-foreground" : "text-primary"} />
                     )}
-                    <span className="text-xs mt-1">{seat.label}</span>
+                    <span className="text-xs mt-1">{seat.seat.number}</span>
                   </div>
                 </Button>
               </motion.div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{seat.reserved ? 'Reserved' : `${seat.class} Class - Seat ${seat.label}`}</p>
+              <p>{seat.is_booked ? 'Reserved' : `${seat.seat.class.charAt(0).toUpperCase() + seat.seat.class.slice(1)} Class - Seat ${seat.seat.number}`}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -150,7 +167,7 @@ const BookingSeat = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Card className="shadow-lg">
+            <Card className="shadow-lg h-full">
               <CardHeader className="bg-secondary">
                 <CardTitle className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -164,29 +181,28 @@ const BookingSeat = () => {
                   </div>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-6">
+              <CardContent className="p-6 h-[calc(100vh-300px)] overflow-y-auto">
                 <div className="mb-6">
                   <h2 className="text-2xl font-semibold mb-2 text-gray-800">Flight Details</h2>
                   <p className="text-gray-600">Flight VN123 • Boeing 787 • 2h 5m</p>
                 </div>
                 <Separator className="my-4" />
-                <ScrollArea className="h-[500px] w-full rounded-md border p-4">
-                  <div className="space-y-6">
-                    <div>
-                      <h2 className="text-xl font-semibold mb-4 text-gray-800">Business Class</h2>
-                      <div className="grid grid-cols-4 gap-4 mb-4 justify-items-center">
-                        {renderSeats('Business')}
-                      </div>
-                    </div>
-                    <Separator className="my-4" />
-                    <div>
-                      <h2 className="text-xl font-semibold mb-4 text-gray-800">Economy Class</h2>
-                      <div className="grid grid-cols-6 gap-4 justify-items-center">
-                        {renderSeats('Economy')}
-                      </div>
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Business Class</h2>
+                    <div className="grid grid-cols-4 gap-4 mb-4 justify-items-center">
+                      {renderSeats('business')}
                     </div>
                   </div>
-                </ScrollArea>
+                  <Separator className="my-4" />
+                  <div>
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Economy Class</h2>
+                    <div className="grid grid-cols-6 gap-4 justify-items-center">
+                      {renderSeats('economy')}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="mt-6 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 bg-amber-100 border border-amber-300 rounded"></div>
@@ -210,15 +226,15 @@ const BookingSeat = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            <Card className="shadow-lg">
+            <Card className="shadow-lg sticky top-4">
               <CardHeader className="bg-secondary">
                 <CardTitle className="text-secondary-foreground">Selected Seats</CardTitle>
               </CardHeader>
               <CardContent className="p-4">
-                <ScrollArea className="h-[400px]">
+                <ScrollArea className="h-[calc(100vh-450px)]">
                   <div className="space-y-2">
                     {selectedSeats.map((id) => {
-                      const seat = seats.find(s => s.id === id)
+                      const seat = seats.find(s => s.flight_seat_id === id)
                       return (
                         <motion.div 
                           key={id} 
@@ -227,8 +243,8 @@ const BookingSeat = () => {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <span>{seat?.label}</span>
-                          <Badge variant="outline">{seat?.class}</Badge>
+                          <span>{seat?.seat.number}</span>
+                          <Badge variant="outline">{seat?.seat.class}</Badge>
                         </motion.div>
                       )
                     })}
@@ -270,7 +286,7 @@ const BookingSeat = () => {
             <MapPin className="w-6 h-6" />
             <span className="text-lg">Popular Destinations</span>
           </div>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center  gap-4">
             <Badge variant="outline" className="text-lg py-2 px-4">Paris</Badge>
             <Badge variant="outline" className="text-lg py-2 px-4">Tokyo</Badge>
             <Badge variant="outline" className="text-lg py-2 px-4">New York</Badge>
@@ -301,4 +317,4 @@ const BookingSeat = () => {
   )
 }
 
-export default BookingSeat
+export default SeatSelecting

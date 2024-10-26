@@ -14,6 +14,7 @@ class FlightRoute implements Routes {
 
     private initializeRoutes() {
         this.router.post(`${this.path}`, authMiddleware, this.flightController.createFlight);
+        this.router.get(`${this.path}/:flight_id/seat`, authMiddleware, this.flightController.getFlightSeat);
         this.router.get(`${this.path}/:flight_id`, authMiddleware, this.flightController.getFlightInfo);
         this.router.get(`${this.path}`, this.flightController.getAllFlight);
         this.router.put(`${this.path}/:flight_id`, authMiddleware, this.flightController.updateFlight);

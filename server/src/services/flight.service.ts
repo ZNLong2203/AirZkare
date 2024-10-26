@@ -32,6 +32,23 @@ class FlightService {
             }
         })
 
+        const seatInAirplane = await prisma.seat.findMany({
+            where: {
+                airplane_id: flightData.airplane_id
+            }
+        })
+
+        seatInAirplane.map(async seat => {
+            await prisma.flight_seat.create({
+                data: {
+                    flight_seat_id: randomUUID(),
+                    flight_id: createFlight.flight_id,
+                    seat_id: seat.seat_id,
+                    is_booked: false,
+                }
+            })
+        })
+
         return createFlight;
     }
 
@@ -118,6 +135,21 @@ class FlightService {
         if(!flight) throw new HttpException(404, `Flight with id ${flight_id} not found`);
 
         return flight;
+    }
+
+    public async getFlightSeat(flight_id: string): Promise<object> {
+        if(!flight_id) throw new HttpException(400, 'No flight id');
+
+        const flightSeat = await prisma.flight_seat.findMany({
+            where: {
+                flight_id: flight_id
+            },
+            include: {
+                seat: true
+            }
+        })
+
+        return flightSeat;
     }
 
     public async updateFlight(flight_id: string, flightData: Flight): Promise<object> {

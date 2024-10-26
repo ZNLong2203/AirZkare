@@ -75,7 +75,7 @@ CREATE TABLE passenger (
 CREATE TABLE flight_seat (
     flight_seat_id UUID PRIMARY KEY,
     flight_id UUID REFERENCES flight(flight_id) NOT NULL,
-    passenger_id UUID REFERENCES passenger(passenger_id) NOT NULL,
+    passenger_id UUID REFERENCES passenger(passenger_id),
     seat_id UUID REFERENCES seat(seat_id) NOT NULL,
     is_booked BOOLEAN DEFAULT FALSE
 );
