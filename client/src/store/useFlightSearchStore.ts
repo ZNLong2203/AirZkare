@@ -23,6 +23,9 @@ interface FlightSearchState {
     // Check doing flight search
     isSearching: boolean;
 
+    // Total price
+    total_price: number;
+
     setPassengers: (passengers: number) => void;
     setFlightSearch: (searchData: Partial<FlightSearchState>) => void;
 }
@@ -44,6 +47,8 @@ const useFlightSearchStore = create<FlightSearchState>((set) => ({
     passengers: 1,
 
     isSearching: false,
+
+    total_price: 0,
     
     setPassengers: (passengers: number) => set((state) => ({ ...state, passengers })),
     setFlightSearch: (searchData) => set((state) => ({ ...state, ...searchData })),

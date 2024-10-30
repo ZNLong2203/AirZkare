@@ -137,12 +137,34 @@ class BookingService {
 
         if(!bookingData) throw new HttpException(404, 'Booking not found');
 
-        await prisma.booking.update({
-            where: {
-                booking_id,
-            },
-            data: {
-                status: 'cancelled',
+        await prisma.$transaction(async (prisma) => {
+            try {
+                await prisma.booking_passenger.deleteMany({
+                    where: {
+                        booking_id,
+                    }
+                })
+
+                await prisma.booking.update({
+                    where: {
+                        booking_id,
+                    },
+                    data: {
+                        status: 'cancelled',
+                    }
+                })
+
+                await prisma.flight_seat.updateMany({
+                    where: {
+                        passenger_id: user_id,
+                    },
+                    data: {
+                        passenger_id: null,
+                        is_booked: false,
+                    }
+                })
+            } catch (error) {
+                throw new HttpException(400, 'Error');
             }
         })
 

@@ -32,8 +32,7 @@ interface Seat {
 const SeatSelecting = () => {
   const router = useRouter()
   const { token } = useStore((state) => state)
-  const { departure_come_airport, arrival_come_airport, passengers } = useFlightSearchStore((state) => state)
-  const { flight_come_id } = useFlightSearchStore((state) => state)
+  const { departure_come_airport, arrival_come_airport, passengers, flight_come_id, flight_return_id, type } = useFlightSearchStore((state) => state)
   const [seats, setSeats] = useState<Seat[]>([])
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
 
@@ -85,9 +84,24 @@ const SeatSelecting = () => {
     return classes.values().next().value || ''
   }, [selectedSeats, seats])
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
+    try {
+      await axios.post(`${API.BOOKING}/flight`, {
+        flight_come_id,
+        flight_return_id,
+        flight_type: type,
+        seats_come_id: selectedSeats
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        withCredentials: true
+      })
+      router.push('/payment')
+    } catch (error) {
+      toast.error('Failed to proceed to checkout')
+    }
     console.log(selectedSeats)
-    router.push('/payment')
   }
 
   const renderSeats = (seatClass: 'business' | 'economy') =>

@@ -5,6 +5,7 @@ import AirportRoute from './routes/airport.route';
 import AirplaneRoute from './routes/airplane.route';
 import FlightRoute from './routes/flight.route';
 import BookingRoute from './routes/booking.route';
+import PaymentRoute from './routes/payment.route';
 import DashboardRoute from './routes/dashboard.route';
 
 const app = new App([
@@ -14,6 +15,7 @@ const app = new App([
     new AirplaneRoute(),
     new FlightRoute(),
     new BookingRoute(),
+    new PaymentRoute(),
     new DashboardRoute(),
 ]);
 
