@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import { Payment } from "../interfaces/payment.interface";
 import PaymentService from "../services/payment.service";
+import { config } from "../configs/zalopay.config";
+import axios from 'axios';
 
 class PaymentController {
     public paymentService = new PaymentService();
@@ -30,9 +32,11 @@ class PaymentController {
 
             const paymentSession = await this.paymentService.createPaymentZalopay(user_id, paymentData);
 
+            const endpoint = config.endpoint || '';
+            const response = await axios.post(endpoint, null, { params: paymentSession });
             res.status(201).json({
                 message: 'Payment session created',
-                metadata: paymentSession,
+                metadata: response.data,
             });
         } catch(err) {
             next(err);
