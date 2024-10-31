@@ -8,7 +8,7 @@ import stripe from "../configs/stripe.config";
 const prisma = PrismaClientInstance();
 
 class PaymentService {
-    public async createPaymentSession(user_id: string, paymentData: Payment): Promise<object> {
+    public async createPaymentStripe(user_id: string, paymentData: Payment): Promise<object> {
         if(!user_id || !paymentData) throw new HttpException(400, 'No data');
         const sessionData: Stripe.Checkout.SessionCreateParams = {
             // line_items: cart_items.map(item => {
@@ -41,6 +41,21 @@ class PaymentService {
                 payment_id: randomUUID(),
                 booking_id: paymentData.booking_id,
                 method: 'credit_card',
+                amount: paymentData.amount,
+            }
+        })
+
+        return createPayment;
+    }
+
+    public async createPaymentZalopay(user_id: string, paymentData: Payment): Promise<object> {
+        if(!user_id || !paymentData) throw new HttpException(400, 'No data');
+
+        const createPayment = await prisma.payment.create({
+            data: {
+                payment_id: randomUUID(),
+                booking_id: paymentData.booking_id,
+                method: 'zalopay',
                 amount: paymentData.amount,
             }
         })

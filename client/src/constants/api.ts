@@ -12,6 +12,7 @@ const API = {
     BOOKING: `${BE}/booking`,
     BOOKINGPASSENGER: `${BE}/booking/passenger`,
     BOOKINGFLIGHT: `${BE}/booking/flight`,
+    BOOKINGHISTORY: `${BE}/booking/history`,
     PAYMENT: `${BE}/payment`,
 }
 

@@ -1,11 +1,11 @@
-'use client'
-
-import React, { useState } from 'react'
+import axios from 'axios'
+import API from '@/constants/api'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plane, Calendar, Search, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
@@ -61,7 +61,9 @@ const tickets: Ticket[] = [
   }
 ]
 
-export default function MyTickets() {
+const MyTickets = () => {
+  const token  = localStorage.getItem('token')
+  // const [tickets, setTickets] = useState<Ticket[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -80,31 +82,58 @@ export default function MyTickets() {
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
 
-  const statusColors = {
-    Confirmed: 'bg-green-100 text-green-800',
-    Pending: 'bg-yellow-100 text-yellow-800',
-    Cancelled: 'bg-red-100 text-red-800'
+  const getStatusStyle = (status: string) => {
+    switch(status) {
+      case 'Confirmed':
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      case 'Pending':
+        return 'bg-amber-50 text-amber-700 border-amber-200'
+      case 'Cancelled':
+        return 'bg-rose-50 text-rose-700 border-rose-200'
+      default:
+        return 'bg-gray-50 text-gray-700 border-gray-200'
+    }
   }
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const res = await axios.get(`${API.BOOKINGHISTORY}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            withCredentials: true
+          }
+        })
+        console.log(res.data.metadata)
+        // setTickets(res.data.metadata)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    fetchTickets()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50 py-10">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-10">My Tickets</h1>
+       <main className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Tickets</h1>
         
-        <div className="mb-6 flex flex-col sm:flex-row gap-4 items-center">
+        <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-grow">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
             <Input
               type="text"
               placeholder="Search by flight number, departure, or arrival"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-12 pr-4 py-2 rounded-md shadow-md border-gray-300 focus:ring-primary focus:border-primary"
+              className="pl-10 h-11 bg-white border-gray-200"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-[200px]">
-              <SelectValue placeholder="Filter by Status" />
+            <SelectTrigger className="w-full sm:w-[200px] h-11 bg-white border-gray-200">
+              <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
@@ -116,45 +145,51 @@ export default function MyTickets() {
         </div>
 
         {currentTickets.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {currentTickets.map(ticket => (
-              <Card key={ticket.id} className="transition-transform transform hover:scale-105 hover:shadow-lg">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xl font-bold text-primary">
-                    <Plane className="inline mr-2" />
-                    {ticket.flightNumber}
-                  </CardTitle>
-                  <Badge variant="outline" className={`py-1 px-3 rounded-full text-sm ${statusColors[ticket.status]}`}>
-                    {ticket.status}
-                  </Badge>
-                </CardHeader>
-                <CardContent>
-                  <div className="mt-2 space-y-2">
-                    <p className="text-muted-foreground flex items-center">
-                      <Calendar className="mr-2" />
-                      {ticket.date}
-                    </p>
-                    <p className="font-medium">
-                      From: <span className="text-muted-foreground">{ticket.departure}</span>
-                    </p>
-                    <p className="font-medium">
-                      To: <span className="text-muted-foreground">{ticket.arrival}</span>
-                    </p>
+              <Card key={ticket.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <CardContent className="p-0">
+                  <div className="p-4 flex flex-col space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Plane className="h-5 w-5 text-blue-600" />
+                        <span className="font-semibold text-lg">{ticket.flightNumber}</span>
+                      </div>
+                      <Badge variant="outline" className={`px-3 py-1 border ${getStatusStyle(ticket.status)}`}>
+                        {ticket.status}
+                      </Badge>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      <Calendar className="h-4 w-4" />
+                      <span>{ticket.date}</span>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <div className="text-sm text-gray-500">From</div>
+                        <div className="font-medium">{ticket.departure}</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-gray-500">To</div>
+                        <div className="font-medium">{ticket.arrival}</div>
+                      </div>
+                    </div>
+
+                    <Link 
+                      href={`/tickets/${ticket.id}`}
+                      className="block w-full text-center py-3 bg-gray-50 text-blue-600 font-medium hover:bg-gray-100 transition-colors duration-200"
+                    >
+                      View Details
+                    </Link>
                   </div>
                 </CardContent>
-                <CardFooter>
-                  <Link href={`/tickets/${ticket.id}`} passHref>
-                    <Button variant="outline" className="w-full mt-2">
-                      View Details
-                    </Button>
-                  </Link>
-                </CardFooter>
               </Card>
             ))}
           </div>
         ) : (
-          <div className="text-center text-gray-500 mt-10">
-            <p>No tickets found matching your criteria.</p>
+          <div className="text-center py-12 bg-white rounded-lg border border-gray-200">
+            <p className="text-gray-500">No tickets found matching your criteria.</p>
           </div>
         )}
 
@@ -165,17 +200,16 @@ export default function MyTickets() {
               disabled={currentPage === 1}
               variant="outline"
               size="icon"
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-9 w-9"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span className="sr-only">Previous page</span>
             </Button>
             {Array.from({ length: Math.ceil(filteredTickets.length / ticketsPerPage) }, (_, i) => (
               <Button
                 key={i}
                 onClick={() => paginate(i + 1)}
                 variant={currentPage === i + 1 ? "default" : "outline"}
-                className="mx-1"
+                className="h-9 w-9"
               >
                 {i + 1}
               </Button>
@@ -185,14 +219,15 @@ export default function MyTickets() {
               disabled={currentPage === Math.ceil(filteredTickets.length / ticketsPerPage)}
               variant="outline"
               size="icon"
-              className="disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-9 w-9"
             >
               <ArrowRight className="h-4 w-4" />
-              <span className="sr-only">Next page</span>
             </Button>
           </div>
         )}
-      </div>
+      </main>
     </div>
   )
 }
+
+export default MyTickets

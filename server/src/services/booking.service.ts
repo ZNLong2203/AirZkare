@@ -3,6 +3,7 @@ import { HttpException } from "../exceptions/HttpException";
 import { randomUUID } from "crypto";
 import { BookingFlightInfo } from '../interfaces/booking.interface';
 import { Passenger } from "../interfaces/passsenger.interface";
+import moment from "moment";
 
 const prisma = PrismaClientInstance();
 
@@ -117,15 +118,83 @@ class BookingService {
         return;
     }
 
-    public async getPassengerBookingHistory(user_id: string): Promise<object> {
+    public async getPassengerBookingHistory(user_id: string): Promise<object[]> {
         const bookingData = await prisma.booking.findMany({
             where: {
                 user_id,
             },
+            select: {
+                booking_id: true,
+                status: true,
+                time: true,
+                booking_passenger: {
+                    select: {
+                        passenger: {
+                            select: {
+                                flight_seat: {
+                                    select: {
+                                        flight: {
+                                            select: {
+                                                flight_id: true,
+                                                code: true,
+                                                airport_flight_arrival_airportToairport: {
+                                                    select: {
+                                                        airport_id: true,
+                                                        name: true,
+                                                        location: true,
+                                                    }
+                                                },
+                                                airport_flight_departure_airportToairport: {
+                                                    select: {
+                                                        airport_id: true,
+                                                        name: true,
+                                                        location: true,
+                                                    }
+                                                },
+                                                departure_time: true,
+                                                status: true,
+                                                airplane: {
+                                                    select: {
+                                                        airplane_id: true,
+                                                        name: true,
+                                                        model: true,
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    
+        return bookingData.map((booking) => ({
+            id: booking.booking_id,
+            flightNumber: booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.code,
+            departure: `${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_arrival_airportToairport.location} (${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_arrival_airportToairport.airport_id})`,
+            arrival: `${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_departure_airportToairport.location} (${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_departure_airportToairport.airport_id})`,
+            date: moment(booking.time).format('YYYY-MM-DD'),
+            status: booking.status,
+        }));
+    }
+
+    public async getBookingInfo(booking_id: string): Promise<object> {
+        const bookingData = await prisma.booking.findUnique({
+            where: {
+                booking_id,
+            },
+            include: {
+                payment: true,
+            }
         })
 
+        if(!bookingData) throw new HttpException(404, 'Booking not found');
+
         return bookingData;
-    } 
+    }
 
     public async cancelBooking(user_id: string, booking_id: string): Promise<void> {
         const bookingData = await prisma.booking.findFirst({

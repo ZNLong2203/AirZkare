@@ -71,6 +71,21 @@ class BookingController {
         }
     }
 
+    public getBookingInfo = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { booking_id } = req.params;
+
+            const bookingData = await this.BookingService.getBookingInfo(booking_id);
+
+            res.status(200).json({
+                message: 'Booking info fetched',
+                metadata: bookingData
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
+
     public cancelBooking = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData = req.user as any;

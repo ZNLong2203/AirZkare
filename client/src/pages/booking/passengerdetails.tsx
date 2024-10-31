@@ -159,7 +159,7 @@ const PassengerDetails = () => {
         withCredentials: true,
       });
 
-      router.push('/booking/seat');
+      router.push('/booking/seat/come');
     } catch (error) {
       toast.error('An error occurred. Please try again.');
     }
