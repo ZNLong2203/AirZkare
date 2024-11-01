@@ -7,6 +7,7 @@
     - Next.js
     - TailwindCSS
     - Express.js
+    - Redis
     - PostgreSQL
     - Prisma ORM
     - Docker
@@ -24,8 +25,9 @@
     - View / Edit Profile
     - Find a flight
     - Book / Cancel a flight
-    - Payment Gateway Stripe and QR code
-    - Get notification confirm about booking
+    - Choose a flight seat
+    - Payment Gateway Stripe and QR code with Zalopay
+    - Get notification email confirm about booking
     - View booking history
     - View current flight status
 

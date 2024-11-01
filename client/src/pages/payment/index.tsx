@@ -8,8 +8,6 @@ import {
   Users,
   ArrowLeft,
 } from "lucide-react";
-
-// Local component imports
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -23,10 +21,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe("pk_test_51PQmYTIYYB20QSq1o1yZlZ61qHl6ZgNtOhgkHXGI14siKnCf9LEV23WAkK6sLnOheYO06ds9fXXJQZKC6Kn2u4k8005CXtvDgp")
 
 const PaymentPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "momo">("stripe");
   const [momoNumber, setMomoNumber] = useState("");
+
+  const handleStripePayment = async () => {
+    const stripe = await stripePromise;
+    if (stripe) {
+      const { error } = await stripe.redirectToCheckout({
+        sessionId: "your-session-id-here", 
+      });
+      if (error) {
+        console.error("Error redirecting to checkout:", error);
+      }
+    } else {
+      console.error("Stripe has not loaded.");
+    }
+  };
 
   const handleMomoPayment = () => {
     console.log("Processing MoMo payment with number:", momoNumber);
@@ -195,7 +210,10 @@ const PaymentPage = () => {
                   <p className="text-sm text-gray-600">
                     Pay securely with your credit card using Stripe.
                   </p>
-                  <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                  <Button
+                    onClick={handleStripePayment} 
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  >
                     Pay with Stripe
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>

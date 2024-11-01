@@ -13,7 +13,8 @@ const API = {
     BOOKINGPASSENGER: `${BE}/booking/passenger`,
     BOOKINGFLIGHT: `${BE}/booking/flight`,
     BOOKINGHISTORY: `${BE}/booking/history`,
-    PAYMENT: `${BE}/payment`,
+    PAYMENTSTRIPE: `${BE}/payment/stripe`,
+    PAYMENTZALOPAY: `${BE}/payment/zalopay`,
 }
 
 export default API;
