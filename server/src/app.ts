@@ -4,6 +4,8 @@ import express from 'express';
 import session from 'express-session';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
 import morgan from 'morgan';
 import cors from 'cors';
 
@@ -22,6 +24,7 @@ class App {
 
         this.middlewares();
         this.initializeRoutes(routes);
+        this.initializeSwagger();
         this.errorHandling();
     }
 
@@ -62,6 +65,42 @@ class App {
         });
         this.app.use('/images/', express.static('./'));
     }    
+
+    private initializeSwagger() {
+        const options = {
+          swaggerDefinition: {
+            openapi: '3.0.0',
+            info: {
+              title: 'REST API',
+              version: '1.0.0',
+              description: 'Example docs',
+            },
+            servers: [
+              {
+                url: 'http://localhost:2222',
+              },
+            ],
+            components: {
+              securitySchemes: {
+                bearerAuth: {
+                  type: 'http',
+                  scheme: 'bearer',
+                  bearerFormat: 'JWT',
+                },
+              },
+            },
+            security: [
+              {
+                bearerAuth: [],
+              },
+            ],
+          },
+          apis: ['swagger.yaml'],
+        };
+      
+        const specs = swaggerJSDoc(options);
+        this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+    }  
 
     private errorHandling() {
         this.app.use(errorMiddleware);

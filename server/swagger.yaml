@@ -1,0 +1,401 @@
+openapi: 3.0.0
+info:
+  title: Airline Booking API
+  version: 1.0.0
+  description: API documentation for Airline Booking system
+servers:
+  - url: http://localhost:2222
+
+paths:
+  /airplane:
+    post:
+      summary: Create a new airplane
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Airplane created
+        '401':
+          description: Unauthorized
+
+    get:
+      summary: Get all airplanes
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A list of airplanes
+        '401':
+          description: Unauthorized
+
+  /airplane/{airplane_id}:
+    get:
+      summary: Get airplane info by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: airplane_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Airplane info
+        '401':
+          description: Unauthorized
+
+    put:
+      summary: Update airplane by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: airplane_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Airplane updated
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Delete airplane by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: airplane_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Airplane deleted
+        '401':
+          description: Unauthorized
+
+  /airport:
+    post:
+      summary: Create a new airport
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Airport created
+        '401':
+          description: Unauthorized
+
+    get:
+      summary: Get all airports
+      responses:
+        '200':
+          description: A list of airports
+
+  /airport/{airport_id}:
+    patch:
+      summary: Edit airport by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: airport_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Airport updated
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Delete airport by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: airport_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Airport deleted
+        '401':
+          description: Unauthorized
+
+  /auth/register:
+    post:
+      summary: Register a new user
+      responses:
+        '201':
+          description: User registered
+
+  /auth/login:
+    post:
+      summary: User login
+      responses:
+        '200':
+          description: User logged in
+
+  /auth/logout:
+    post:
+      summary: User logout
+      responses:
+        '200':
+          description: User logged out
+
+  /auth/google:
+    get:
+      summary: Google authentication
+      responses:
+        '302':
+          description: Redirect to Google
+
+  /auth/google/callback:
+    get:
+      summary: Google authentication callback
+      responses:
+        '200':
+          description: Google authentication successful
+
+  /booking/passenger:
+    post:
+      summary: Create a booking for a passenger
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Booking created
+        '401':
+          description: Unauthorized
+
+  /booking/flight:
+    post:
+      summary: Create a booking for a flight
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Booking created
+        '401':
+          description: Unauthorized
+
+  /booking/history:
+    get:
+      summary: Get passenger booking history
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Booking history
+        '401':
+          description: Unauthorized
+
+  /booking/{booking_id}:
+    get:
+      summary: Get booking info by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking info
+        '401':
+          description: Unauthorized
+
+    patch:
+      summary: Cancel booking by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: booking_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Booking canceled
+        '401':
+          description: Unauthorized
+
+  /dashboard/piechart:
+    get:
+      summary: Get pie chart data
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Pie chart data
+        '401':
+          description: Unauthorized
+
+  /flight:
+    post:
+      summary: Create a new flight
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Flight created
+        '401':
+          description: Unauthorized
+
+    get:
+      summary: Get all flights
+      responses:
+        '200':
+          description: A list of flights
+
+  /flight/{flight_id}/seat:
+    get:
+      summary: Get seats for a specific flight
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: flight_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flight seat data
+        '401':
+          description: Unauthorized
+
+  /flight/{flight_id}:
+    get:
+      summary: Get flight info by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: flight_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flight info
+        '401':
+          description: Unauthorized
+
+    put:
+      summary: Update flight by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: flight_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Flight updated
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Delete flight by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: flight_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Flight deleted
+        '401':
+          description: Unauthorized
+
+  /passenger/{user_id}:
+    get:
+      summary: Get passenger info by user ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Passenger info
+        '401':
+          description: Unauthorized
+
+    patch:
+      summary: Update passenger by user ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Passenger updated
+        '401':
+          description: Unauthorized
+
+    delete:
+      summary: Delete passenger by user ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Passenger deleted
+        '401':
+          description: Unauthorized
+
+  /payment/stripe:
+    post:
+      summary: Create Stripe payment
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Payment created
+        '401':
+          description: Unauthorized
+
+  /payment/zalopay:
+    post:
+      summary: Create ZaloPay payment
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Payment created
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
