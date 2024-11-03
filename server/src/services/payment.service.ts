@@ -14,41 +14,60 @@ class PaymentService {
     public async createPaymentStripe(user_id: string, paymentData: Payment): Promise<object> {
         if(!user_id || !paymentData) throw new HttpException(400, 'No data');
         const sessionData: Stripe.Checkout.SessionCreateParams = {
-            // line_items: cart_items.map(item => {
-            //     return {
-            //         price_data: {
-            //             currency: 'usd',
-            //             product_data: {
-            //                 name: item.cart_product.product_name,
-            //                 images: [item.cart_product.product_image || "https://applecenter.com.vn/uploads/cms/16632365177447.jpg"],
-            //                 metadata: { 
-            //                     product_id: item.cart_product._id.toString()
-            //                 }
-            //             },
-            //             unit_amount: item.cart_product.product_price * 100
-            //         },
-            //         quantity: item.cart_quantity,
-            //     }
-            // }),
-            // customer_email: user.email,
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: 'Flight Booking',
+                        },
+                        unit_amount: paymentData.amount * 100,
+                    },
+                    quantity: 1,
+                }
+            ],
             payment_method_types: ['card'],
             mode: 'payment',
-            success_url: `${process.env.FRONTEND_URL}/paymentsuccess?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.FRONTEND_URL}`
         }
 
         const session = await stripe.checkout.sessions.create(sessionData);
 
-        const createPayment = await prisma.payment.create({
+        // await prisma.payment.create({
+        //     data: {
+        //         payment_id: randomUUID(),
+        //         booking_id: paymentData.booking_id,
+        //         method: 'credit_card',
+        //         amount: paymentData.amount,
+        //     }
+        // })
+
+        return session;
+    }
+
+    public async successPaymentStripe(user_id: string, session_id: string): Promise<object> {
+        if(!session_id) throw new HttpException(400, 'No data');
+
+        const findBooking = await prisma.booking.findFirst({
+            where: {
+                user_id: user_id,
+                status: 'pending',
+            }
+        })
+        if(!findBooking) throw new HttpException(404, 'No booking found');
+
+        await prisma.booking.update({
+            where: {
+                booking_id: findBooking.booking_id,
+            },
             data: {
-                payment_id: randomUUID(),
-                booking_id: paymentData.booking_id,
-                method: 'credit_card',
-                amount: paymentData.amount,
+                status: 'confirmed',
             }
         })
 
-        return createPayment;
+        const session = await stripe.checkout.sessions.retrieve(session_id.toString());
+        return session;
     }
 
     public async createPaymentZalopay(user_id: string, paymentData: Payment): Promise<object> {
@@ -89,6 +108,27 @@ class PaymentService {
         order.mac = CryptoJS.HmacSHA256(data, config.key1 || '').toString();
       
         return order;
+    }
+
+    public async successPaymentZalopay(user_id: string, session_id: string): Promise<void> {
+        if(!session_id) throw new HttpException(400, 'No data');
+
+        const findBooking = await prisma.booking.findFirst({
+            where: {
+                user_id: user_id,
+                status: 'pending',
+            }
+        })
+        if(!findBooking) throw new HttpException(404, 'No booking found');
+
+        await prisma.booking.update({
+            where: {
+                booking_id: findBooking.booking_id,
+            },
+            data: {
+                status: 'confirmed',
+            }
+        })
     }
 }
 

@@ -63,9 +63,8 @@ const SelectFlightPage = () => {
     departure_return_airport,
     arrival_return_airport,
     departure_return_time,
-
     passengers,
-
+    total_price,
     setFlightSearch,
   } = useFlightSearchStore();
 
@@ -131,6 +130,7 @@ const SelectFlightPage = () => {
       isSearching: true,
       class_return: "business",
       flight_return_id: flight_id,
+      total_price: total_price + (selectedFlight?.price_business ?? 0) * passengers,
     })
     if (!localStorage.getItem("token")) {
       router.push("/auth/alertlogin");
@@ -145,6 +145,7 @@ const SelectFlightPage = () => {
       isSearching: true,
       class_return: "economy",
       flight_return_id: flight_id, 
+      total_price: total_price + (selectedFlight?.price_economy ?? 0) * passengers,
     })
     if (!localStorage.getItem("token")) {
       router.push("/auth/alertlogin");

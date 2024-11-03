@@ -97,7 +97,7 @@ const SeatSelecting = () => {
         },
         withCredentials: true
       })
-      router.push('/payment')
+      router.push('/seat/return')
     } catch (error) {
       toast.error('Failed to proceed to checkout')
     }

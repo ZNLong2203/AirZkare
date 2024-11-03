@@ -62,7 +62,6 @@ const SelectFlightPage = () => {
     departure_come_airport,
     arrival_come_airport,
     departure_come_time,
-
     type,
     passengers,
   } = useFlightSearchStore();
@@ -128,6 +127,7 @@ const SelectFlightPage = () => {
     setFlightSearch({ 
       class_come: "business",
       flight_come_id: flight_id, 
+      total_price: (selectedFlight?.price_business ?? 0) * passengers,
     });
     if(type === "oneWay") {
       router.push(`/booking/passengerdetails?${selectedFlight?.flight_id}`);
@@ -141,6 +141,7 @@ const SelectFlightPage = () => {
     setFlightSearch({ 
       class_come: "economy",
       flight_come_id: flight_id, 
+      total_price: (selectedFlight?.price_economy ?? 0) * passengers,
     });
     if(type === "oneWay") {
       router.push(`/booking/passengerdetails?${selectedFlight?.flight_id}`);

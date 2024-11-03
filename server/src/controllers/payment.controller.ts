@@ -24,6 +24,23 @@ class PaymentController {
         }
     }
 
+    public successPaymentStripe = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userData = req.user as any;
+            const user_id = userData.user_id;
+            const session_id = req.query.session_id as string;
+
+            const paymentSession = await this.paymentService.successPaymentStripe(user_id, session_id);
+
+            res.status(200).json({
+                message: 'Payment successful',
+                metadata: paymentSession,
+            });
+        } catch(err) {
+            next(err);
+        }
+    }
+
     public createPaymentZalopay = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData = req.user as any;
@@ -37,6 +54,23 @@ class PaymentController {
             res.status(201).json({
                 message: 'Payment session created',
                 metadata: response.data,
+            });
+        } catch(err) {
+            next(err);
+        }
+    }
+
+    public successPaymentZalopay = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userData = req.user as any;
+            const user_id = userData.user_id;
+            const session_id = req.query.session_id as string;
+
+            const paymentSession = await this.paymentService.successPaymentZalopay(user_id, session_id);
+
+            res.status(200).json({
+                message: 'Payment successful',
+                metadata: paymentSession,
             });
         } catch(err) {
             next(err);
