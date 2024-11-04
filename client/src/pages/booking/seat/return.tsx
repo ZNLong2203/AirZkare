@@ -42,7 +42,7 @@ const SeatSelecting = () => {
   useEffect(() => {
     const fetchSeats = async () => {
       try {
-        const res = await axios.get(`${API.FLIGHT}/${flight_come_id}/seat`, {
+        const res = await axios.get(`${API.FLIGHT}/${flight_return_id}/seat`, {
           headers: {
             Authorization: `Bearer ${token}`
           },
@@ -90,7 +90,7 @@ const SeatSelecting = () => {
         flight_come_id,
         flight_return_id,
         flight_type: type,
-        seats_come_id: selectedSeats
+        seats_return_id: selectedSeats
       }, {
         headers: {
           Authorization: `Bearer ${token}`
@@ -206,6 +206,7 @@ const SeatSelecting = () => {
               </CardHeader>
               <CardContent className="p-6 h-[calc(100vh-300px)] overflow-y-auto">
                 <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2 text-gray-800">Return Flight Seats</h2>
                   <h2 className="text-2xl font-semibold mb-2 text-gray-800">Flight Details</h2>
                   <p className="text-gray-600">Flight VN123 • Boeing 787 • 2h 5m</p>
                   <p className="text-gray-600">Passengers: {passengers}</p>

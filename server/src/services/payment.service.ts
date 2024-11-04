@@ -34,15 +34,6 @@ class PaymentService {
 
         const session = await stripe.checkout.sessions.create(sessionData);
 
-        // await prisma.payment.create({
-        //     data: {
-        //         payment_id: randomUUID(),
-        //         booking_id: paymentData.booking_id,
-        //         method: 'credit_card',
-        //         amount: paymentData.amount,
-        //     }
-        // })
-
         return session;
     }
 
@@ -67,6 +58,15 @@ class PaymentService {
         })
 
         const session = await stripe.checkout.sessions.retrieve(session_id.toString());
+
+        await prisma.payment.create({
+            data: {
+                payment_id: randomUUID(),
+                booking_id: findBooking.booking_id,
+                method: 'credit_card',
+                amount: session.amount_total ?? 0,
+            }
+        })
         return session;
     }
 

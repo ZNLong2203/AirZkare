@@ -38,6 +38,7 @@ const PaymentPage = () => {
     departure_return_airport,
     arrival_return_airport,
     departure_return_time,
+    type,
     passengers,
     total_price 
   } = useFlightSearchStore();
@@ -87,14 +88,15 @@ const PaymentPage = () => {
 
   const handleZaloPayPayment = async () => {
     try {
-      // const res = axios.post(`${API.PAYMENTZALOPAY}`, {
-      //   amount: total_price || 5000,
-      // }, {
-      //   headers: {
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      //   withCredentials: true,
-      // })
+      const res = await axios.post(`${API.PAYMENTZALOPAY}`, {
+        amount: total_price || 5000,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      })
+      window.location.href = res.data.metadata.order_url;
       toast.promise(
         new Promise((resolve) => {
           setTimeout(() => {
@@ -160,33 +162,35 @@ const PaymentPage = () => {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="font-semibold text-foreground">Outbound</p>
-                  <p className="text-sm text-muted-foreground">${departure_come_airport_name} (${departure_come_airport_code}) to ${arrival_come_airport_name} (${arrival_come_airport_code})</p>
-                  <p className="text-sm text-muted-foreground">${moment(departure_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
+                  <p className="text-sm text-muted-foreground">{departure_come_airport_name} ({departure_come_airport_code})</p>
+                  <p className="text-sm text-muted-foreground">{moment(departure_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                 </div>
                 <ArrowRight className="text-primary" />
                 <div className="space-y-1 text-right">
                   <p className="font-semibold text-foreground">Arrival</p>
-                  <p className="text-sm text-muted-foreground">${arrival_come_airport_name} (${arrival_come_airport_code})</p>
-                  <p className="text-sm text-muted-foreground">${moment(departure_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
+                  <p className="text-sm text-muted-foreground">{arrival_come_airport_name} ({arrival_come_airport_code})</p>
+                  <p className="text-sm text-muted-foreground">{moment(departure_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                 </div>
               </div>
 
               <Separator />
 
               {/* Return Flight */}
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="font-semibold text-foreground">Return</p>
-                  <p className="text-sm text-muted-foreground">${departure_return_airport_name} (${departure_return_airport_code}) to ${arrival_return_airport_name} (${arrival_return_airport_code})</p>
-                  <p className="text-sm text-muted-foreground">${moment(departure_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
+              {type === "oneWay" ? null : (  
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-foreground">Return</p>
+                    <p className="text-sm text-muted-foreground">{departure_return_airport_name} ({departure_return_airport_code})</p>
+                    <p className="text-sm text-muted-foreground">{moment(departure_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
+                  </div>
+                  <ArrowLeft className="text-primary" />
+                  <div className="space-y-1 text-right">
+                    <p className="font-semibold text-foreground">Arrival</p>
+                    <p className="text-sm text-muted-foreground">{arrival_return_airport_name} (${arrival_return_airport_code})</p>
+                    <p className="text-sm text-muted-foreground">{moment(departure_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
+                  </div>
                 </div>
-                <ArrowLeft className="text-primary" />
-                <div className="space-y-1 text-right">
-                  <p className="font-semibold text-foreground">Arrival</p>
-                  <p className="text-sm text-muted-foreground">${arrival_return_airport_name} (${arrival_return_airport_code})</p>
-                  <p className="text-sm text-muted-foreground">${moment(departure_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
-                </div>
-              </div>
+              )}
 
               <Separator />
 
@@ -194,7 +198,7 @@ const PaymentPage = () => {
               <div className="flex items-center space-x-4">
                 <Users className="text-primary" />
                 <div>
-                  <p className="font-semibold text-foreground">Passengers: ${passengers} Adult</p>
+                  <p className="font-semibold text-foreground">Passengers: {passengers} Adult</p>
                   <p className="text-sm text-muted-foreground">Business Class</p>
                 </div>
               </div>
@@ -288,7 +292,7 @@ const PaymentPage = () => {
             <CardContent className="space-y-4 pt-6">
               <div className="flex justify-between items-center">
                 <p className="text-muted-foreground">Base Fare</p>
-                <p className="font-semibold text-foreground">$2,399.98</p>
+                <p className="font-semibold text-foreground">${total_price}</p>
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-muted-foreground">Taxes & Fees</p>

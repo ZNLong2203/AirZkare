@@ -3,6 +3,7 @@ import { HttpException } from "../exceptions/HttpException";
 import { randomUUID } from "crypto";
 import { BookingFlightInfo } from '../interfaces/booking.interface';
 import { Passenger } from "../interfaces/passsenger.interface";
+import { validate as isUuidValid } from 'uuid';
 import moment from "moment";
 
 const prisma = PrismaClientInstance();
@@ -75,46 +76,71 @@ class BookingService {
     }
 
     public async createBookingFlight(user_id: string, bookingData: BookingFlightInfo): Promise<void> {
-        if(!bookingData) throw new HttpException(400, 'No data');
-
+        if (!bookingData) {
+          throw new HttpException(400, 'No data');
+        }
+      
+        if (!isUuidValid(user_id)) {
+          throw new HttpException(400, 'Invalid user ID format');
+        }
+      
         const bookingPending = await prisma.booking.findFirst({
-            where: {
-                user_id,
-                status: 'pending',
-            }
-        })
+          where: {
+            user_id,
+            status: 'pending',
+          },
+        });
+      
         if (!bookingPending) {
-            throw new HttpException(404, 'Booking not found');
+          throw new HttpException(404, 'Booking not found');
         }
-
-        if(bookingData.seat_come_id) {
-            bookingData.seat_come_id.map(async (flight_seat_id) => {
+            
+        await prisma.$transaction(async (prisma) => {
+          // Update seats for the come flight
+          if (bookingData.seats_come_id && bookingData.seats_come_id.length > 0) {
+            const invalidSeatIds = bookingData.seats_come_id.filter(id => !isUuidValid(id));
+            if (invalidSeatIds.length > 0) {
+              throw new HttpException(400, `Invalid seat IDs: ${invalidSeatIds.join(', ')}`);
+            }
+      
+            await Promise.all(
+              bookingData.seats_come_id.map(async (flight_seat_id) => {
                 await prisma.flight_seat.update({
-                    where: {
-                        flight_seat_id,
-                    },
-                    data: {
-                        passenger_id: user_id,
-                        is_booked: true,
-                    }
-                })
-            })
-        }
-
-        if(bookingData.seat_return_id) {
-            bookingData.seat_return_id.map(async (flight_seat_id) => {
+                  where: {
+                    flight_seat_id,
+                  },
+                  data: {
+                    passenger_id: user_id,
+                    is_booked: true,
+                  },
+                });
+              })
+            );
+          }
+      
+          // Update seats for the return flight
+          if (bookingData.seats_return_id && bookingData.seats_return_id.length > 0) {
+            const invalidSeatIds = bookingData.seats_return_id.filter(id => !isUuidValid(id));
+            if (invalidSeatIds.length > 0) {
+              throw new HttpException(400, `Invalid seat IDs: ${invalidSeatIds.join(', ')}`);
+            }
+      
+            await Promise.all(
+              bookingData.seats_return_id.map(async (flight_seat_id) => {
                 await prisma.flight_seat.update({
-                    where: {
-                        flight_seat_id,
-                    },
-                    data: {
-                        passenger_id: user_id,
-                        is_booked: true,
-                    }
-                })
-            })
-        }
-
+                  where: {
+                    flight_seat_id,
+                  },
+                  data: {
+                    passenger_id: user_id,
+                    is_booked: true,
+                  },
+                });
+              })
+            );
+          }
+        });
+      
         return;
     }
 

@@ -97,7 +97,7 @@ const SeatSelecting = () => {
         },
         withCredentials: true
       })
-      router.push('/seat/return')
+      router.push('/booking/seat/return')
     } catch (error) {
       toast.error('Failed to proceed to checkout')
     }
@@ -206,6 +206,7 @@ const SeatSelecting = () => {
               </CardHeader>
               <CardContent className="p-6 h-[calc(100vh-300px)] overflow-y-auto">
                 <div className="mb-6">
+                  <h2 className="text-3xl font-bold mb-2 text-gray-800">Outbound Flight Seats</h2>
                   <h2 className="text-2xl font-semibold mb-2 text-gray-800">Flight Details</h2>
                   <p className="text-gray-600">Flight VN123 • Boeing 787 • 2h 5m</p>
                   <p className="text-gray-600">Passengers: {passengers}</p>
