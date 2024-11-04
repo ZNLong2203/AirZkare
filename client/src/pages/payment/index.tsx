@@ -1,6 +1,7 @@
 import axios from "axios";
 import API from "@/constants/api";
 import toast from "react-hot-toast";
+import moment from "moment";
 import useFlightSearchStore from "@/store/useFlightSearchStore";
 import React, { useState } from "react";
 import {
@@ -31,6 +32,13 @@ const stripePromise = loadStripe("pk_test_51PQmYTIYYB20QSq1o1yZlZ61qHl6ZgNtOhgkH
 
 const PaymentPage = () => {
   const { 
+    departure_come_airport,
+    arrival_come_airport,
+    departure_come_time,
+    departure_return_airport,
+    arrival_return_airport,
+    departure_return_time,
+    passengers,
     total_price 
   } = useFlightSearchStore();
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "zalopay">("stripe");
@@ -39,6 +47,16 @@ const PaymentPage = () => {
   if (typeof window !== "undefined") {
       token = localStorage.getItem("token");
   }
+
+  const departure_come_airport_name = departure_come_airport?.location;
+  const departure_come_airport_code = departure_come_airport?.code;
+  const arrival_come_airport_name = arrival_come_airport?.location;
+  const arrival_come_airport_code = arrival_come_airport?.code;
+
+  const departure_return_airport_name = departure_return_airport?.location;
+  const departure_return_airport_code = departure_return_airport?.code;
+  const arrival_return_airport_name = arrival_return_airport?.location;
+  const arrival_return_airport_code = arrival_return_airport?.code;
 
   const handleStripePayment = async () => {
     try {
@@ -67,19 +85,31 @@ const PaymentPage = () => {
     }
   };
 
-  const handleZaloPayPayment = () => {
-    toast.promise(
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve("Payment successful!");
-        }, 3000);
-      }),
-      {
-        loading: "Processing your payment...",
-        success: "Payment successful!",
-        error: "An error occurred while processing your payment.",
-      }
-    );
+  const handleZaloPayPayment = async () => {
+    try {
+      // const res = axios.post(`${API.PAYMENTZALOPAY}`, {
+      //   amount: total_price || 5000,
+      // }, {
+      //   headers: {
+      //     Authorization: `Bearer ${token}`,
+      //   },
+      //   withCredentials: true,
+      // })
+      toast.promise(
+        new Promise((resolve) => {
+          setTimeout(() => {
+            resolve("Payment successful!");
+          }, 3000);
+        }),
+        {
+          loading: "Processing your payment...",
+          success: "Payment successful!",
+          error: "An error occurred while processing your payment.",
+        }
+      );
+    } catch(err) {
+      toast.error("An error occurred while processing your payment.");
+    }
   };
 
   return (
@@ -130,14 +160,14 @@ const PaymentPage = () => {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="font-semibold text-foreground">Outbound</p>
-                  <p className="text-sm text-muted-foreground">Ha Noi (HAN) to Paris (CDG)</p>
-                  <p className="text-sm text-muted-foreground">August 15, 2023 • 10:30 AM</p>
+                  <p className="text-sm text-muted-foreground">${departure_come_airport_name} (${departure_come_airport_code}) to ${arrival_come_airport_name} (${arrival_come_airport_code})</p>
+                  <p className="text-sm text-muted-foreground">${moment(departure_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                 </div>
                 <ArrowRight className="text-primary" />
                 <div className="space-y-1 text-right">
                   <p className="font-semibold text-foreground">Arrival</p>
-                  <p className="text-sm text-muted-foreground">Paris (CDG)</p>
-                  <p className="text-sm text-muted-foreground">August 15, 2023 • 5:25 PM</p>
+                  <p className="text-sm text-muted-foreground">${arrival_come_airport_name} (${arrival_come_airport_code})</p>
+                  <p className="text-sm text-muted-foreground">${moment(departure_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                 </div>
               </div>
 
@@ -147,14 +177,14 @@ const PaymentPage = () => {
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="font-semibold text-foreground">Return</p>
-                  <p className="text-sm text-muted-foreground">Paris (CDG) to Ha Noi (HAN)</p>
-                  <p className="text-sm text-muted-foreground">August 22, 2023 • 1:30 PM</p>
+                  <p className="text-sm text-muted-foreground">${departure_return_airport_name} (${departure_return_airport_code}) to ${arrival_return_airport_name} (${arrival_return_airport_code})</p>
+                  <p className="text-sm text-muted-foreground">${moment(departure_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                 </div>
                 <ArrowLeft className="text-primary" />
                 <div className="space-y-1 text-right">
                   <p className="font-semibold text-foreground">Arrival</p>
-                  <p className="text-sm text-muted-foreground">Ha Noi (HAN)</p>
-                  <p className="text-sm text-muted-foreground">August 23, 2023 • 6:45 AM</p>
+                  <p className="text-sm text-muted-foreground">${arrival_return_airport_name} (${arrival_return_airport_code})</p>
+                  <p className="text-sm text-muted-foreground">${moment(departure_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                 </div>
               </div>
 
@@ -164,7 +194,7 @@ const PaymentPage = () => {
               <div className="flex items-center space-x-4">
                 <Users className="text-primary" />
                 <div>
-                  <p className="font-semibold text-foreground">Passengers: 1 Adult</p>
+                  <p className="font-semibold text-foreground">Passengers: ${passengers} Adult</p>
                   <p className="text-sm text-muted-foreground">Business Class</p>
                 </div>
               </div>

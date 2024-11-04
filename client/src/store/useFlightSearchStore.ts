@@ -6,6 +6,7 @@ interface FlightSearchState {
     departure_come_airport: Airport;
     arrival_come_airport: Airport;
     departure_come_time: Date | null;
+    arrival_come_time: Date | null;
     class_come: string; // economy, business
     flight_come_id: string;
 
@@ -13,6 +14,7 @@ interface FlightSearchState {
     departure_return_airport: Airport;
     arrival_return_airport: Airport;
     departure_return_time: Date | null;
+    arrival_return_time: Date | null;
     class_return: string; // economy, business
     flight_return_id: string;
 
@@ -34,12 +36,14 @@ const useFlightSearchStore = create<FlightSearchState>((set) => ({
     departure_come_airport: { airport_id: '', code: '', name: '', location: '' },
     arrival_come_airport: { airport_id: '', code: '', name: '', location: '' },
     departure_come_time: null,
+    arrival_come_time: null,
     class_come: '',
     flight_come_id: '',
 
     departure_return_airport: { airport_id: '', code: '', name: '', location: '' },
     arrival_return_airport: { airport_id: '', code: '', name: '', location: '' },
     departure_return_time: null,
+    arrival_return_time: null,
     class_return: '',
     flight_return_id: '',
 
