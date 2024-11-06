@@ -16,6 +16,19 @@ class DashboardController {
             next(err);
         }
     }
+
+    public getLineChartData = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const lineChartData = await this.dashboardService.getLineChartData();
+
+            res.status(200).json({
+                message: 'Line chart data fetched successfully',
+                metadata: lineChartData,
+            })
+        } catch(err) {
+            next(err);
+        }
+    }
 }
 
 export default DashboardController;

@@ -44,6 +44,27 @@ class DashboardService {
 
         return numVisitorsPerLocation;
     }
+
+    public async getLineChartData(): Promise<object> {
+        const flights = await prisma.flight.findMany({
+            include: {
+                flight_seat: {
+                    include: {
+                        passenger: true,
+                    }
+                }
+            }
+        });
+
+        const numPassengersPerFlight = flights.map(flight => {
+            return {
+                flightNumber: flight.flight_id,
+                numPassengers: flight.flight_seat.filter(seat => seat.is_booked === true).length
+            };
+        });
+
+        return numPassengersPerFlight;
+    } 
 }
 
 export default DashboardService;

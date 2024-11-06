@@ -1,10 +1,46 @@
+import axios from "axios"
+import API from "@/constants/api"
+import toast from "react-hot-toast"
 import { Button } from "@/components/ui/button"
+import { useEffect } from "react"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, Home, FileText } from "lucide-react"
 import { useRouter } from "next/router"
 
 const PaymentConfirmation = () => {
   const router = useRouter()
+
+  let token = null;
+  if (typeof window !== "undefined") {
+      token = localStorage.getItem("token");
+  }
+
+  useEffect(() => {
+    const fetchSuccess = async () => {
+      try {
+        const queryParams = new URLSearchParams(window.location.search)
+        const sessionId = queryParams.get("session_id")
+        const payment = queryParams.get("payment")
+
+        if(payment == "stripe") {
+          await axios.post(`${API.PAYMENTSTRIPE}/success`, { sessionId }, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+        } else if (payment == "zalopay") {
+          await axios.post(`${API.PAYMENTZALOPAY}/success`, { sessionId }, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+        }
+      } catch(err) {
+        toast.error("An error occurred. Please try again.")
+      }
+    }
+    fetchSuccess();
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-100 to-white flex items-center justify-center p-4">

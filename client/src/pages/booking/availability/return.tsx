@@ -93,27 +93,33 @@ const SelectFlightPage = () => {
 
   const sortedFilteredFlights = useMemo(() => {
     let filteredFlights = [...flights];
-
+  
     if (stopFilter === "non-stop") {
       filteredFlights = filteredFlights.filter((flight) => flight.type === "non-stop");
     } else if (stopFilter === "connecting") {
       filteredFlights = filteredFlights.filter((flight) => flight.type === "connecting");
     }
-
-    if (sortBy === "price") {
+  
+    if (sortBy === "price_economy") {
       filteredFlights.sort((a, b) => a.price_economy - b.price_economy);
+    } else if (sortBy === "price_business") {
+      filteredFlights.sort((a, b) => a.price_business - b.price_business);
     } else if (sortBy === "departureTime") {
-      filteredFlights.sort((a, b) => new Date(a.departure_time).getTime() - new Date(b.departure_time).getTime());
+      filteredFlights.sort(
+        (a, b) => new Date(a.departure_time).getTime() - new Date(b.departure_time).getTime()
+      );
     } else if (sortBy === "duration") {
-      filteredFlights.sort((a, b) => 
-        (new Date(a.arrival_time).getTime() - new Date(a.departure_time).getTime()) -
-        (new Date(b.arrival_time).getTime() - new Date(b.departure_time).getTime())
+      filteredFlights.sort(
+        (a, b) =>
+          new Date(a.arrival_time).getTime() -
+          new Date(a.departure_time).getTime() -
+          (new Date(b.arrival_time).getTime() - new Date(b.departure_time).getTime())
       );
     }
-
+  
     return filteredFlights;
   }, [flights, sortBy, stopFilter]);
-
+  
   const handleSortChange = (value: string) => setSortBy(value);
   const handleStopFilterChange = (value: string) => setStopFilter(value);
   const handleSelectFlight = (flight: FlightWithDA) => setSelectedFlight(flight);
@@ -201,7 +207,8 @@ const SelectFlightPage = () => {
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="price">Lowest price</SelectItem>
+              <SelectItem value="price_economy">Lowest Economy Price</SelectItem>
+              <SelectItem value="price_business">Lowest Business Price</SelectItem>
               <SelectItem value="departureTime">Departure time</SelectItem>
               <SelectItem value="duration">Flight duration</SelectItem>
             </SelectContent>

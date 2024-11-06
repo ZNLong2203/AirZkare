@@ -220,7 +220,7 @@ const AdminFlights: React.FC = () => {
                     {flight.type}
                   </td>
                   <td
-                    className="px-4 py-2 whitespace-nowrap truncate max-w-[200px]"
+                    className="px-4 py-2 whitespace-nowrap truncate max-w-[150px]"
                     title={
                       flight.airport_flight_departure_airportToairport?.name
                     }

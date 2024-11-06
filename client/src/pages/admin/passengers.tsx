@@ -155,10 +155,10 @@ const AdminPassengers: React.FC = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredPassengers.map((passenger) => (
                 <tr key={passenger.user_id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 whitespace-nowrap">{passenger.user_id}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{passenger.username}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{passenger.email}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{passenger.role}</td>
+                  <td className="px-4 py-2 whitespace-nowrap truncate max-w-[100px]">{passenger.user_id}</td>
+                  <td className="px-4 py-2 whitespace-nowrap truncate max-w-[100px]">{passenger.username}</td>
+                  <td className="px-4 py-2 whitespace-nowrap truncate max-w-[100px]">{passenger.email}</td>
+                  <td className="px-4 py-2 whitespace-nowrap truncate max-w-[100px]">{passenger.role}</td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <div className="flex space-x-2">
                       <Button

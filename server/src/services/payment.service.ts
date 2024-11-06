@@ -28,7 +28,7 @@ class PaymentService {
             ],
             payment_method_types: ['card'],
             mode: 'payment',
-            success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+            success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}&payment=stripe`,
             cancel_url: `${process.env.FRONTEND_URL}`
         }
 
@@ -83,7 +83,7 @@ class PaymentService {
         // })
 
         const embed_data = {
-            redirecturl: 'http://localhost:3000',
+            redirecturl: `${process.env.FRONTEND_URL}/payment/success?payment=zalopay`,
         };
         const items: any[] = [{}]
         const transID = Math.floor(Math.random() * 1000000);
