@@ -10,10 +10,9 @@ class PaymentController {
     public createPaymentStripe = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userData = req.user as any;
-            const user_id = userData.user_id;
             const paymentData: Payment = req.body;
 
-            const paymentSession = await this.paymentService.createPaymentStripe(user_id, paymentData);
+            const paymentSession = await this.paymentService.createPaymentStripe(userData, paymentData);
 
             res.status(201).json({
                 message: 'Payment session created',

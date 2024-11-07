@@ -5,45 +5,52 @@ import { FiLogOut } from 'react-icons/fi';
 import { MdOutlineAirplaneTicket } from "react-icons/md";
 import { FaPlaneDeparture } from 'react-icons/fa';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const SideBarAdmin: React.FC = () => {
+    const router = useRouter();
+    const { pathname } = router;
+
+    const activeClassName = 'flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md';
+    const defaultClassName = 'flex items-center px-3 py-2 text-sm font-medium text-blue-600 rounded-md hover:bg-blue-100 hover:text-blue-800';
+
+    const links = [
+        { href: '/admin/dashboard', label: 'Dashboard', icon: AiOutlineDashboard },
+        { href: '/admin/airports', label: 'Airports', icon: FaPlaneDeparture },
+        { href: '/admin/airplanes', label: 'Airplanes', icon: IoAirplane },
+        { href: '/admin/flights', label: 'Flights', icon: MdOutlineAirplaneTicket },
+        { href: '/admin/users', label: 'Users', icon: AiOutlineUser },
+        { href: '/admin/settings', label: 'Settings', icon: AiOutlineSetting },
+    ];
+
     return (
-        <aside className="w-64 bg-blue-900 text-white flex flex-col">
-            <div className="px-7 py-2 text-2xl font-bold mt-5">Admin Home</div>
-            <nav className="flex-1 px-3 py-4 space-y-2">
-                <Link href="/admin/dashboard" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <AiOutlineDashboard className="mr-3 text-xl" />
-                    Dashboard
-                </Link>
-                <Link href="/admin/airports" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <FaPlaneDeparture className="mr-3 text-xl" />
-                    Airports
-                </Link>
-                <Link href="/admin/airplanes" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <IoAirplane className="mr-3 text-xl" />
-                    Airplanes
-                </Link>
-                <Link href="/admin/flights" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <MdOutlineAirplaneTicket className="mr-3 text-xl" />
-                    Flights
-                </Link>
-                <Link href="/admin/passengers" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <AiOutlineUser className="mr-3 text-xl" />
-                    Passengers
-                </Link>
-                <Link href="/admin/settings" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <AiOutlineSetting className="mr-3 text-xl" />
-                    Settings
-                </Link>
+        <aside className="flex flex-col h-screen w-64 bg-blue-50 border-r border-blue-100">
+            <div className="p-6">
+                <h2 className="text-2xl font-semibold text-blue-800">Admin Home</h2>
+            </div>
+            <nav className="flex-grow space-y-1 px-3">
+                {links.map(({ href, label, icon: Icon }) => (
+                    <Link
+                        key={href}
+                        href={href}
+                        className={pathname === href ? activeClassName : defaultClassName}
+                    >
+                        <Icon className="mr-3 h-5 w-5" />
+                        <span className="truncate">{label}</span>
+                    </Link>
+                ))}
             </nav>
-            <div className="px-2 py-4">
-                <Link href="#" className="flex items-center px-4 py-2 text-gray-300 hover:bg-blue-800 hover:text-white rounded">
-                    <FiLogOut className="mr-2 text-xl" />
-                    Logout
-                </Link>
+            <div className="p-4">
+                <button
+                    onClick={() => {/* Add logout logic here */}}
+                    className="flex items-center w-full px-3 py-2 text-sm font-medium text-red-600 rounded-md hover:bg-red-100 hover:text-red-800 transition-colors duration-200"
+                >
+                    <FiLogOut className="mr-3 h-5 w-5" />
+                    <span className="truncate">Logout</span>
+                </button>
             </div>
         </aside>
-    )
-}
+    );
+};
 
 export default SideBarAdmin;

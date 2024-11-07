@@ -20,6 +20,20 @@ import ErrorMessage from "@/components/common/ErrorMessageQuery";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 interface FlightResponse {
   flights: FlightWithDA[];
@@ -153,129 +167,104 @@ const AdminFlights: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100">
       <SideBarAdmin />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-700">
-            Manage Flights
-          </h1>
+          <h1 className="text-3xl font-semibold text-gray-800">Manage Flights</h1>
           <Button
             onClick={openAddModal}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <AiOutlinePlus className="mr-2" /> Add New Flight
           </Button>
         </div>
 
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search flights by code, airplane, airports, or status..."
-              className="pl-10 w-full"
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </div>
-        </div>
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Search Flights</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search flights by code, airplane, airports, or status..."
+                className="pl-10 w-full"
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        {/* Responsive table container */}
-        <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
-          <table className="min-w-full table-auto">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Code
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Airplane
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Departure
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Arrival
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredFlights.map((flight) => (
-                <tr key={flight.flight_id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 whitespace-nowrap truncate max-w-[100px]">
-                    {flight.code}
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap truncate max-w-[150px]">
-                    {flight.airplane.name}
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap capitalize truncate max-w-[100px]">
-                    {flight.type}
-                  </td>
-                  <td
-                    className="px-4 py-2 whitespace-nowrap truncate max-w-[150px]"
-                    title={
-                      flight.airport_flight_departure_airportToairport?.name
-                    }
-                  >
-                    {flight.airport_flight_departure_airportToairport?.name}
-                  </td>
-                  <td
-                    className="px-4 py-2 whitespace-nowrap truncate max-w-[200px]"
-                    title={flight.airport_flight_arrival_airportToairport?.name}
-                  >
-                    {flight.airport_flight_arrival_airportToairport?.name}
-                  </td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
-                        onClick={() => openViewModal(flight)}
-                      >
-                        <AiOutlineEye className="mr-1" /> View
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-green-600 hover:text-green-800 hover:bg-green-100"
-                        onClick={() => openEditModal(flight)}
-                      >
-                        <AiOutlineEdit className="mr-1" /> Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
-                        onClick={() =>
-                          deleteFlightMutation.mutate(flight.flight_id)
-                        }
-                      >
-                        <AiOutlineDelete className="mr-1" /> Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Flight List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Airplane</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Departure</TableHead>
+                  <TableHead>Arrival</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredFlights.map((flight) => (
+                  <TableRow key={flight.flight_id}>
+                    <TableCell className="font-medium">{flight.code}</TableCell>
+                    <TableCell>{flight.airplane.name}</TableCell>
+                    <TableCell className="capitalize">{flight.type}</TableCell>
+                    <TableCell>{flight.airport_flight_departure_airportToairport?.name}</TableCell>
+                    <TableCell>{flight.airport_flight_arrival_airportToairport?.name}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                          onClick={() => openViewModal(flight)}
+                        >
+                          <AiOutlineEye className="mr-1" /> View
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                          onClick={() => openEditModal(flight)}
+                        >
+                          <AiOutlineEdit className="mr-1" /> Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                          onClick={() => deleteFlightMutation.mutate(flight.flight_id)}
+                        >
+                          <AiOutlineDelete className="mr-1" /> Delete
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-        {filteredFlights.length === 0 && (
-          <div className="text-center mt-4 text-gray-500">
-            No flights found matching your search.
-          </div>
-        )}
+            {filteredFlights.length === 0 && (
+              <div className="text-center mt-4 text-gray-500">
+                No flights found matching your search.
+              </div>
+            )}
 
-        <div className="mt-6 flex justify-center">
+          </CardContent>
+        </Card>
+        <div className="mt-4 flex justify-center">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

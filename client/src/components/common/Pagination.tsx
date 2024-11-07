@@ -1,4 +1,4 @@
-import React from 'react';
+import { Button } from "@/components/ui/button"
 
 interface PaginationProps {
   currentPage: number;
@@ -6,36 +6,42 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   return (
-    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-      <button
-        onClick={() => onPageChange(currentPage - 1)}
+    <div className="mt-4 flex items-center justify-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
         disabled={currentPage === 1}
-        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+        className="text-blue-600"
+        onClick={() => onPageChange(currentPage - 1)}
       >
         Previous
-      </button>
-      {[...Array(totalPages)].map((_, index) => (
-        <button
-          key={index}
-          onClick={() => onPageChange(index + 1)}
-          className={`relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${
-            currentPage === index + 1 ? 'text-blue-600 bg-blue-50' : 'text-gray-700 hover:bg-gray-50'
-          }`}
+      </Button>
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        <Button
+          key={page}
+          variant="outline"
+          size="sm"
+          className={
+            currentPage === page
+              ? "bg-blue-600 text-white"
+              : "text-blue-600 hover:bg-blue-50"
+          }
+          onClick={() => onPageChange(page)}
         >
-          {index + 1}
-        </button>
+          {page}
+        </Button>
       ))}
-      <button
-        onClick={() => onPageChange(currentPage + 1)}
+      <Button
+        variant="outline"
+        size="sm"
         disabled={currentPage === totalPages}
-        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+        className="text-blue-600 hover:bg-blue-50"
+        onClick={() => onPageChange(currentPage + 1)}
       >
         Next
-      </button>
-    </nav>
+      </Button>
+    </div>
   );
-};
-
-export default Pagination;
+}

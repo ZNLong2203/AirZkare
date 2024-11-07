@@ -14,6 +14,20 @@ import LoadingQuery from '@/components/common/LoadingQuery';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search } from "lucide-react"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 
 interface AirplaneResponse {
   airplanes: Airplane[];
@@ -116,86 +130,96 @@ const AdminAirplane: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100">
       <SideBarAdmin />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-semibold text-gray-700">Manage Airplanes</h1>
+          <h1 className="text-3xl font-semibold text-gray-800">Manage Airplanes</h1>
           <Button
             onClick={() => setIsAddModalOpen(true)}
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <AiOutlinePlus className="mr-2" /> Add New Airplane
           </Button>
         </div>
 
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search airplanes by name or model..."
-              className="pl-10 w-full"
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </div>
-        </div>
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle>Search Airplanes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search airplanes by name or model..."
+                className="pl-10 w-full"
+                value={searchTerm}
+                onChange={handleSearch}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
-          <table className="min-w-full table-auto">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Business Class</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Economy Class</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredAirplanes.map((airplane) => (
-                <tr key={airplane.airplane_id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 whitespace-nowrap">{airplane.name}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{airplane.model}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{airplane.total_business} seats</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{airplane.total_economy} seats</td>
-                  <td className="px-4 py-2 whitespace-nowrap">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-green-600 hover:text-green-800 hover:bg-green-100"
-                        onClick={() => {
-                          setCurrentAirplane(airplane);
-                          setIsEditModalOpen(true);
-                        }}
-                      >
-                        <AiOutlineEdit className="mr-1" /> Edit
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-red-600 hover:text-red-800 hover:bg-red-100"
-                        onClick={() => deleteAirplaneMutation.mutate(airplane.airplane_id)}
-                      >
-                        <AiOutlineDelete className="mr-1" /> Delete
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Airplane List</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Model</TableHead>
+                  <TableHead>Business Class</TableHead>
+                  <TableHead>Economy Class</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredAirplanes.map((airplane) => (
+                  <TableRow key={airplane.airplane_id}>
+                    <TableCell>{airplane.name}</TableCell>
+                    <TableCell>{airplane.model}</TableCell>
+                    <TableCell>{airplane.total_business} seats</TableCell>
+                    <TableCell>{airplane.total_economy} seats</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+                          onClick={() => {
+                            setCurrentAirplane(airplane);
+                            setIsEditModalOpen(true);
+                          }}
+                        >
+                          <AiOutlineEdit className="mr-1" /> Edit
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:text-red-800 hover:bg-red-100"
+                          onClick={() => deleteAirplaneMutation.mutate(airplane.airplane_id)}
+                        >
+                          <AiOutlineDelete className="mr-1" /> Delete
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
 
-        {filteredAirplanes.length === 0 && (
-          <div className="text-center mt-4 text-gray-500">
-            No airplanes found matching your search.
-          </div>
-        )}
+            {filteredAirplanes.length === 0 && (
+              <div className="text-center mt-4 text-gray-500">
+                No airplanes found matching your search.
+              </div>
+            )}
 
+          </CardContent>
+        </Card>
         <div className="mt-4 flex justify-center">
           <Pagination
             currentPage={currentPage}

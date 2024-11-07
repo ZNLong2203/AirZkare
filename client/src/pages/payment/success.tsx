@@ -23,7 +23,7 @@ const PaymentConfirmation = () => {
         const payment = queryParams.get("payment")
 
         if(payment == "stripe") {
-          await axios.post(`${API.PAYMENTSTRIPE}/success`, { sessionId }, {
+          await axios.post(`${API.PAYMENTSTRIPE}/success?session_id=${sessionId}`, { sessionId }, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
@@ -36,6 +36,7 @@ const PaymentConfirmation = () => {
           })
         }
       } catch(err) {
+        console.error(err)
         toast.error("An error occurred. Please try again.")
       }
     }

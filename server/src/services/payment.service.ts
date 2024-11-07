@@ -4,6 +4,8 @@ import moment from "moment";
 import CryptoJS from 'crypto-js';
 import { randomUUID, UUID } from "crypto";
 import { Payment } from "../interfaces/payment.interface";
+import { User } from "../interfaces/user.interface";
+import { sendEmail } from "../configs/nodeMailer.config";
 import { Stripe } from 'stripe';
 import stripe from "../configs/stripe.config";
 import { config } from "../configs/zalopay.config";
@@ -11,8 +13,8 @@ import { config } from "../configs/zalopay.config";
 const prisma = PrismaClientInstance();
 
 class PaymentService {
-    public async createPaymentStripe(user_id: string, paymentData: Payment): Promise<object> {
-        if(!user_id || !paymentData) throw new HttpException(400, 'No data');
+    public async createPaymentStripe(userData: User, paymentData: Payment): Promise<object> {
+        if(!userData || !paymentData) throw new HttpException(400, 'No data');
         const sessionData: Stripe.Checkout.SessionCreateParams = {
             line_items: [
                 {
@@ -26,6 +28,7 @@ class PaymentService {
                     quantity: 1,
                 }
             ],
+            customer_email: userData.email,
             payment_method_types: ['card'],
             mode: 'payment',
             success_url: `${process.env.FRONTEND_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}&payment=stripe`,
@@ -58,6 +61,14 @@ class PaymentService {
         })
 
         const session = await stripe.checkout.sessions.retrieve(session_id.toString());
+
+        await sendEmail({
+            customer_email: session.customer_email!,
+            customer_details: { name: session.customer_details?.name ?? 'Unknown' },
+            id: session.id,
+            flight_details: { flight_number: 'test', departure: 'test', destination: 'test', date: 'test', time: 'test' },
+            amount_total: session.amount_total ?? 0,
+        })
 
         await prisma.payment.create({
             data: {

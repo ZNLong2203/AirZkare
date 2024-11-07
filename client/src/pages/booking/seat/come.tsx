@@ -32,7 +32,14 @@ interface Seat {
 const SeatSelecting = () => {
   const router = useRouter()
   const { token } = useStore((state) => state)
-  const { departure_come_airport, arrival_come_airport, passengers, flight_come_id, flight_return_id, type } = useFlightSearchStore((state) => state)
+  const { 
+    departure_come_airport, 
+    arrival_come_airport,
+    class_come, 
+    passengers, 
+    flight_come_id, 
+    flight_return_id, 
+    type } = useFlightSearchStore((state) => state)
   const [seats, setSeats] = useState<Seat[]>([])
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
 
@@ -66,7 +73,7 @@ const SeatSelecting = () => {
   })
 
   const handleSeatSelection = (seat: Seat) => {
-    if (!seat.is_booked) {
+    if (!seat.is_booked && seat.seat.class === class_come) {
       setSelectedSeats((prev) => {
         if (prev.includes(seat.flight_seat_id)) {
           return prev.filter((id) => id !== seat.flight_seat_id)
