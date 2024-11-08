@@ -37,14 +37,18 @@ const SeatSelecting = () => {
     arrival_come_airport,
     class_come, 
     passengers, 
+    airplane_come,
+    flight_come,
     flight_come_id, 
     flight_return_id, 
     type } = useFlightSearchStore((state) => state)
   const [seats, setSeats] = useState<Seat[]>([])
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
 
-  const departureCode = departure_come_airport.code
-  const arrivalCode = arrival_come_airport.code
+  const departureCode = departure_come_airport?.code
+  const arrivalCode = arrival_come_airport?.code
+  const flightCode = flight_come?.code
+  const airplaneCode = airplane_come?.name
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -215,7 +219,7 @@ const SeatSelecting = () => {
                 <div className="mb-6">
                   <h2 className="text-3xl font-bold mb-2 text-gray-800">Outbound Flight Seats</h2>
                   <h2 className="text-2xl font-semibold mb-2 text-gray-800">Flight Details</h2>
-                  <p className="text-gray-600">Flight VN123 • Boeing 787 • 2h 5m</p>
+                  <p className="text-gray-600">Flight {flightCode} • {airplaneCode} • 2h 5m</p>
                   <p className="text-gray-600">Passengers: {passengers}</p>
                 </div>
                 <Separator className="my-4" />

@@ -8,7 +8,29 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-export const sendEmail = async (session: { customer_email: string; customer_details: { name: string }; id: string; flight_details: { flight_number: string, departure: string, destination: string, date: string, time: string }; amount_total: number }) => {
+interface EmailSession {
+    customer_email: string;
+    customer_details: { 
+        name: string 
+    };
+    id: string;
+    flight_details: { 
+        flight_come_number: string, 
+        departure_come: string, 
+        destination_come: string, 
+        date_come: string, 
+        time_come: string 
+
+        flight_return_number: string,
+        departure_return: string,
+        destination_return: string,
+        date_return: string,
+        time_return: string
+    };
+    amount_total: number;
+}
+
+export const sendEmail = async (session: EmailSession) => {
     try {
         const mailOptions = {
             from: process.env.NODEMAILER_EMAIL,
@@ -17,17 +39,17 @@ export const sendEmail = async (session: { customer_email: string; customer_deta
             html: `
                 <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
                     <h1 style="color: #4CAF50; text-align: center;">Flight Booking Confirmed</h1>
-                    <p>Dear <strong>${session.customer_details.name || 'test'}</strong>,</p>
+                    <p>Dear <strong>${session.customer_details.name}</strong>,</p>
                     <p>We are pleased to confirm your flight booking with Zkare Airline. Below are your booking details:</p>
                     
                     <div style="border-top: 1px solid #ddd; margin: 20px 0;"></div>
                     
                     <h3 style="color: #333;">Flight Information</h3>
-                    <p><strong>Flight Number:</strong> ${session.flight_details.flight_number || 'test'}</p>
-                    <p><strong>Departure:</strong> ${session.flight_details.departure || 'test'}</p>
-                    <p><strong>Destination:</strong> ${session.flight_details.destination || 'test'}</p>
-                    <p><strong>Date:</strong> ${session.flight_details.date || 'test'}</p>
-                    <p><strong>Time:</strong> ${session.flight_details.time || 'test'}</p>
+                    <p><strong>Flight Number:</strong> ${session.flight_details.flight_come_number || 'test'}</p>
+                    <p><strong>Departure:</strong> ${session.flight_details.departure_come || 'test'}</p>
+                    <p><strong>Destination:</strong> ${session.flight_details.destination_come || 'test'}</p>
+                    <p><strong>Date:</strong> ${session.flight_details.date_come || 'test'}</p>
+                    <p><strong>Time:</strong> ${session.flight_details.time_come || 'test'}</p>
                     
                     <div style="border-top: 1px solid #ddd; margin: 20px 0;"></div>
 

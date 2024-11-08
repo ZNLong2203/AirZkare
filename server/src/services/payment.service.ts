@@ -17,7 +17,7 @@ class PaymentService {
         if(!userData || !paymentData) throw new HttpException(400, 'No data');
         const sessionData: Stripe.Checkout.SessionCreateParams = {
             line_items: [
-                {
+                {   
                     price_data: {
                         currency: 'usd',
                         product_data: {
@@ -40,7 +40,7 @@ class PaymentService {
         return session;
     }
 
-    public async successPaymentStripe(user_id: string, session_id: string): Promise<object> {
+    public async successPaymentStripe(user_id: string, session_id: string, paymentData: any): Promise<object> {
         if(!session_id) throw new HttpException(400, 'No data');
 
         const findBooking = await prisma.booking.findFirst({
@@ -64,9 +64,23 @@ class PaymentService {
 
         await sendEmail({
             customer_email: session.customer_email!,
-            customer_details: { name: session.customer_details?.name ?? 'Unknown' },
+            customer_details: { 
+                name: session.customer_details?.name ?? 'Unknown' 
+            },
             id: session.id,
-            flight_details: { flight_number: 'test', departure: 'test', destination: 'test', date: 'test', time: 'test' },
+            flight_details: { 
+                flight_come_number: paymentData.flight_come?.code ?? 'N/A', 
+                departure_come: paymentData.departure_come_airport?.location ?? 'N/A', 
+                destination_come: paymentData.arrival_come_airport?.location ?? 'N/A', 
+                date_come: moment(paymentData.departure_come_time).format('YYYY-MM-DD') ?? 'N/A', 
+                time_come: moment(paymentData.departure_come_time).format('HH:mm') ?? 'N/A',
+
+                flight_return_number: paymentData.flight_return?.code ?? 'N/A',
+                departure_return: paymentData.departure_return_airport?.location ?? 'N/A',
+                destination_return: paymentData.arrival_return_airport?.location ?? 'N/A',
+                date_return: paymentData.departure_return_time ? moment(paymentData.departure_return_time).format('YYYY-MM-DD') : 'N/A',
+                time_return: paymentData.departure_return_time ? moment(paymentData.departure_return_time).format('HH:mm') : 'N/A'
+            },
             amount_total: session.amount_total ?? 0,
         })
 
@@ -121,7 +135,7 @@ class PaymentService {
         return order;
     }
 
-    public async successPaymentZalopay(user_id: string, session_id: string): Promise<void> {
+    public async successPaymentZalopay(user_id: string, session_id: string, paymentData: any): Promise<void> {
         if(!session_id) throw new HttpException(400, 'No data');
 
         const findBooking = await prisma.booking.findFirst({

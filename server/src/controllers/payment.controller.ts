@@ -28,8 +28,9 @@ class PaymentController {
             const userData = req.user as any;
             const user_id = userData.user_id;
             const session_id = req.query.session_id as string;
+            const paymentData = req.body;
 
-            const paymentSession = await this.paymentService.successPaymentStripe(user_id, session_id);
+            const paymentSession = await this.paymentService.successPaymentStripe(user_id, session_id, paymentData);
 
             res.status(200).json({
                 message: 'Payment successful',
@@ -64,8 +65,9 @@ class PaymentController {
             const userData = req.user as any;
             const user_id = userData.user_id;
             const session_id = req.query.session_id as string;
+            const paymentData = req.body;
 
-            const paymentSession = await this.paymentService.successPaymentZalopay(user_id, session_id);
+            const paymentSession = await this.paymentService.successPaymentZalopay(user_id, session_id, paymentData);
 
             res.status(200).json({
                 message: 'Payment successful',

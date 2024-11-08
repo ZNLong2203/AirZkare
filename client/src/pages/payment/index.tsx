@@ -35,13 +35,16 @@ const PaymentPage = () => {
     departure_come_airport,
     arrival_come_airport,
     departure_come_time,
+    flight_come,
     departure_return_airport,
     arrival_return_airport,
     departure_return_time,
+    flight_return,
     type,
     passengers,
     total_price 
   } = useFlightSearchStore();
+  const saveToLocalStorage = useFlightSearchStore((state) => state.saveToLocalStorage);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "zalopay">("stripe");
 
   let token = null;
@@ -53,11 +56,13 @@ const PaymentPage = () => {
   const departure_come_airport_code = departure_come_airport?.code;
   const arrival_come_airport_name = arrival_come_airport?.location;
   const arrival_come_airport_code = arrival_come_airport?.code;
+  const arrival_come_time = flight_come?.arrival_time;
 
   const departure_return_airport_name = departure_return_airport?.location;
   const departure_return_airport_code = departure_return_airport?.code;
   const arrival_return_airport_name = arrival_return_airport?.location;
   const arrival_return_airport_code = arrival_return_airport?.code;
+  const arrival_return_time = flight_return?.arrival_time;
 
   const handleStripePayment = async () => {
     try {
@@ -69,6 +74,7 @@ const PaymentPage = () => {
         },
         withCredentials: true,
       })
+      saveToLocalStorage();
 
       const stripe = await stripePromise;
       if (stripe) {
@@ -96,6 +102,8 @@ const PaymentPage = () => {
         },
         withCredentials: true,
       })
+      saveToLocalStorage();
+
       window.location.href = res.data.metadata.order_url;
       toast.promise(
         new Promise((resolve) => {
@@ -169,7 +177,7 @@ const PaymentPage = () => {
                 <div className="space-y-1 text-right">
                   <p className="font-semibold text-foreground">Arrival</p>
                   <p className="text-sm text-muted-foreground">{arrival_come_airport_name} ({arrival_come_airport_code})</p>
-                  <p className="text-sm text-muted-foreground">{moment(departure_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
+                  <p className="text-sm text-muted-foreground">{moment(arrival_come_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                 </div>
               </div>
 
@@ -186,8 +194,8 @@ const PaymentPage = () => {
                   <ArrowLeft className="text-primary" />
                   <div className="space-y-1 text-right">
                     <p className="font-semibold text-foreground">Arrival</p>
-                    <p className="text-sm text-muted-foreground">{arrival_return_airport_name} (${arrival_return_airport_code})</p>
-                    <p className="text-sm text-muted-foreground">{moment(departure_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
+                    <p className="text-sm text-muted-foreground">{arrival_return_airport_name} ({arrival_return_airport_code})</p>
+                    <p className="text-sm text-muted-foreground">{moment(arrival_return_time, "YYYY-MM-DD HH:mm:ss").format("MMMM D, YYYY • h:mm A")}</p>
                   </div>
                 </div>
               )}

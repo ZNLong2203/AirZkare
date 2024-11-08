@@ -135,6 +135,8 @@ const SelectFlightPage = () => {
     setFlightSearch({
       isSearching: true,
       class_return: "business",
+      airplane_return: selectedFlight?.airplane,
+      flight_return: selectedFlight ?? undefined,
       flight_return_id: flight_id,
       total_price: total_price + (selectedFlight?.price_business ?? 0) * passengers,
     })
@@ -150,6 +152,8 @@ const SelectFlightPage = () => {
     setFlightSearch({
       isSearching: true,
       class_return: "economy",
+      airplane_return: selectedFlight?.airplane,
+      flight_return: selectedFlight ?? undefined,
       flight_return_id: flight_id, 
       total_price: total_price + (selectedFlight?.price_economy ?? 0) * passengers,
     })

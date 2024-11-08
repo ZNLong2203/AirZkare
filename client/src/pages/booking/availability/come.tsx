@@ -91,7 +91,7 @@ const SelectFlightPage = () => {
 
   const sortedFilteredFlights = useMemo(() => {
     let filteredFlights = [...flights];
-  
+
     if (stopFilter === "non-stop") {
       filteredFlights = filteredFlights.filter((flight) => flight.type === "non-stop");
     } else if (stopFilter === "connecting") {
@@ -124,6 +124,10 @@ const SelectFlightPage = () => {
   const handleSelectFlight = (flight: FlightWithDA) => setSelectedFlight(flight);
 
   useEffect(() => {
+    localStorage.removeItem("flightSearchState");
+  }, []);  
+
+  useEffect(() => {
     if (selectedFlight) {
       setIsUpgradeModalOpen(true);
     }
@@ -133,6 +137,8 @@ const SelectFlightPage = () => {
     setIsUpgradeModalOpen(false);
     setFlightSearch({ 
       class_come: "business",
+      airplane_come: selectedFlight?.airplane,
+      flight_come: selectedFlight ?? undefined,
       flight_come_id: flight_id, 
       total_price: (selectedFlight?.price_business ?? 0) * passengers,
     });
@@ -147,6 +153,8 @@ const SelectFlightPage = () => {
     setIsUpgradeModalOpen(false);
     setFlightSearch({ 
       class_come: "economy",
+      airplane_come: selectedFlight?.airplane,
+      flight_come: selectedFlight ?? undefined,
       flight_come_id: flight_id, 
       total_price: (selectedFlight?.price_economy ?? 0) * passengers,
     });
