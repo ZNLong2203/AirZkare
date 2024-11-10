@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AirportSchema } from './Airport';
 import { AirplaneSchema } from './Airplane';
+import { FlightSeatSchema } from './FlightSeat';
 
 const BaseFlightSchema = z.object({
   airplane_id: z.string().uuid(),
@@ -29,6 +30,7 @@ export const FlightSchemaWithDA = FlightSchema.extend({
   airport_flight_arrival_airportToairport: AirportSchema,
   availableEconomySeats: z.number().positive(),
   availableBusinessSeats: z.number().positive(),
+  flight_seat: FlightSeatSchema.array(),
 });
 
 export type FlightWithDA = z.infer<typeof FlightSchemaWithDA>;
