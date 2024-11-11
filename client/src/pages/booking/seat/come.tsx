@@ -108,7 +108,11 @@ const SeatSelecting = () => {
         },
         withCredentials: true
       })
-      router.push('/booking/seat/return')
+      if(type === 'roundTrip') {
+        router.push('/booking/seat/return')
+      } else {
+        router.push('/payment')
+      }
     } catch (error) {
       toast.error('Failed to proceed to checkout')
     }

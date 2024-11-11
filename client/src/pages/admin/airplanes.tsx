@@ -109,13 +109,13 @@ const AdminAirplane: React.FC = () => {
   const deleteAirplaneMutation = useMutation<void, Error, string>({
     mutationFn: deleteAirplane,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['airplanes'] });
+      queryClient.invalidateQueries({ queryKey: ['airplanes'], exact: false });
       toast.success('Airplane deleted successfully');
     },
     onError: () => {
       toast.error('Error deleting airplane');
     },
-  });
+  });  
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
