@@ -42,7 +42,7 @@ class PaymentService {
 
     public async successPaymentStripe(user_id: string, session_id: string, paymentData: any): Promise<object> {
         if(!session_id) throw new HttpException(400, 'No data');
-
+    
         const findBooking = await prisma.booking.findFirst({
             where: {
                 user_id: user_id,
@@ -50,7 +50,7 @@ class PaymentService {
             }
         })
         if(!findBooking) throw new HttpException(404, 'No booking found');
-
+    
         await prisma.booking.update({
             where: {
                 booking_id: findBooking.booking_id,
@@ -59,9 +59,9 @@ class PaymentService {
                 status: 'confirmed',
             }
         })
-
+    
         const session = await stripe.checkout.sessions.retrieve(session_id.toString());
-
+    
         await sendEmail({
             customer_email: session.customer_email!,
             customer_details: { 
@@ -69,21 +69,24 @@ class PaymentService {
             },
             id: session.id,
             flight_details: { 
-                flight_come_number: paymentData.flight_come?.code ?? 'N/A', 
-                departure_come: paymentData.departure_come_airport?.location ?? 'N/A', 
-                destination_come: paymentData.arrival_come_airport?.location ?? 'N/A', 
-                date_come: moment(paymentData.departure_come_time).format('YYYY-MM-DD') ?? 'N/A', 
-                time_come: moment(paymentData.departure_come_time).format('HH:mm') ?? 'N/A',
+                flight_come_number: paymentData.paymentData.flight_come?.code ?? 'N/A', 
+                departure_come: paymentData.paymentData.departure_come_airport?.location ?? 'N/A', 
+                destination_come: paymentData.paymentData.arrival_come_airport?.location ?? 'N/A', 
+                date_come: paymentData.paymentData.departure_come_time ? moment(paymentData.paymentData.departure_come_time).format('YYYY-MM-DD') : 'N/A', 
+                time_come: paymentData.paymentData.departure_come_time ? moment(paymentData.paymentData.departure_come_time).format('HH:mm') : 'N/A',
+    
+                flight_return_number: paymentData.paymentData.flight_return?.code ?? 'N/A',
+                departure_return: paymentData.paymentData.departure_return_airport?.location ?? 'N/A',
+                destination_return: paymentData.paymentData.arrival_return_airport?.location ?? 'N/A',
+                date_return: paymentData.paymentData.departure_return_time ? moment(paymentData.paymentData.departure_return_time).format('YYYY-MM-DD') : 'N/A',
+                time_return: paymentData.paymentData.departure_return_time ? moment(paymentData.paymentData.departure_return_time).format('HH:mm') : 'N/A',
 
-                flight_return_number: paymentData.flight_return?.code ?? 'N/A',
-                departure_return: paymentData.departure_return_airport?.location ?? 'N/A',
-                destination_return: paymentData.arrival_return_airport?.location ?? 'N/A',
-                date_return: paymentData.departure_return_time ? moment(paymentData.departure_return_time).format('YYYY-MM-DD') : 'N/A',
-                time_return: paymentData.departure_return_time ? moment(paymentData.departure_return_time).format('HH:mm') : 'N/A'
+                passengers: paymentData.paymentData.passengers ?? 'N/A',
+                type: paymentData.paymentData.type ?? 'N/A',
             },
             amount_total: session.amount_total ?? 0,
         })
-
+    
         await prisma.payment.create({
             data: {
                 payment_id: randomUUID(),
@@ -93,7 +96,7 @@ class PaymentService {
             }
         })
         return session;
-    }
+    }    
 
     public async createPaymentZalopay(user_id: string, paymentData: Payment): Promise<object> {
         if(!user_id || !paymentData) throw new HttpException(400, 'No data');
