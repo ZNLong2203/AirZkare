@@ -295,7 +295,7 @@ const SelectFlightPage = () => {
                       <SeatRibbon seats={flight.availableEconomySeats} type="economy" />
                       <div className="text-lg font-semibold mb-2">ECONOMY</div>
                       <div className="text-3xl font-bold mb-1">
-                        {flight.price_economy.toLocaleString()} VND
+                        {flight.price_economy.toLocaleString()} $
                       </div>
                       <div className="text-sm mb-4">per passenger</div>
                       <Button variant="secondary" className="w-full">
@@ -310,7 +310,7 @@ const SelectFlightPage = () => {
                       <SeatRibbon seats={flight.availableBusinessSeats} type="business" />
                       <div className="text-lg font-semibold mb-2">BUSINESS</div>
                       <div className="text-3xl font-bold mb-1">
-                        {flight.price_business.toLocaleString()} VND
+                        {flight.price_business.toLocaleString()} $
                       </div>
                       <div className="text-sm mb-4">per passenger</div>
                       <Button variant="secondary" className="w-full">
