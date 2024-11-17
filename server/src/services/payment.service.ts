@@ -121,7 +121,7 @@ class PaymentService {
             app_trans_id: `${moment().format('YYMMDD')}_${transID}`,
             app_user: user_id, 
             app_time: timestamp,
-            amount: paymentData.amount, 
+            amount: paymentData.amount * 24000, 
             description: "Payment for airline booking",
             bank_code: 'zalopayapp', 
             item: JSON.stringify(items),

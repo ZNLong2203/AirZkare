@@ -94,23 +94,39 @@ class BookingService {
         if (!bookingPending) {
           throw new HttpException(404, 'Booking not found');
         }
+
+        const bookingPassengerPending = await prisma.booking_passenger.findMany({
+            where: {
+                booking_id: bookingPending.booking_id,
+            },
+            select: {
+                passenger_id: true,
+            }
+        })
             
         await prisma.$transaction(async (prisma) => {
           // Update seats for the come flight
+          const passengerIds = bookingPassengerPending.map((bp) => bp.passenger_id);
+
           if (bookingData.seats_come_id && bookingData.seats_come_id.length > 0) {
             const invalidSeatIds = bookingData.seats_come_id.filter(id => !isUuidValid(id));
             if (invalidSeatIds.length > 0) {
-              throw new HttpException(400, `Invalid seat IDs: ${invalidSeatIds.join(', ')}`);
+                throw new HttpException(400, `Invalid seat IDs: ${invalidSeatIds.join(', ')}`);
+            }
+
+            if (bookingData.seats_come_id.length > passengerIds.length) {
+                throw new HttpException(400, 'Not enough passengers for the seats');
             }
       
             await Promise.all(
-              bookingData.seats_come_id.map(async (flight_seat_id) => {
+              bookingData.seats_come_id.map(async (flight_seat_id, index) => {
+                const passenger_id = passengerIds[index];
                 await prisma.flight_seat.update({
                   where: {
                     flight_seat_id,
                   },
                   data: {
-                    passenger_id: user_id,
+                    passenger_id,
                     is_booked: true,
                   },
                 });
@@ -122,17 +138,22 @@ class BookingService {
           if (bookingData.seats_return_id && bookingData.seats_return_id.length > 0) {
             const invalidSeatIds = bookingData.seats_return_id.filter(id => !isUuidValid(id));
             if (invalidSeatIds.length > 0) {
-              throw new HttpException(400, `Invalid seat IDs: ${invalidSeatIds.join(', ')}`);
+                throw new HttpException(400, `Invalid seat IDs: ${invalidSeatIds.join(', ')}`);
+            }
+
+            if (bookingData.seats_return_id.length > passengerIds.length) {
+                throw new HttpException(400, 'Not enough passengers for the seats');
             }
       
             await Promise.all(
-              bookingData.seats_return_id.map(async (flight_seat_id) => {
+              bookingData.seats_return_id.map(async (flight_seat_id, index) => {
+                const passenger_id = passengerIds[index];
                 await prisma.flight_seat.update({
                   where: {
                     flight_seat_id,
                   },
                   data: {
-                    passenger_id: user_id,
+                    passenger_id,
                     is_booked: true,
                   },
                 });
@@ -200,8 +221,8 @@ class BookingService {
         return bookingData.map((booking) => ({
             id: booking.booking_id,
             flightNumber: booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.code,
-            departure: `${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_arrival_airportToairport.location} (${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_arrival_airportToairport.airport_id})`,
-            arrival: `${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_departure_airportToairport.location} (${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_departure_airportToairport.airport_id})`,
+            departure: `${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_arrival_airportToairport.location} (${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_arrival_airportToairport.name})`,
+            arrival: `${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_departure_airportToairport.location} (${booking.booking_passenger[0]?.passenger.flight_seat[0]?.flight.airport_flight_departure_airportToairport.name})`,
             date: moment(booking.time).format('YYYY-MM-DD'),
             status: booking.status,
         }));

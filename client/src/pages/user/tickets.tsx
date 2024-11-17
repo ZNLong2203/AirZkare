@@ -1,13 +1,17 @@
 import axios from 'axios'
 import API from '@/constants/api'
-import React, { useState, useEffect } from 'react'
+import toast from 'react-hot-toast'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { Plane, Calendar, Search, ArrowRight, ArrowLeft } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import ErrorMessage from '@/components/common/ErrorMessageQuery';
+import LoadingQuery from '@/components/common/LoadingQuery';
 
 interface Ticket {
   id: string
@@ -18,62 +22,40 @@ interface Ticket {
   status: 'Confirmed' | 'Pending' | 'Cancelled'
 }
 
-const tickets: Ticket[] = [
-  {
-    id: '1',
-    flightNumber: 'AZ1234',
-    departure: 'New York (JFK)',
-    arrival: 'Los Angeles (LAX)',
-    date: '2024-09-15',
-    status: 'Confirmed'
-  },
-  {
-    id: '2',
-    flightNumber: 'AZ5678',
-    departure: 'Boston (BOS)',
-    arrival: 'San Francisco (SFO)',
-    date: '2024-10-01',
-    status: 'Pending'
-  },
-  {
-    id: '3',
-    flightNumber: 'AZ9012',
-    departure: 'Chicago (ORD)',
-    arrival: 'Miami (MIA)',
-    date: '2024-11-20',
-    status: 'Cancelled'
-  },
-  {
-    id: '4',
-    flightNumber: 'AZ3456',
-    departure: 'Seattle (SEA)',
-    arrival: 'Denver (DEN)',
-    date: '2024-12-05',
-    status: 'Confirmed'
-  },
-  {
-    id: '5',
-    flightNumber: 'AZ7890',
-    departure: 'Washington D.C. (IAD)',
-    arrival: 'Las Vegas (LAS)',
-    date: '2025-01-10',
-    status: 'Pending'
-  }
-]
+const fetchTickets = async (token: string | null) => {
+  const res = await axios.get(`${API.BOOKINGHISTORY}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      withCredentials: true
+    }
+  })
+  return res.data.metadata
+}
 
 const MyTickets = () => {
-  const token  = localStorage.getItem('token')
-  // const [tickets, setTickets] = useState<Ticket[]>([])
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
   const ticketsPerPage = 4
 
-  const filteredTickets = tickets.filter(ticket => 
-    (ticket.flightNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     ticket.departure.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     ticket.arrival.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (statusFilter === 'all' || ticket.status === statusFilter)
+  const {
+    data,
+    error,
+    isError,
+    isLoading
+  } = useQuery<Ticket[], Error>({
+    queryKey: ['tickets'],
+    queryFn: () => fetchTickets(token)
+  })
+
+  const tickets = data || []
+
+  const filteredTickets = tickets.filter((ticket: Ticket) =>
+    (ticket?.flightNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket?.departure?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      ticket?.arrival?.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (statusFilter === 'all' || ticket?.status === statusFilter)
   )
 
   const indexOfLastTicket = currentPage * ticketsPerPage
@@ -83,7 +65,7 @@ const MyTickets = () => {
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
 
   const getStatusStyle = (status: string) => {
-    switch(status) {
+    switch (status) {
       case 'Confirmed':
         return 'bg-emerald-50 text-emerald-700 border-emerald-200'
       case 'Pending':
@@ -95,29 +77,18 @@ const MyTickets = () => {
     }
   }
 
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const res = await axios.get(`${API.BOOKINGHISTORY}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            withCredentials: true
-          }
-        })
-        console.log(res.data.metadata)
-        // setTickets(res.data.metadata)
-      } catch (err) {
-        console.log(err)
-      }
-    }
-    fetchTickets()
-  }, [])
+  if (isLoading) return <LoadingQuery />;
+  if (isError) {
+    console.error(error);
+    toast.error('Error fetching airports');
+    return <ErrorMessage message='Error fetching airports' />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-10">
-       <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">My Tickets</h1>
-        
+
         <div className="mb-6 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-grow">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -146,38 +117,38 @@ const MyTickets = () => {
 
         {currentTickets.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {currentTickets.map(ticket => (
-              <Card key={ticket.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            {currentTickets.map((ticket: Ticket) => (
+              <Card key={ticket?.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <CardContent className="p-0">
                   <div className="p-4 flex flex-col space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <Plane className="h-5 w-5 text-blue-600" />
-                        <span className="font-semibold text-lg">{ticket.flightNumber}</span>
+                        <span className="font-semibold text-lg">{ticket?.flightNumber}</span>
                       </div>
-                      <Badge variant="outline" className={`px-3 py-1 border ${getStatusStyle(ticket.status)}`}>
-                        {ticket.status}
+                      <Badge variant="outline" className={`px-3 py-1 border ${getStatusStyle(ticket?.status ? ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1) : '')}`}>
+                        {ticket?.status ? ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1) : ''}
                       </Badge>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2 text-gray-600">
                       <Calendar className="h-4 w-4" />
-                      <span>{ticket.date}</span>
+                      <span>{ticket?.date}</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <div className="text-sm text-gray-500">From</div>
-                        <div className="font-medium">{ticket.departure}</div>
+                        <div className="font-medium">{ticket?.departure}</div>
                       </div>
                       <div>
                         <div className="text-sm text-gray-500">To</div>
-                        <div className="font-medium">{ticket.arrival}</div>
+                        <div className="font-medium">{ticket?.arrival}</div>
                       </div>
                     </div>
 
-                    <Link 
-                      href={`/tickets/${ticket.id}`}
+                    <Link
+                      href={`detailticket/${ticket?.id}`}
                       className="block w-full text-center py-3 bg-gray-50 text-blue-600 font-medium hover:bg-gray-100 transition-colors duration-200"
                     >
                       View Details
