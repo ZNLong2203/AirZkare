@@ -4,11 +4,50 @@ import { randomUUID } from "crypto";
 import { BookingFlightInfo } from '../interfaces/booking.interface';
 import { Passenger } from "../interfaces/passsenger.interface";
 import { validate as isUuidValid } from 'uuid';
+import SocketSingleton from "../configs/socketSingleton.config";
+import cron from "node-cron";
 import moment from "moment";
 
 const prisma = PrismaClientInstance();
 
 class BookingService {
+    constructor() {
+        this.startSeatReleaseCronJob();
+    }
+
+    private startSeatReleaseCronJob() {
+        cron.schedule('*/5 * * * *', async () => {
+            const exipredSeats = await prisma.flight_seat.findMany({
+                where: {
+                    hold_expires: { lt: new Date() },
+                    is_booked: false,
+                    held_by: { not: null},
+                }
+            })
+
+            if(exipredSeats.length > 0) {
+                await prisma.flight_seat.updateMany({
+                    where: {
+                        flight_seat_id: {
+                            in: exipredSeats.map(seat => seat.flight_seat_id)
+                        }
+                    },
+                    data: {
+                        held_by: null,
+                        held_at: null,
+                        hold_expires: null,
+                    }
+                })
+            }
+
+            const io = SocketSingleton.getInstance();
+            io.emit('seatStatusChanged', {
+                seatId: exipredSeats.map(seat => seat.flight_seat_id),
+                status: 'available',
+            })
+        })
+    }
+
     public async createBookingPassenger(user_id: string, bookingData: any): Promise<void> {
         if(!bookingData) throw new HttpException(400, 'No data');
 
@@ -285,6 +324,35 @@ class BookingService {
         })
 
         return;
+    }
+
+    public async holdSeat(user_id: string, flight_seat_id: string): Promise<void> {
+        const seat = await prisma.flight_seat.findUnique({
+            where: {
+                flight_seat_id: flight_seat_id,
+            }
+        })
+
+        if(!seat || seat.is_booked || seat.passenger_id) throw new HttpException(400, 'Seat not available');
+        if(seat.held_by && seat.held_by !== user_id) throw new HttpException(400, 'Seat already held by another user');
+
+        await prisma.flight_seat.update({
+            where: {
+                flight_seat_id,
+            },
+            data: {
+                held_by: user_id,
+                held_at: new Date(),
+                hold_expires: moment().add(5, 'minutes').toDate(),
+            }
+        })
+
+        const io = SocketSingleton.getInstance();
+        io.emit('seatStatusChanged', {
+            seatId: flight_seat_id,
+            status: 'held',
+            heldBy: user_id,
+        })
     }
 }
 

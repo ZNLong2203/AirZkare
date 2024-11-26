@@ -4,7 +4,7 @@ import API from '@/constants/api'
 import useFlightSearchStore from '@/store/useFlightSearchStore'
 import { useStore } from '@/store/useStore'
 import { useState, useMemo, useEffect } from 'react'
-import { MdAirplanemodeActive, MdAirlineSeatReclineNormal, MdFlightTakeoff, MdFlightLand } from "react-icons/md"
+import { MdAirplanemodeActive, MdAirlineSeatReclineNormal, MdFlightTakeoff, MdFlightLand, MdLock } from "react-icons/md"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator"
 import { Plane, Cloud, MapPin, Info } from 'lucide-react'
 import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
+import { initiateSocketConnection, disconnectSocket, subscribeToSeatStatus } from '@/utils/socketClient'
 
 interface Seat {
   flight_seat_id: string;
@@ -27,10 +28,14 @@ interface Seat {
     number: string;
     class: 'business' | 'economy';
   };
+  held_by: string | null;
+  held_at: string | null;
+  hold_expires: string | null;
 }
 
 const SeatSelecting = () => {
   const router = useRouter()
+  const user_id = localStorage.getItem('user_id')
   const { token } = useStore((state) => state)
   const { 
     departure_come_airport, 
@@ -44,7 +49,6 @@ const SeatSelecting = () => {
     type } = useFlightSearchStore((state) => state)
   const [seats, setSeats] = useState<Seat[]>([])
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
-
   const departureCode = departure_come_airport?.code
   const arrivalCode = arrival_come_airport?.code
   const flightCode = flight_come?.code
@@ -65,7 +69,34 @@ const SeatSelecting = () => {
       }
     }
     fetchSeats()
-  }, [])
+  }, [flight_come_id, token])
+
+  useEffect(() => {
+    initiateSocketConnection();
+
+    subscribeToSeatStatus((data) => {
+        const { seatId, status, heldBy } = data;
+
+        setSeats((prevSeats) =>
+            prevSeats.map((seat) => {
+                if (seat.flight_seat_id === seatId) {
+                    if (status === 'held') {
+                        return { ...seat, held_by: heldBy, is_booked: false };
+                    } else if (status === 'available') {
+                        return { ...seat, held_by: null, is_booked: false };
+                    } else if (status === 'booked') {
+                        return { ...seat, held_by: null, is_booked: true };
+                    }
+                }
+                return seat;
+            })
+        );
+    });
+
+    return () => {
+        disconnectSocket();
+    };
+  }, []);
 
   const sortedSeats = seats.sort((a, b) => {
     const [aRow, aCol] = [parseInt(a.seat.number.slice(0, -1)), a.seat.number.slice(-1)]
@@ -76,18 +107,39 @@ const SeatSelecting = () => {
     return aRow - bRow 
   })
 
-  const handleSeatSelection = (seat: Seat) => {
-    if (!seat.is_booked && seat.seat.class === class_come) {
+  const handleSeatSelection = async (seat: Seat) => {
+    if (seat.is_booked || (seat.held_by && seat.held_by !== user_id) || seat.seat.class !== class_come) return;
+    if (selectedSeats.length >= passengers && !selectedSeats.includes(seat.flight_seat_id)) {
+      setSelectedSeats((prev) => [...prev.slice(1), seat.flight_seat_id]); 
+    } else {
       setSelectedSeats((prev) => {
         if (prev.includes(seat.flight_seat_id)) {
-          return prev.filter((id) => id !== seat.flight_seat_id)
-        } else if (prev.length < passengers) {
-          return [...prev, seat.flight_seat_id]
+          return prev.filter((id) => id !== seat.flight_seat_id); // Deselect seat
+        } else {
+          return [...prev, seat.flight_seat_id]; // Select new seat
         }
-        return prev
-      })
+      });
     }
-  }
+  
+    try {
+      const res = await axios.post(
+        `${API.BOOKINGHOLDSEAT}`,
+        { flight_seat_id: seat.flight_seat_id },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+  
+      if (res.data.message !== 'Seat held') {
+        toast.error(res.data.message);
+      }
+    } catch (error) {
+      toast.error('Failed to hold seat');
+    }
+  };  
 
   const selectedClasses = useMemo(() => {
     const classes = new Set(selectedSeats.map(id => seats.find(seat => seat.flight_seat_id === id)?.seat.class))
@@ -132,20 +184,49 @@ const SeatSelecting = () => {
               >
                 <Button
                   onClick={() => handleSeatSelection(seat)}
-                  variant={seat.is_booked ? "secondary" : selectedSeats.includes(seat.flight_seat_id) ? "default" : "outline"}
+                  variant={
+                    seat.is_booked
+                      ? 'secondary' // Seat is booked
+                      : seat.held_by && seat.held_by !== user_id // Seat is held by another user
+                      ? 'destructive'
+                      : selectedSeats.includes(seat.flight_seat_id) // Seat is selected by current user
+                      ? 'default'
+                      : 'outline' // Seat is available
+                  }
                   className={`w-12 h-12 p-0 ${
-                    seat.seat.class === 'business' 
-                      ? 'bg-amber-100 hover:bg-amber-200' 
+                    seat.seat.class === 'business'
+                      ? 'bg-amber-100 hover:bg-amber-200'
                       : 'bg-emerald-100 hover:bg-emerald-200'
-                  } ${seat.is_booked ? 'bg-gray-300 hover:bg-gray-300 cursor-not-allowed' : ''} 
-                    ${selectedSeats.includes(seat.flight_seat_id) ? 'bg-primary text-primary-foreground' : ''}`}
-                  disabled={seat.is_booked}
+                  } ${
+                    seat.is_booked
+                      ? 'bg-gray-300 hover:bg-gray-300 cursor-not-allowed'
+                      : ''
+                  } ${
+                    selectedSeats.includes(seat.flight_seat_id)
+                      ? 'bg-primary text-primary-foreground'
+                      : ''
+                  } ${
+                    seat.held_by && seat.held_by !== user_id
+                      ? 'bg-red-500 hover:bg-red-600 text-white'
+                      : ''
+                  }`}
+                  disabled={
+                    !!seat.is_booked || (!!seat.held_by && seat.held_by !== user_id) // Lock seat if booked or held by another user
+                  }
                 >
                   <div className="flex flex-col items-center">
                     {seat.is_booked ? (
                       <MdAirlineSeatReclineNormal className="text-gray-500" />
+                    ) : seat.held_by && seat.held_by !== user_id ? (
+                      <MdLock className="text-white" /> // Display lock icon if seat is held by another user
                     ) : (
-                      <MdAirplanemodeActive className={selectedSeats.includes(seat.flight_seat_id) ? "text-primary-foreground" : "text-primary"} />
+                      <MdAirplanemodeActive
+                        className={
+                          selectedSeats.includes(seat.flight_seat_id)
+                            ? 'text-primary-foreground'
+                            : 'text-primary'
+                        }
+                      />
                     )}
                     <span className="text-xs mt-1">{seat.seat.number}</span>
                   </div>
@@ -153,11 +234,15 @@ const SeatSelecting = () => {
               </motion.div>
             </TooltipTrigger>
             <TooltipContent>
-              <p>{seat.is_booked ? 'Reserved' : `${seat.seat.class.charAt(0).toUpperCase() + seat.seat.class.slice(1)} Class - Seat ${seat.seat.number}`}</p>
+              <p>
+                {seat.is_booked
+                  ? 'Reserved'
+                  : `${seat.seat.class.charAt(0).toUpperCase() + seat.seat.class.slice(1)} Class - Seat ${seat.seat.number}`}
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      ))
+      ));  
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -304,7 +389,7 @@ const SeatSelecting = () => {
                   </div>
                   <Button 
                     className="w-full bg-primary hover:bg-primary/90"
-                    disabled={selectedSeats.length === 0}
+                    disabled={selectedSeats.length !== passengers}
                     onClick={handleCheckout}
                   >
                     Proceed to Checkout

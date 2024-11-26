@@ -7,6 +7,9 @@ export const FlightSeatSchema = z.object({
     passenger_id: z.string().uuid().nullable(),
     seat_id: z.string().uuid(),
     is_booked: z.boolean(),
+    held_by: z.string().uuid().nullable(),
+    held_at: z.string().nullable(),
+    hold_expires: z.string().nullable(),
     seat: SeatSchema,
 })
 

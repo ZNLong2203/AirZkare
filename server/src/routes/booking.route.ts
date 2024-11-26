@@ -13,11 +13,12 @@ class BookingRoute implements Routes {
     }
 
     private initializeRoutes() {
+        this.router.post(`${this.path}/hold_seat`, authMiddleware, this.bookingController.holdSeat);
+        
         this.router.post(`${this.path}/passenger`, authMiddleware, this.bookingController.createBookingPassenger);
         this.router.post(`${this.path}/flight`, authMiddleware, this.bookingController.createBookingFlight);
         this.router.get(`${this.path}/history`, authMiddleware, this.bookingController.getPassengerBookingHistory);
         this.router.get(`${this.path}/:booking_id`, authMiddleware, this.bookingController.getBookingInfo);
-
         this.router.patch(`${this.path}/:booking_id`, authMiddleware, this.bookingController.cancelBooking);
     }
 }

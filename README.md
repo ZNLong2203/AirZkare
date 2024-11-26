@@ -5,11 +5,12 @@
 
 2. Technology
     - Next.js
-    - TailwindCSS
     - Express.js
     - Redis
     - PostgreSQL
     - Prisma ORM
+    - TailwindCSS
+    - Socket.io
     - Docker
 
 ## Architecture:
@@ -25,7 +26,7 @@
     - View / Edit Profile
     - Find a flight
     - Book / Cancel a flight
-    - Choose a flight seat
+    - In-Flight seat selection with seat lock feature if someone else is choosing
     - Payment Gateway Stripe and QR code with Zalopay
     - Get notification email confirm about booking
     - View booking history

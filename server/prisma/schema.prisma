@@ -61,9 +61,13 @@ model flight_seat {
   passenger_id   String?    @db.Uuid
   seat_id        String     @db.Uuid
   is_booked      Boolean?   @default(false)
+  held_by        String?    @db.Uuid
+  held_at        DateTime?  @db.Timestamp(6)
+  hold_expires   DateTime?  @db.Timestamp(6)
   flight         flight     @relation(fields: [flight_id], references: [flight_id], onDelete: NoAction, onUpdate: NoAction)
   passenger      passenger? @relation(fields: [passenger_id], references: [passenger_id], onDelete: NoAction, onUpdate: NoAction)
   seat           seat       @relation(fields: [seat_id], references: [seat_id], onDelete: NoAction, onUpdate: NoAction)
+  user           user?      @relation(fields: [held_by], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "flight_seat_user_user_id_fk")
 }
 
 model passenger {
@@ -103,15 +107,16 @@ model seat {
 }
 
 model user {
-  user_id       String      @id @db.Uuid
-  username      String      @unique @db.VarChar
-  password      String      @db.VarChar
-  email         String      @unique @db.VarChar
-  image         String?     @db.VarChar
-  provider      String?     @db.VarChar
-  provider_code String?     @db.VarChar
-  role          user_role?  @default(user)
+  user_id       String        @id @db.Uuid
+  username      String        @unique @db.VarChar
+  password      String        @db.VarChar
+  email         String        @unique @db.VarChar
+  image         String?       @db.VarChar
+  provider      String?       @db.VarChar
+  provider_code String?       @db.VarChar
+  role          user_role?    @default(user)
   booking       booking[]
+  flight_seat   flight_seat[]
   passenger     passenger[]
 }
 

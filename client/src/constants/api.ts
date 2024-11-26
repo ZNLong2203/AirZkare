@@ -1,6 +1,7 @@
 const BE = "http://localhost:2222/api";
 
 const API = {
+    BE: `http://localhost:2222`,
     LOGIN: `${BE}/auth/login`,
     REGISTER: `${BE}/auth/register`,
     LOGOUT: `${BE}/auth/logout`,
@@ -13,6 +14,7 @@ const API = {
     BOOKINGPASSENGER: `${BE}/booking/passenger`,
     BOOKINGFLIGHT: `${BE}/booking/flight`,
     BOOKINGHISTORY: `${BE}/booking/history`,
+    BOOKINGHOLDSEAT: `${BE}/booking/hold_seat`,
     PAYMENTSTRIPE: `${BE}/payment/stripe`,
     PAYMENTZALOPAY: `${BE}/payment/zalopay`,
 }

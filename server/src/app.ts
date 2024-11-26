@@ -1,4 +1,7 @@
 import 'dotenv/config';
+import http, { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import SocketSingleton from './configs/socketSingleton.config';
 import compression from 'compression';
 import express from 'express';
 import session from 'express-session';
@@ -16,11 +19,15 @@ class App {
     public app: express.Application;
     public env: string;
     public port: string | number;
+    public server: http.Server;
+    public io: SocketIOServer;
     
     constructor(routes: Routes[]) {
         this.app = express();
         this.env = process.env.NODE_ENV || 'dev';
         this.port = process.env.PORT || 3000;
+        this.server = createServer(this.app);
+        this.io = SocketSingleton.init(this.server);
 
         this.middlewares();
         this.initializeRoutes(routes);
@@ -29,7 +36,7 @@ class App {
     }
 
     public listen() {
-        this.app.listen(this.port || 3000, () => {
+        this.server.listen(this.port || 3000, () => {
             console.log(`Server running on port ${this.port}`);
         })
     }

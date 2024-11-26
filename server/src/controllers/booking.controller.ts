@@ -101,6 +101,24 @@ class BookingController {
             next(err);
         }
     }
+
+    public holdSeat = async(req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userData = req.user as any;
+            const user_id = userData.user_id;
+            const { flight_seat_id } = req.body;
+
+            console.log(flight_seat_id);
+
+            await this.BookingService.holdSeat(user_id, flight_seat_id);
+
+            res.status(200).json({
+                message: 'Seat held',
+            });
+        } catch (err) {
+            next(err);
+        }
+    }
 }
 
 export default BookingController;
