@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios'
 import moment from 'moment'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -141,10 +141,21 @@ const PassengerDetails = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [insuranceOption, setInsuranceOption] = useState("yes");
-  const [passengerForms, setPassengerForms] = useState([{ id: 1, name: '', dob: '', gender: '', nationality: '' }]);
+  const [passengerForms, setPassengerForms] = useState<Array<{ id: number; name: string; dob: string; gender: string; nationality: string; }>>([]);
 
   const departure_come_name = departure_come_airport?.name;
   const arrival_come_name = arrival_come_airport?.name;
+
+  useEffect(() => {
+    // Initialize passenger forms based on the 'passengers' value
+    setPassengerForms(Array.from({ length: passengers }, (_, index) => ({
+      id: index + 1,
+      name: '',
+      dob: '',
+      gender: '',
+      nationality: ''
+    })));
+  }, [passengers]);
 
   const handleSubmit = async () => {
     try {
@@ -171,14 +182,16 @@ const PassengerDetails = () => {
   };
 
   const removePassenger = (id: number) => {
-    setPassengerForms(prev => prev.filter((_, index) => index !== id - 1));
-    setPassengers(passengers - 1);
+    if (passengerForms.length > 1) {
+      setPassengerForms(prev => prev.filter(form => form.id !== id));
+      setPassengers(passengers - 1);
+    } else {
+      toast.error('You must have at least one passenger.');
+    }
   };
 
   const updatePassenger = (index: number, data: any) => {
-    const updatedForms = [...passengerForms];
-    updatedForms[index - 1] = data;
-    setPassengerForms(updatedForms);
+    setPassengerForms(prev => prev.map(form => form.id === index ? { ...form, ...data } : form));
   };
 
   return (
@@ -241,7 +254,7 @@ const PassengerDetails = () => {
           {passengerForms.map((form, index) => (
             <PassengerForm
               key={form.id}
-              index={index + 1}
+              index={form.id}
               isLeader={index === 0}
               passengerData={form}
               onChange={updatePassenger}

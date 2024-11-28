@@ -35,6 +35,7 @@ const defaultFlightWithDA: FlightWithDA = {
   airplane: defaultAirplane,
   airport_flight_departure_airportToairport: defaultAirport,
   airport_flight_arrival_airportToairport: defaultAirport,
+  flight_seat: [],
 };
 
 interface FlightSearchState {

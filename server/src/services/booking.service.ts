@@ -146,7 +146,7 @@ class BookingService {
         await prisma.$transaction(async (prisma) => {
           // Update seats for the come flight
           const passengerIds = bookingPassengerPending.map((bp) => bp.passenger_id);
-
+          
           if (bookingData.seats_come_id && bookingData.seats_come_id.length > 0) {
             const invalidSeatIds = bookingData.seats_come_id.filter(id => !isUuidValid(id));
             if (invalidSeatIds.length > 0) {

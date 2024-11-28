@@ -49,6 +49,7 @@ const SeatSelecting = () => {
     type } = useFlightSearchStore((state) => state)
   const [seats, setSeats] = useState<Seat[]>([])
   const [selectedSeats, setSelectedSeats] = useState<string[]>([])
+
   const departureCode = departure_come_airport?.code
   const arrivalCode = arrival_come_airport?.code
   const flightCode = flight_come?.code
@@ -122,8 +123,7 @@ const SeatSelecting = () => {
     }
   
     try {
-      const res = await axios.post(
-        `${API.BOOKINGHOLDSEAT}`,
+      const res = await axios.post(`${API.BOOKINGHOLDSEAT}`,
         { flight_seat_id: seat.flight_seat_id },
         {
           headers: {
@@ -340,6 +340,10 @@ const SeatSelecting = () => {
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 bg-gray-300 rounded"></div>
                     <span className="text-gray-700">Reserved</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 bg-red-400 rounded"></div>
+                    <span className="text-gray-700">Hold</span>
                   </div>
                 </div>
               </CardContent>
