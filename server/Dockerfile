@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 2222
 
-CMD ["node", "index.js"]
+CMD ["node", "src/server.ts"]

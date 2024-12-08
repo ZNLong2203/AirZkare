@@ -1,10 +1,60 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios';
+import API from "@/constants/api";
+import toast from 'react-hot-toast';
 import { AiOutlineBarChart, AiOutlineUser, AiOutlineFile, AiOutlineSetting } from 'react-icons/ai';
 import SideBarAdmin from '@/components/common/SideBarAdmin';
 import PieChart from '@/components/dashboard/PieChart';
 import LineChart from '@/components/dashboard/LineChart';
 
+interface PieChartData {
+    location: string;
+    totalVisitors: number;
+}
+
+interface LineChartData {
+    month: string;
+    numPassengers: number;
+}
+
 const AdminDashboard = () => {
+    // const token = localStorage.getItem('token');
+    const [pieChartData, setPieChartData] = useState<PieChartData[]>([]);
+    const [lineChartData, setLineChartData] = useState<LineChartData[]>([]);
+
+    useEffect(() => {
+        const fetchPieChartData = async () => {
+            try {
+                const res = await axios.get(`${API.DASHBOARDPIECHART}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        withCredentials: true,
+                    }
+                });
+                setPieChartData(res.data.metadata);
+                console.log(res.data.metadata);
+            } catch(error) {
+                toast.error('Failed to fetch pie chart data');
+            }
+        }
+
+        const fetchLineChartData = async () => {
+            try {
+                const res = await axios.get(API.DASHBOARDLINECHART, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        withCredentials: true,
+                    }
+                });
+                setLineChartData(res.data.metadata);
+            } catch(error) {
+                toast.error('Failed to fetch line chart data');
+            }
+        }
+
+        fetchPieChartData();
+        fetchLineChartData();
+    }, []);
     return (
         <div className="min-h-screen flex bg-gray-100">
             <SideBarAdmin />
@@ -47,9 +97,9 @@ const AdminDashboard = () => {
                     <h2 className="text-2xl font-semibold text-gray-700 mb-4">Overview</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Flight Statistics chart */}
-                        <PieChart />
+                        <PieChart pieChartData={pieChartData} />
                         {/* Customer Insights chart */}
-                        <LineChart />
+                        <LineChart lineChartData={lineChartData} />
                     </div>
                 </div>
             </main>

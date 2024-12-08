@@ -1,7 +1,7 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
-import { CartesianGrid, LabelList, Line, LineChart, XAxis } from "recharts"
+import { TrendingUp } from 'lucide-react'
+import { CartesianGrid, LabelList, Line, LineChart, XAxis, YAxis } from "recharts"
 
 import {
   Card,
@@ -17,32 +17,31 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-]
+interface LineChartData {
+  month: string
+  numPassengers: number
+}
+
+interface LineChartDataProps {
+  lineChartData: LineChartData[]
+}
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  numPassengers: {
+    label: "Number of Passengers",
     color: "hsl(var(--chart-1))",
   },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
-  },
-} 
+}
 
-const Chart = () => {
+const Chart: React.FC<LineChartDataProps> = ({ lineChartData }) => {
+  // Ensure there's always at least one data point
+  const chartData = lineChartData.length > 0 ? lineChartData : [{ month: "No Data", numPassengers: 0 }]
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Line Chart - Label</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Line Chart - Passengers per Month</CardTitle>
+        <CardDescription>Monthly passenger data</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
@@ -53,6 +52,7 @@ const Chart = () => {
               top: 20,
               left: 12,
               right: 12,
+              bottom: 20,
             }}
           >
             <CartesianGrid vertical={false} />
@@ -61,25 +61,31 @@ const Chart = () => {
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => value.slice(0, 3)}
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
             <Line
-              dataKey="desktop"
-              type="natural"
-              stroke="var(--color-desktop)"
+              dataKey="numPassengers"
+              type="monotone"
+              stroke="var(--color-numPassengers)"
               strokeWidth={2}
               dot={{
-                fill: "var(--color-desktop)",
+                fill: "var(--color-numPassengers)",
+                r: 6,
               }}
               activeDot={{
-                r: 6,
+                r: 8,
               }}
             >
               <LabelList
+                dataKey="numPassengers"
                 position="top"
                 offset={12}
                 className="fill-foreground"
@@ -91,14 +97,20 @@ const Chart = () => {
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
         <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
+          {chartData[0].numPassengers > 0 ? (
+            <>
+              {chartData[0].numPassengers} passengers in {chartData[0].month} <TrendingUp className="h-4 w-4" />
+            </>
+          ) : (
+            "No passenger data available"
+          )}
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing passenger data for the available month
         </div>
       </CardFooter>
     </Card>
   )
 }
 
-export default Chart;
+export default Chart

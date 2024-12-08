@@ -309,7 +309,7 @@ const PaymentPage = () => {
               <Separator />
               <div className="flex justify-between items-center">
                 <p className="font-semibold text-foreground">Total</p>
-                <p className="text-2xl font-bold text-primary">$2,599.98</p>
+                <p className="text-2xl font-bold text-primary">${total_price + 200}</p>
               </div>
             </CardContent>
           </Card>

@@ -78,6 +78,9 @@ CREATE TABLE flight_seat (
     passenger_id UUID REFERENCES passenger(passenger_id),
     seat_id UUID REFERENCES seat(seat_id) NOT NULL,
     is_booked BOOLEAN DEFAULT FALSE
+    hely_by VARCHAR
+    held_at DATETIME
+    hold_expires DATETIME
 );
 
 CREATE TABLE booking (

@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { TrendingUp } from "lucide-react"
+import { TrendingUp } from 'lucide-react'
 import { Label, Pie, PieChart } from "recharts"
 
 import {
@@ -18,50 +18,64 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-]
+interface PieChartData {
+  location: string
+  totalVisitors: number
+}
 
-const chartConfig = {
-  visitors: {
-    label: "Visitors",
-  },
-  chrome: {
-    label: "Chrome",
-    color: "hsl(var(--chart-1))",
-  },
-  safari: {
-    label: "Safari",
-    color: "hsl(var(--chart-2))",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "hsl(var(--chart-3))",
-  },
-  edge: {
-    label: "Edge",
-    color: "hsl(var(--chart-4))",
-  },
-  other: {
-    label: "Other",
-    color: "hsl(var(--chart-5))",
-  },
-} 
+interface PieChartDataProps {
+  pieChartData?: PieChartData[]
+}
 
-const Chart = () => {
+// Function to generate colors
+const generateColors = (count: number) => {
+  const hueStep = 360 / count
+  return Array.from({ length: count }, (_, i) => `hsl(${i * hueStep}, 70%, 50%)`)
+}
+
+const Chart: React.FC<PieChartDataProps> = ({ pieChartData = [] }) => {
+  const colors = React.useMemo(() => generateColors(pieChartData.length), [pieChartData])
+
+  const chartConfig = React.useMemo(() => {
+    return pieChartData.reduce((acc, data, index) => {
+      acc[data.location] = {
+        label: data.location,
+        color: colors[index],
+      }
+      return acc
+    }, {} as Record<string, { label: string; color: string }>)
+  }, [pieChartData, colors])
+
   const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [])
+    return pieChartData.reduce((acc, curr) => acc + curr.totalVisitors, 0)
+  }, [pieChartData])
+
+  const chartDataWithColors = React.useMemo(() => {
+    return pieChartData.map((data, index) => ({
+      ...data,
+      fill: colors[index],
+    }))
+  }, [pieChartData, colors])
+
+  if (pieChartData.length === 0) {
+    return (
+      <Card className="flex flex-col">
+        <CardHeader className="items-center pb-0">
+          <CardTitle>Pie Chart - Visitors in each country</CardTitle>
+          <CardDescription>January - December 2024</CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center h-[250px]">
+          <p>No data available</p>
+        </CardContent>
+      </Card>
+    )
+  }
 
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Pie Chart - Visitors in each country</CardTitle>
+        <CardDescription>January - December 2024</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -74,9 +88,9 @@ const Chart = () => {
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
+              data={chartDataWithColors}
+              dataKey="totalVisitors"
+              nameKey="location"
               innerRadius={60}
               strokeWidth={5}
             >
@@ -118,11 +132,11 @@ const Chart = () => {
           Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
         </div>
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing total visitors for the last 1 year
         </div>
       </CardFooter>
     </Card>
   )
 }
 
-export default Chart;
+export default Chart

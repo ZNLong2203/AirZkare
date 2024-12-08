@@ -1,4 +1,5 @@
 import { PrismaClientInstance } from "../db/PrismaClient";
+import moment from "moment";
 
 const prisma = PrismaClientInstance();
 
@@ -32,13 +33,13 @@ class DashboardService {
                 return count + flight.flight_seat.filter(seat => seat.is_booked === true).length;
             }, 0);
 
-            const totalVisitorsDeparture = airport.flight_flight_departure_airportToairport.reduce((count, flight) => {
-                return count + flight.flight_seat.filter(seat => seat.is_booked === true).length;
-            }, 0);
+            // const totalVisitorsDeparture = airport.flight_flight_departure_airportToairport.reduce((count, flight) => {
+            //     return count + flight.flight_seat.filter(seat => seat.is_booked === true).length;
+            // }, 0);
 
             return {
                 location: airport.location,
-                totalVisitors: totalVisitorsArrival + totalVisitorsDeparture
+                totalVisitors: totalVisitorsArrival
             };
         });
 
@@ -59,11 +60,35 @@ class DashboardService {
         const numPassengersPerFlight = flights.map(flight => {
             return {
                 flightNumber: flight.flight_id,
+                departureTime: flight.departure_time,
                 numPassengers: flight.flight_seat.filter(seat => seat.is_booked === true).length
             };
         });
 
-        return numPassengersPerFlight;
+        // Map the number of passengers per month
+        const passengersPerMonth = numPassengersPerFlight.reduce((acc, flightData) => {
+            const month = moment(flightData.departureTime).format('MMM');  
+            if (!acc[month]) {
+                acc[month] = 0;
+            }
+            acc[month] += flightData.numPassengers;
+            return acc;
+        }, {} as Record<string, number>);
+
+        const result = Object.entries(passengersPerMonth).map(([month, numPassengers]) => {
+            return {
+                month,
+                numPassengers
+            };
+        });
+
+        result.sort((a, b) => {
+            const monthA = moment(a.month, 'MMM');
+            const monthB = moment(b.month, 'MMM');
+            return monthA.month() - monthB.month();
+        });
+
+        return result;
     } 
 }
 

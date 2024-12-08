@@ -17,6 +17,8 @@ const API = {
     BOOKINGHOLDSEAT: `${BE}/booking/hold_seat`,
     PAYMENTSTRIPE: `${BE}/payment/stripe`,
     PAYMENTZALOPAY: `${BE}/payment/zalopay`,
+    DASHBOARDLINECHART: `${BE}/dashboard/linechart`,
+    DASHBOARDPIECHART: `${BE}/dashboard/piechart`,
 }
 
 export default API;
