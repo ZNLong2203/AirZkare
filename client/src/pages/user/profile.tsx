@@ -34,7 +34,6 @@ interface Option {
 }
 
 const Profile: React.FC = () => {
-  const token = localStorage.getItem('token');
   const [users, setUsers] = useState<User>({
     username: null,
     email: null,
@@ -61,6 +60,9 @@ const Profile: React.FC = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${API.PASSENGER}/${userId}`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          },
           withCredentials: true,
         });
         setUsers({
@@ -143,7 +145,7 @@ const Profile: React.FC = () => {
     try {
       await axios.patch(`${API.PASSENGER}/${userId}`, updatedUserData, {
         headers: {
-          "Authorization": `Bearer ${token}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         withCredentials: true,
       });

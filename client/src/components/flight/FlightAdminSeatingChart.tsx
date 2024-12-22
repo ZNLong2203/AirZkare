@@ -1,5 +1,9 @@
+'use client'
+
 import React from 'react';
 import { FlightWithDA } from '@/schemas/Flight';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 interface SeatMapProps {
   flightData: FlightWithDA;
@@ -11,13 +15,20 @@ const SeatMap: React.FC<SeatMapProps> = ({ flightData }) => {
   const renderSeats = () => {
     const seatMap = new Map(flight_seat.map(seat => [seat.seat.number, seat]));
     const rows = Math.max(...flight_seat.map(seat => parseInt(seat.seat.number.slice(0, -1))));
-    const businessRows = Math.ceil(airplane.total_business / 4); // 4 seats per row in business class
+    const businessRows = Math.ceil(airplane.total_business / 4);
 
     const seats = [];
     for (let row = 1; row <= rows; row++) {
       const rowSeats = [];
       const isBusinessRow = row <= businessRows;
       const columns = isBusinessRow ? 'ABCD' : 'ABCDEF';
+
+      // Add row number
+      rowSeats.push(
+        <div key={`row-number-${row}`} className="w-8 h-8 flex items-center justify-center text-sm text-gray-500 font-medium">
+          {row}
+        </div>
+      );
 
       for (const col of columns) {
         const seatNumber = `${row}${col}`;
@@ -28,28 +39,31 @@ const SeatMap: React.FC<SeatMapProps> = ({ flightData }) => {
           rowSeats.push(
             <div
               key={seatNumber}
-              className={`w-8 h-8 m-1 rounded-sm flex items-center justify-center text-xs font-bold
-                ${isBooked ? 'bg-red-500 text-white' : seatClass === 'business' ? 'bg-purple-500 text-white' : 'bg-green-500 text-white'}`}
-              role="img"
+              className={`
+                w-10 h-10 m-1 rounded-lg flex items-center justify-center text-sm font-medium
+                transition-all duration-200 hover:scale-105 cursor-pointer
+                ${isBooked 
+                  ? 'bg-red-100 text-red-700 border-2 border-red-200' 
+                  : seatClass === 'business'
+                    ? 'bg-purple-100 text-purple-700 border-2 border-purple-200'
+                    : 'bg-green-100 text-green-700 border-2 border-green-200'
+                }
+              `}
+              role="button"
               aria-label={`Seat ${seatNumber}, ${seatClass} class, ${isBooked ? 'booked' : 'available'}`}
             >
               {seatNumber}
             </div>
           );
         } else {
-          rowSeats.push(<div key={seatNumber} className="w-8 h-8 m-1" />);
+          rowSeats.push(<div key={seatNumber} className="w-10 h-10 m-1" />);
         }
         if ((isBusinessRow && col === 'B') || (!isBusinessRow && col === 'C')) {
-          rowSeats.push(<div key={`${row}-aisle1`} className="w-8" />);
+          rowSeats.push(<div key={`${row}-aisle1`} className="w-6" />);
         }
       }
-      if (!isBusinessRow) {
-        // Add extra space on the right for economy to center it with business class
-        rowSeats.unshift(<div key={`${row}-spacer-left`} className="w-8" />);
-        rowSeats.push(<div key={`${row}-spacer-right`} className="w-8" />);
-      }
       seats.push(
-        <div key={`row-${row}`} className="flex justify-center">
+        <div key={`row-${row}`} className="flex items-center justify-center">
           {rowSeats}
         </div>
       );
@@ -58,30 +72,41 @@ const SeatMap: React.FC<SeatMapProps> = ({ flightData }) => {
   };
 
   return (
-    <div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-4">Seat Map</h3>
-      <div className="flex flex-col items-center" role="group" aria-label="Airplane seat map">
-        {renderSeats()}
-      </div>
-      <div className="mt-4 flex justify-center space-x-4">
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-purple-500 rounded-sm mr-2" aria-hidden="true"></div>
-          <span>Available Business (A-D)</span>
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold">Seat Map</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-6">
+          <div 
+            className="max-h-[500px] overflow-y-auto p-4 bg-gray-50 rounded-lg"
+            role="group" 
+            aria-label="Airplane seat map"
+          >
+            {renderSeats()}
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
+                Business Class (A-D)
+              </Badge>
+              <Badge variant="outline" className="bg-green-100 text-green-700 border-green-200">
+                Economy Class (A-F)
+              </Badge>
+              <Badge variant="outline" className="bg-red-100 text-red-700 border-red-200">
+                Booked
+              </Badge>
+            </div>
+
+            <div className="flex justify-center gap-8 text-sm text-gray-600">
+              <div>Total Business Seats: {airplane.total_business}</div>
+              <div>Total Economy Seats: {airplane.total_economy}</div>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-green-500 rounded-sm mr-2" aria-hidden="true"></div>
-          <span>Available Economy (A-F)</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-red-500 rounded-sm mr-2" aria-hidden="true"></div>
-          <span>Booked</span>
-        </div>
-      </div>
-      <div className="mt-4 text-center">
-        <p>Total Business Seats: {airplane.total_business}</p>
-        <p>Total Economy Seats: {airplane.total_economy}</p>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
