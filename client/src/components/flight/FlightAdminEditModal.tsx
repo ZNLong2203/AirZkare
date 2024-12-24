@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { z } from 'zod';
-import axios from 'axios';
+import axiosInstance from '@/configs/axios-customize';
 import API from '@/constants/api';
 import { toast } from 'react-hot-toast';
 import moment from 'moment';
@@ -41,7 +41,7 @@ const FlightEditModal = ({ isOpen, onClose, flightData, onSubmit }: FlightEditMo
   useEffect(() => {
     const fetchAirports = async () => {
       try {
-        const res = await axios.get(`${API.AIRPORT}`, {
+        const res = await axiosInstance.get(`${API.AIRPORT}`, {
           withCredentials: true,
         });
         setAirports(res.data.metadata.airports);
@@ -55,7 +55,7 @@ const FlightEditModal = ({ isOpen, onClose, flightData, onSubmit }: FlightEditMo
   useEffect(() => {
     const fetchAirplanes = async () => {
       try {
-        const res = await axios.get(`${API.AIRPLANE}`, {
+        const res = await axiosInstance.get(`${API.AIRPLANE}`, {
           withCredentials: true,
         });
         setAirplanes(res.data.metadata.airplanes);

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import axios from 'axios'
+import axiosInstance from '@/configs/axios-customize'
 import moment from 'moment'
 import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
@@ -136,7 +136,6 @@ const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onCha
 
 const PassengerDetails = () => {
   const router = useRouter();
-  const token = localStorage.getItem('token');
   const { passengers, departure_come_airport, arrival_come_airport, setPassengers } = useFlightSearchStore();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -159,14 +158,11 @@ const PassengerDetails = () => {
 
   const handleSubmit = async () => {
     try {
-      await axios.post(`${API.BOOKINGPASSENGER}`, {
+      await axiosInstance.post(`${API.BOOKINGPASSENGER}`, {
         email,
         phone,
         passengersData: passengerForms, 
       }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         withCredentials: true,
       });
 

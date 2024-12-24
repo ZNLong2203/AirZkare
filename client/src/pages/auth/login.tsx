@@ -51,7 +51,7 @@ const Login: React.FC = () => {
       setToken(response.data.metadata.token, response.data.metadata.expire);
 
       localStorage.setItem('user_id', response.data.metadata.user_id);
-      localStorage.setItem('token', response.data.metadata.token);
+      localStorage.setItem('token', response.data.metadata.accessToken);
       localStorage.setItem('expire', response.data.metadata.expire);
       
       if(isSearching) {

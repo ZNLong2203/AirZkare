@@ -25,7 +25,7 @@ class AuthController {
             const userData: User = req.body
             const data: Login = await this.authService.login(userData);
 
-            res.cookie('token', data.token, {
+            res.cookie('refreshToken', data.refreshToken, {
                 httpOnly: true,
                 secure: false,
                 sameSite: 'lax',
@@ -54,7 +54,7 @@ class AuthController {
             const userData: User = req.user as User;
             await this.authService.logout(userData);
 
-            res.clearCookie('token');
+            res.clearCookie('refreshToken');
             res.status(200).json({
                 message: 'Logout successful',
             })
@@ -62,6 +62,24 @@ class AuthController {
             next(err);
         }
     }
+
+    public refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const refreshToken = req.cookies.refreshToken;
+    
+            if (!refreshToken) {
+                return res.status(401).json({ message: 'Refresh token is missing' });
+            }
+    
+            const accessToken = await this.authService.refreshToken(refreshToken);
+        
+            return res.status(200).json({ accessToken });
+        } catch (err) {
+            console.error('[ERROR] Refresh Token Failed:', err);
+            next(err);
+        }
+    }
+    
 
     // Google Auth
     public googleAuth = async (req: Request, res: Response, next: NextFunction) => {
@@ -85,11 +103,11 @@ class AuthController {
                     if(err) {
                         return next(err);
                     }
-                    res.cookie('token', user.token, {
+                    res.cookie('refreshToken', user.refreshToken, {
                         httpOnly: true,
                         secure: false,
                         sameSite: 'lax',
-                        maxAge: 24 * 60 * 60 * 1000,    
+                        maxAge: 24 * 7 * 60 * 60 * 1000,    
                     })
                     res.cookie('user_id', user.user_id, {
                         httpOnly: true,
@@ -97,7 +115,7 @@ class AuthController {
                         sameSite: 'lax',
                         maxAge: 24 * 60 * 60 * 1000,
                     })
-                    res.redirect(`${process.env.FRONTEND_URL}/?token=${encodeURIComponent(user.token)}&user_id=${user.user_id}&expire=${Date.now() + 24 * 60 * 60 * 1000}`);
+                    res.redirect(`${process.env.FRONTEND_URL}/?token=${encodeURIComponent(user.accessToken)}&user_id=${user.user_id}&expire=${Date.now() + 24 * 60 * 60 * 1000}`);
                 });
             })(req, res, next);
         } catch(err) {

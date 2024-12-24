@@ -7,7 +7,8 @@ export const LoginSchema = z.object({
     username: z.string(),
     email: z.string().email(),
     role: z.string(),
-    token: z.string(),
+    accessToken: z.string(),
+    refreshToken: z.string(),
 })
 export type Login = z.infer<typeof LoginSchema>;
 

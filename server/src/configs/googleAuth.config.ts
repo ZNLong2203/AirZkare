@@ -49,19 +49,22 @@ const strategy = new GoogleStrategy({
                 }
             })
         }
-    
-        const createToken = sign({
+
+        const payload = {
             user_id: user.user_id,
             username: user.username,
             email: user.email,
             role: user.role,
-        }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+        }
+        const accessToken = sign(payload, process.env.JWT_SECRET!, { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN });
+        const refreshToken = sign(payload, process.env.JWT_SECRET!, { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN });
     
         const metadata = {
             user_id: user.user_id,
             username: user.username,
             role: user.role,
-            token: createToken,
+            accessToken: accessToken,
+            refreshToken: refreshToken,
         }
     
         return done(null, metadata);

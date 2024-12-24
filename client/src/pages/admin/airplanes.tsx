@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import axiosInstance from '@/configs/axios-customize';
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
 import { toast } from 'react-hot-toast';
 import { Airplane } from '@/schemas/Airplane';
@@ -35,22 +35,22 @@ interface AirplaneResponse {
 }
 
 const fetchAirplanes = async (page: number): Promise<AirplaneResponse> => {
-  const res = await axios.get(`${API.AIRPLANE}?page=${page}`, { withCredentials: true });
+  const res = await axiosInstance.get(`${API.AIRPLANE}?page=${page}`, { withCredentials: true });
   return res.data.metadata;
 };
 
 const addAirplane = async (airplane: Omit<Airplane, 'airplane_id'>): Promise<Airplane> => {
-  const res = await axios.post(`${API.AIRPLANE}`, airplane, { withCredentials: true });
+  const res = await axiosInstance.post(`${API.AIRPLANE}`, airplane, { withCredentials: true });
   return res.data;
 };
 
 const editAirplane = async (airplane: Airplane): Promise<Airplane> => {
-  const res = await axios.put(`${API.AIRPLANE}/${airplane.airplane_id}`, airplane, { withCredentials: true });
+  const res = await axiosInstance.put(`${API.AIRPLANE}/${airplane.airplane_id}`, airplane, { withCredentials: true });
   return res.data;
 };
 
 const deleteAirplane = async (airplane_id: string): Promise<void> => {
-  await axios.delete(`${API.AIRPLANE}/${airplane_id}`, { withCredentials: true });
+  await axiosInstance.delete(`${API.AIRPLANE}/${airplane_id}`, { withCredentials: true });
 };
 
 const AdminAirplane: React.FC = () => {

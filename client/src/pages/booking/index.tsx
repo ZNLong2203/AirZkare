@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import axiosInstance from "@/configs/axios-customize";
 import API from "@/constants/api";
 import { useQuery } from '@tanstack/react-query';
 import { toast } from "react-hot-toast";
@@ -35,7 +35,7 @@ interface AirportResponse {
 }
 
 const fetchAirports = async () => {
-  const res = await axios.get(`${API.AIRPORT}`, { withCredentials: true });
+  const res = await axiosInstance.get(`${API.AIRPORT}`, { withCredentials: true });
   return res.data.metadata;
 }
 

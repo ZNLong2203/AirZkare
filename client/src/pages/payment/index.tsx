@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "@/configs/axios-customize";
 import API from "@/constants/api";
 import toast from "react-hot-toast";
 import moment from "moment";
@@ -47,11 +47,6 @@ const PaymentPage = () => {
   const saveToLocalStorage = useFlightSearchStore((state) => state.saveToLocalStorage);
   const [paymentMethod, setPaymentMethod] = useState<"stripe" | "zalopay">("stripe");
 
-  let token = null;
-  if (typeof window !== "undefined") {
-      token = localStorage.getItem("token");
-  }
-
   const departure_come_airport_name = departure_come_airport?.location;
   const departure_come_airport_code = departure_come_airport?.code;
   const arrival_come_airport_name = arrival_come_airport?.location;
@@ -66,12 +61,9 @@ const PaymentPage = () => {
 
   const handleStripePayment = async () => {
     try {
-      const res = await axios.post(`${API.PAYMENTSTRIPE}`, {
+      const res = await axiosInstance.post(`${API.PAYMENTSTRIPE}`, {
         amount: total_price || 5000,
       }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         withCredentials: true,
       })
       saveToLocalStorage();
@@ -94,12 +86,9 @@ const PaymentPage = () => {
 
   const handleZaloPayPayment = async () => {
     try {
-      const res = await axios.post(`${API.PAYMENTZALOPAY}`, {
+      const res = await axiosInstance.post(`${API.PAYMENTZALOPAY}`, {
         amount: total_price || 5000,
       }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         withCredentials: true,
       })
       saveToLocalStorage();

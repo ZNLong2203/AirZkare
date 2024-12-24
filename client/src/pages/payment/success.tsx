@@ -1,4 +1,4 @@
-import axios from "axios"
+import axiosInstance from "@/configs/axios-customize"
 import API from "@/constants/api"
 import toast from "react-hot-toast"
 // import useFlightSearchStore from "@/store/useFlightSearchStore"
@@ -11,10 +11,8 @@ import { useRouter } from "next/router"
 const PaymentConfirmation = () => {
   const router = useRouter()
 
-  let token = null;
   let paymentData = null;
   if (typeof window !== "undefined") {
-      token = localStorage.getItem("token");
       const paymentDataString = localStorage.getItem("flightSearchState");
       paymentData = paymentDataString ? JSON.parse(paymentDataString) : null;
   }
@@ -27,17 +25,9 @@ const PaymentConfirmation = () => {
         const payment = queryParams.get("payment")
 
         if(payment == "stripe") {
-          await axios.post(`${API.PAYMENTSTRIPE}/success?session_id=${sessionId}`, { paymentData }, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          await axiosInstance.post(`${API.PAYMENTSTRIPE}/success?session_id=${sessionId}`, { paymentData }, {})
         } else if (payment == "zalopay") {
-          await axios.post(`${API.PAYMENTZALOPAY}/success?session_id=${sessionId}`, { paymentData }, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          await axiosInstance.post(`${API.PAYMENTZALOPAY}/success?session_id=${sessionId}`, { paymentData }, {})
         }
       } catch(err) {
         console.error(err)

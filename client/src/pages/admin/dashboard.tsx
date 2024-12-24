@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios';
+import axiosInstance from '@/configs/axios-customize';
 import API from "@/constants/api";
 import toast from 'react-hot-toast';
 import { AiOutlineBarChart, AiOutlineUser, AiOutlineFile, AiOutlineSetting } from 'react-icons/ai';
@@ -25,14 +25,10 @@ const AdminDashboard = () => {
     useEffect(() => {
         const fetchPieChartData = async () => {
             try {
-                const res = await axios.get(`${API.DASHBOARDPIECHART}`, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        withCredentials: true,
-                    }
+                const res = await axiosInstance.get(`${API.DASHBOARDPIECHART}`, {
+                    withCredentials: true,
                 });
                 setPieChartData(res.data.metadata);
-                console.log(res.data.metadata);
             } catch(error) {
                 toast.error('Failed to fetch pie chart data');
             }
@@ -40,11 +36,8 @@ const AdminDashboard = () => {
 
         const fetchLineChartData = async () => {
             try {
-                const res = await axios.get(API.DASHBOARDLINECHART, {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                        withCredentials: true,
-                    }
+                const res = await axiosInstance.get(API.DASHBOARDLINECHART, {
+                    withCredentials: true,
                 });
                 setLineChartData(res.data.metadata);
             } catch(error) {

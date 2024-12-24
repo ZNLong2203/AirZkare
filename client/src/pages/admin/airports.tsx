@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from "axios";
+import axiosInstance from "@/configs/axios-customize";
 import { AiOutlinePlus, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import { toast } from "react-hot-toast";
 import { Airport } from '@/schemas/Airport';
@@ -35,22 +35,22 @@ interface AirportResponse {
 }
 
 const fetchAirports = async (page: number): Promise<AirportResponse> => {
-  const res = await axios.get(`${API.AIRPORT}?page=${page}`, { withCredentials: true });
+  const res = await axiosInstance.get(`${API.AIRPORT}?page=${page}`, { withCredentials: true });
   return res.data.metadata;
 }
 
 const addAirport = async (airport: Omit<Airport, 'airport_id'>): Promise<Airport> => {
-  const res = await axios.post(`${API.AIRPORT}`, airport, { withCredentials: true });
+  const res = await axiosInstance.post(`${API.AIRPORT}`, airport, { withCredentials: true });
   return res.data;
 }
 
 const editAirport = async (airport: Airport): Promise<Airport> => {
-  const res = await axios.patch(`${API.AIRPORT}/${airport.airport_id}`, airport, { withCredentials: true });
+  const res = await axiosInstance.patch(`${API.AIRPORT}/${airport.airport_id}`, airport, { withCredentials: true });
   return res.data;
 }
 
 const deleteAirport = async (airport_id: string): Promise<void> => {
-  await axios.delete(`${API.AIRPORT}/${airport_id}`, { withCredentials: true });
+  await axiosInstance.delete(`${API.AIRPORT}/${airport_id}`, { withCredentials: true });
 }
 
 const AdminAirports = () => {

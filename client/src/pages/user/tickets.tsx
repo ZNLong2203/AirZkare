@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axiosInstance from '@/configs/axios-customize'
 import API from '@/constants/api'
 import toast from 'react-hot-toast'
 import React, { useState } from 'react'
@@ -22,18 +22,14 @@ interface Ticket {
   status: 'Confirmed' | 'Pending' | 'Cancelled'
 }
 
-const fetchTickets = async (token: string | null) => {
-  const res = await axios.get(`${API.BOOKINGHISTORY}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      withCredentials: true
-    }
+const fetchTickets = async () => {
+  const res = await axiosInstance.get(`${API.BOOKINGHISTORY}`, {
+    withCredentials: true
   })
   return res.data.metadata
 }
 
 const MyTickets = () => {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [currentPage, setCurrentPage] = useState(1)
@@ -46,7 +42,7 @@ const MyTickets = () => {
     isLoading
   } = useQuery<Ticket[], Error>({
     queryKey: ['tickets'],
-    queryFn: () => fetchTickets(token)
+    queryFn: () => fetchTickets()
   })
 
   const tickets = data || []

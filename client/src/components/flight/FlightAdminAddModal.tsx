@@ -3,7 +3,7 @@ import { FlightSchemaWithoutId, FlightWithoutId } from '@/schemas/Flight';
 import { Airport } from '@/schemas/Airport';
 import { Airplane } from '@/schemas/Airplane';
 import { z } from 'zod';
-import axios from 'axios';
+import axiosInstance from '@/configs/axios-customize';
 import moment from 'moment';
 import API from '@/constants/api';
 import { toast } from 'react-hot-toast';
@@ -41,8 +41,8 @@ const FlightAddModal: React.FC<FlightAddModalProps> = ({ isOpen, onClose, onSubm
         if (isOpen) {
             const fetchData = async () => {
                 try {
-                    const airportRes = await axios.get(`${API.AIRPORT}`, { withCredentials: true });
-                    const airplaneRes = await axios.get(`${API.AIRPLANE}`, { withCredentials: true });
+                    const airportRes = await axiosInstance.get(`${API.AIRPORT}`, { withCredentials: true });
+                    const airplaneRes = await axiosInstance.get(`${API.AIRPLANE}`, { withCredentials: true });
 
                     setAirports(airportRes.data.metadata.airports);
                     setAirplanes(airplaneRes.data.metadata.airplanes);

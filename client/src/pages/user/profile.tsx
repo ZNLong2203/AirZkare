@@ -1,5 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import axios from 'axios';
+import axiosInstance from '@/configs/axios-customize';
 import Select, { SingleValue, ActionMeta } from 'react-select';
 import { FaEdit } from 'react-icons/fa';
 import Image from 'next/image';
@@ -59,10 +60,7 @@ const Profile: React.FC = () => {
     
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API.PASSENGER}/${userId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          },
+        const response = await axiosInstance.get(`${API.PASSENGER}/${userId}`, {
           withCredentials: true,
         });
         setUsers({
@@ -143,10 +141,7 @@ const Profile: React.FC = () => {
     console.log(updatedUserData);
 
     try {
-      await axios.patch(`${API.PASSENGER}/${userId}`, updatedUserData, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+      await axiosInstance.patch(`${API.PASSENGER}/${userId}`, updatedUserData, {
         withCredentials: true,
       });
       toast.success('User data updated successfully');

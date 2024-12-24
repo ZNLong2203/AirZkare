@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axiosInstance from '@/configs/axios-customize'
 import toast from 'react-hot-toast'
 import API from '@/constants/api'
 import useFlightSearchStore from '@/store/useFlightSearchStore'
@@ -58,10 +58,7 @@ const SeatSelecting = () => {
   useEffect(() => {
     const fetchSeats = async () => {
       try {
-        const res = await axios.get(`${API.FLIGHT}/${flight_return_id}/seat`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          },
+        const res = await axiosInstance.get(`${API.FLIGHT}/${flight_return_id}/seat`, {
           withCredentials: true
         })
         setSeats(res.data.metadata)
@@ -123,12 +120,9 @@ const SeatSelecting = () => {
     }
   
     try {
-      const res = await axios.post(`${API.BOOKINGHOLDSEAT}`,
+      const res = await axiosInstance.post(`${API.BOOKINGHOLDSEAT}`,
         { flight_seat_id: seat.flight_seat_id },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
           withCredentials: true,
         }
       );
@@ -149,15 +143,12 @@ const SeatSelecting = () => {
 
   const handleCheckout = async () => {
     try {
-      await axios.post(`${API.BOOKING}/flight`, {
+      await axiosInstance.post(`${API.BOOKING}/flight`, {
         flight_come_id,
         flight_return_id,
         flight_type: type,
         seats_return_id: selectedSeats
       }, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        },
         withCredentials: true
       })
       router.push('/payment')

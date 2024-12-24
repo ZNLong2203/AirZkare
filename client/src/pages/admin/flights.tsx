@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import axiosInstance from "@/configs/axios-customize";
 import {
   AiOutlinePlus,
   AiOutlineEdit,
@@ -41,28 +41,28 @@ interface FlightResponse {
 }
 
 const fetchFlights = async (page: number): Promise<FlightResponse> => {
-  const res = await axios.get(`${API.FLIGHT}?page=${page}`, {
+  const res = await axiosInstance.get(`${API.FLIGHT}?page=${page}`, {
     withCredentials: true,
   });
   return res.data.metadata;
 };
 
 const addFlight = async (flight: FlightWithoutId): Promise<Flight> => {
-  const res = await axios.post(`${API.FLIGHT}`, flight, {
+  const res = await axiosInstance.post(`${API.FLIGHT}`, flight, {
     withCredentials: true,
   });
   return res.data;
 };
 
 const editFlight = async (flight: Flight): Promise<Flight> => {
-  const res = await axios.put(`${API.FLIGHT}/${flight.flight_id}`, flight, {
+  const res = await axiosInstance.put(`${API.FLIGHT}/${flight.flight_id}`, flight, {
     withCredentials: true,
   });
   return res.data;
 };
 
 const deleteFlight = async (flight_id: string): Promise<void> => {
-  await axios.delete(`${API.FLIGHT}/${flight_id}`, { withCredentials: true });
+  await axiosInstance.delete(`${API.FLIGHT}/${flight_id}`, { withCredentials: true });
 };
 
 const AdminFlights: React.FC = () => {

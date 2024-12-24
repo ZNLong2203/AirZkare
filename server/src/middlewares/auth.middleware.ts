@@ -8,7 +8,7 @@ const prisma = PrismaClientInstance();
 
 const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const token = req.cookies.token || req.header("Authorization")?.split(" ")[1];
+        const token = req.header("Authorization")?.split(" ")[1];
         if (!token) throw new HttpException(401, "Unauthorized");
 
         const decoded = verify(token, process.env.JWT_SECRET as string) as JwtPayload;

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import axiosInstance from '@/configs/axios-customize';
 import { toast } from 'react-hot-toast';
 import { AiOutlinePlus, AiOutlineDelete, AiOutlineEye } from 'react-icons/ai';
 import { Passenger } from '@/schemas/Passenger';
@@ -34,14 +34,14 @@ interface PassengerResponse {
 }
 
 const fetchPassengers = async (page: number): Promise<PassengerResponse> => {
-  const res = await axios.get(`${API.PASSENGER}?page=${page}`, {
+  const res = await axiosInstance.get(`${API.PASSENGER}?page=${page}`, {
     withCredentials: true,
   });
   return res.data.metadata;
 };
 
 const fetchPassengerDetails = async (user_id: string): Promise<Passenger> => {
-  const res = await axios.get(`${API.PASSENGER}/${user_id}`, {
+  const res = await axiosInstance.get(`${API.PASSENGER}/${user_id}`, {
     withCredentials: true,
   });
   return {
@@ -51,7 +51,7 @@ const fetchPassengerDetails = async (user_id: string): Promise<Passenger> => {
 };
 
 const deletePassenger = async (user_id: string): Promise<void> => {
-  await axios.delete(`${API.PASSENGER}/${user_id}`, {
+  await axiosInstance.delete(`${API.PASSENGER}/${user_id}`, {
     withCredentials: true,
   });
 };

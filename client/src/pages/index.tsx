@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "@/configs/axios-customize";
 import API from "@/constants/api";
 import { toast } from "react-hot-toast";
 import {
@@ -74,7 +74,7 @@ const popularRoutes: PopularRoute[] = [
 ];
 
 const fetchAirports = async (): Promise<AirportResponse> => {
-  const res = await axios.get(`${API.AIRPORT}`, { withCredentials: true });
+  const res = await axiosInstance.get(`${API.AIRPORT}`, { withCredentials: true });
   return res.data.metadata;
 }
 

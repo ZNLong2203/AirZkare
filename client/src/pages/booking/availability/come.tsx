@@ -14,7 +14,7 @@ import {
 import { Clock, Plane, ArrowRight, ArrowLeftRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
-import axios from "axios";
+import axiosInstance from "@/configs/axios-customize";
 import API from "@/constants/api";
 import useFlightSearchStore from "@/store/useFlightSearchStore";
 import LoadingQuery from "@/components/common/LoadingQuery";
@@ -24,7 +24,7 @@ import FlightInfoBar from "@/components/flight/FlightInfoBar";
 import FlightUpgradeModal from "@/components/booking/ClassChoosing";
 
 const fetchFlights = async (params: any): Promise<FlightWithDA[]> => {
-  const res = await axios.get(`${API.FLIGHT}`, { params });
+  const res = await axiosInstance.get(`${API.FLIGHT}`, { params });
   return res.data.metadata.flights;
 };
 

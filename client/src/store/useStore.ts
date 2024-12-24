@@ -34,9 +34,9 @@ export const useStore = create<State>(
         const expireTime = parseInt(storedExpire, 10);
         if (Date.now() > expireTime) {
           // Token expired
-          set(() => ({ token: null, expire: null }));
-          localStorage.removeItem('token');
-          localStorage.removeItem('expire');
+          // set(() => ({ token: null, expire: null }));
+          // localStorage.removeItem('token');
+          // localStorage.removeItem('expire');
         } else {
           // Token is valid
           set(() => ({ token: storedToken, expire: expireTime }));

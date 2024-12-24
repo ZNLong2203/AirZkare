@@ -1,5 +1,5 @@
 import { hash, compare } from 'bcrypt';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { PrismaClientInstance } from '../db/PrismaClient';
 import { HttpException } from '../exceptions/HttpException';
 import { User } from '../interfaces/user.interface';
@@ -63,14 +63,16 @@ class AuthService {
           role: findUser.role,
         };
       
-        const token: string = sign(tokenPayload, jwtSecret, { expiresIn: '1d' });
+        const accessToken: string = sign(tokenPayload, jwtSecret, { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN });
+        const refreshToken: string = sign(tokenPayload, jwtSecret, { expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN });
       
         return {
           user_id: findUser.user_id,
           username: findUser.username,
           email: findUser.email,
           role: findUser.role!,
-          token: token,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
         };
     }
 
@@ -86,6 +88,28 @@ class AuthService {
 
         return;
     }
+
+    public async refreshToken(refreshToken: string): Promise<string> {    
+        const payload = verify(refreshToken, process.env.JWT_SECRET as string) as Login;
+    
+        const user = await prisma.user.findUnique({
+            where: { user_id: payload.user_id }
+        });
+    
+        if (!user) {
+            throw new HttpException(401, 'Invalid refresh token');
+        }
+    
+        const newAccessToken: string = sign({
+            user_id: user.user_id,
+            email: user.email,
+            username: user.username,
+            role: user.role,
+        }, process.env.JWT_SECRET as string, { expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN });
+    
+        return newAccessToken;
+    }
+    
 }
 
 export default AuthService;
