@@ -34,9 +34,9 @@ const FlightInfoBar = () => {
   const {
     departure_come_airport,
     arrival_come_airport,
-    departure_come_time,
+    departure_time,
 
-    departure_return_time,
+    arrival_time,
 
     passengers,
   } = useFlightSearchStore((state) => state)
@@ -62,9 +62,9 @@ const FlightInfoBar = () => {
           </div>
 
           <div className="flex space-x-4">
-            <DateInfo label="Departure" date={ moment(departure_come_time).format('ddd, MMM D')} />
-            {departure_return_time && (
-              <DateInfo label="Return" date={moment(departure_return_time).format('ddd, MMM D')} />
+            <DateInfo label="Departure" date={ moment(departure_time).format('ddd, MMM D')} />
+            {arrival_time && (
+              <DateInfo label="Return" date={moment(arrival_time).format('ddd, MMM D')} />
             )}
           </div>
 

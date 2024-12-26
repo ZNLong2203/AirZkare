@@ -25,9 +25,22 @@ const PaymentConfirmation = () => {
         const payment = queryParams.get("payment")
 
         if(payment == "stripe") {
-          await axiosInstance.post(`${API.PAYMENTSTRIPE}/success?session_id=${sessionId}`, { paymentData }, {})
+          await axiosInstance.post(`${API.PAYMENTSTRIPE}/success?session_id=${sessionId}`, { paymentData }, 
+            {
+              withCredentials: true,
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            }
+          )
         } else if (payment == "zalopay") {
-          await axiosInstance.post(`${API.PAYMENTZALOPAY}/success?session_id=${sessionId}`, { paymentData }, {})
+          await axiosInstance.post(`${API.PAYMENTZALOPAY}/success?session_id=${sessionId}`, { paymentData }, 
+            { 
+              withCredentials: true,
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            })
         }
       } catch(err) {
         console.error(err)

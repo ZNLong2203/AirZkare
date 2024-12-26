@@ -39,7 +39,7 @@ class PassengerController {
     public updatePassenger = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { user_id } = req.params;
-            const passengerData: Passenger = req.body;
+            const passengerData = req.body;
 
             const updatePassenger = await this.passengerService.updatePassenger(user_id, passengerData);
 

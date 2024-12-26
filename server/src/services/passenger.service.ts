@@ -90,39 +90,46 @@ class PassengerService {
     }
 
     public async updatePassenger(user_id: string, passengerData: Passenger): Promise<object> {
-        if(!user_id || !passengerData) throw new HttpException(400, 'No data');
-
+        if (!user_id || !passengerData) throw new HttpException(400, 'No data');
+    
         const existsPassenger = await prisma.passenger.findUnique({
             where: {
                 passenger_id: user_id,
             }
         });
-        if(!existsPassenger) throw new HttpException(404, 'Passenger not found');
-
-        const updateData: Passenger = { ...passengerData };
-        if(passengerData.dob) {
-            updateData.dob = new Date(passengerData.dob);
+        if (!existsPassenger) throw new HttpException(404, 'Passenger not found');
+    
+        const updateData = { ...passengerData };
+    
+        if (passengerData.dob) {    
+            const parsedDate = Date.parse(passengerData.dob.toString()); 
+            if (!isNaN(parsedDate)) {
+                updateData.dob = new Date(parsedDate);
+            } else {
+                throw new HttpException(400, 'Invalid date format for dob. Expected format: YYYY-MM-DD');
+            }
         }
-
+    
         const updatePassenger = await prisma.passenger.update({
             where: {
                 passenger_id: user_id,
             },
             data: updateData,
         });
-        if(!updatePassenger) throw new HttpException(500, 'Failed to update passenger');
-
+    
+        if (!updatePassenger) throw new HttpException(500, 'Failed to update passenger');
+    
         await redisClient.del(`passenger:${user_id}`);
         await this.incrementCacheVersion();
-
+    
         const serializedData = JSON.parse(
             JSON.stringify(updatePassenger, (key, value) =>
                 typeof value === 'bigint' ? value.toString() : value
             )
         );
-
+    
         return serializedData;
-    }
+    }     
 
     public async deletePassenger(user_id: string): Promise<void> {
         if(!user_id) throw new HttpException(400, 'No data');

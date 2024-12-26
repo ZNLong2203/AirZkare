@@ -16,35 +16,42 @@ class BookingService {
     }
 
     private startSeatReleaseCronJob() {
-        cron.schedule('*/5 * * * *', async () => {
-            const exipredSeats = await prisma.flight_seat.findMany({
-                where: {
-                    hold_expires: { lt: new Date() },
-                    is_booked: false,
-                    held_by: { not: null},
-                }
-            })
-
-            if(exipredSeats.length > 0) {
-                await prisma.flight_seat.updateMany({
+        cron.schedule('*/1 * * * *', async () => {
+            try {
+                const expiredSeats = await prisma.flight_seat.findMany({
                     where: {
-                        flight_seat_id: {
-                            in: exipredSeats.map(seat => seat.flight_seat_id)
-                        }
-                    },
-                    data: {
-                        held_by: null,
-                        held_at: null,
-                        hold_expires: null,
+                        hold_expires: { lt: new Date() },
+                        is_booked: false,
+                        held_by: { not: null },
                     }
-                })
+                });
+        
+                if (expiredSeats.length > 0) {
+                    await prisma.flight_seat.updateMany({
+                        where: {
+                            flight_seat_id: {
+                                in: expiredSeats.map(seat => seat.flight_seat_id)
+                            }
+                        },
+                        data: {
+                            held_by: null,
+                            held_at: null,
+                            hold_expires: null,
+                        }
+                    });
+                        
+                    const io = SocketSingleton.getInstance();
+                    expiredSeats.forEach(seat => {
+                        io.emit('seatStatusChanged', {
+                            seatId: seat.flight_seat_id,
+                            status: 'available',
+                        });
+                        console.log(`Seat ${seat.flight_seat_id} status emitted as available.`);
+                    });
+                }
+            } catch (error) {
+                console.error('Error in cron job:', error);
             }
-
-            const io = SocketSingleton.getInstance();
-            io.emit('seatStatusChanged', {
-                seatId: exipredSeats.map(seat => seat.flight_seat_id),
-                status: 'available',
-            })
         })
     }
 
@@ -343,7 +350,7 @@ class BookingService {
             data: {
                 held_by: user_id,
                 held_at: new Date(),
-                hold_expires: moment().add(5, 'minutes').toDate(),
+                hold_expires: moment().add(1, 'minutes').toDate(),
             }
         })
 

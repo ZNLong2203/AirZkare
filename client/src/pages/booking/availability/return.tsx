@@ -62,7 +62,7 @@ const SelectFlightPage = () => {
   const {
     departure_return_airport,
     arrival_return_airport,
-    departure_return_time,
+    arrival_time,
     passengers,
     total_price,
     setFlightSearch,
@@ -80,7 +80,7 @@ const SelectFlightPage = () => {
     page: "1",
     departure_airport: departureAirportid,
     arrival_airport: arrivalAirportid,
-    departure_time: departure_return_time?.toISOString() || "",
+    departure_time: arrival_time?.toISOString() || "",
     passengers: passengers?.toString(),
   };
   
@@ -138,6 +138,8 @@ const SelectFlightPage = () => {
       airplane_return: selectedFlight?.airplane,
       flight_return: selectedFlight ?? undefined,
       flight_return_id: flight_id,
+      departure_return_time: selectedFlight?.departure_time,
+      arrival_return_time: selectedFlight?.arrival_time,
       total_price: total_price + (selectedFlight?.price_business ?? 0) * passengers,
     })
     if (!localStorage.getItem("token")) {
@@ -155,6 +157,8 @@ const SelectFlightPage = () => {
       airplane_return: selectedFlight?.airplane,
       flight_return: selectedFlight ?? undefined,
       flight_return_id: flight_id, 
+      departure_return_time: selectedFlight?.departure_time,
+      arrival_return_time: selectedFlight?.arrival_time,
       total_price: total_price + (selectedFlight?.price_economy ?? 0) * passengers,
     })
     if (!localStorage.getItem("token")) {

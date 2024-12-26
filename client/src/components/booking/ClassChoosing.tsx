@@ -27,7 +27,7 @@ const ClassSelectionDialog: FC<ClassSelectionDialogProps> = ({ isOpen, onClose, 
                     {upgradePrice !== undefined && (
                         <div className="bg-blue-50 p-4 rounded-lg mb-6">
                             <h3 className="text-xl font-semibold mb-2 text-blue-800">
-                                Upgrade to Business Class for just {upgradePrice.toLocaleString()} VND more!
+                                Upgrade to Business Class for just {upgradePrice.toLocaleString()}$ more!
                             </h3>
                             <p className="text-blue-600">Enjoy a premium flight experience with extra benefits</p>
                         </div>

@@ -59,6 +59,10 @@ interface FlightSearchState {
   flight_return: FlightWithDA;
   flight_return_id: string;
 
+  // Search time
+  departure_time: Date | null;
+  arrival_time: Date | null;
+
   // Flight type
   type: string; // oneWay, roundTrip
   passengers: number;
@@ -67,6 +71,7 @@ interface FlightSearchState {
   isSearching: boolean;
 
   // Total price
+  fee: number;
   total_price: number;
 
   setPassengers: (passengers: number) => void;
@@ -94,11 +99,15 @@ const useFlightSearchStore = create<FlightSearchState>((set, get) => ({
   flight_return: defaultFlightWithDA,
   flight_return_id: "",
 
+  departure_time: null,
+  arrival_time: null,
+
   type: "roundTrip",
   passengers: 1,
 
   isSearching: false,
 
+  fee: 0,
   total_price: 0,
 
   setPassengers: (passengers: number) =>

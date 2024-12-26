@@ -83,7 +83,7 @@ const FlightBooking = () => {
         code: destination.code,
         location: destination.location,
       },
-      departure_come_time: departDate,
+      departure_time: departDate,
       type: tripType,
       passengers: Number(passengers),
       departure_return_airport: {
@@ -98,7 +98,7 @@ const FlightBooking = () => {
         code: "",
         location: "",
       },
-      departure_return_time: null as Date | null,
+      arrival_time: null as Date | null,
     };
   
     if (tripType === "roundTrip") {
@@ -114,7 +114,7 @@ const FlightBooking = () => {
         code: origin.code,
         location: origin.location,
       };
-      flightSearchData.departure_return_time = returnDate || null;
+      flightSearchData.arrival_time = returnDate || null;
     }
   
     setFlightSearch(flightSearchData);

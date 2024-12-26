@@ -138,7 +138,6 @@ const Profile: React.FC = () => {
       city: city?.label,
       country: country?.label
     };
-    console.log(updatedUserData);
 
     try {
       await axiosInstance.patch(`${API.PASSENGER}/${userId}`, updatedUserData, {

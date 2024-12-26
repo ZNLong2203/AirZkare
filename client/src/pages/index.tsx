@@ -141,7 +141,7 @@ const Index: React.FC<IndexProps> = () => {
         code: arrival!.code,
         location: arrival!.location,
       },
-      departure_come_time: date.from,
+      departure_time: date.from,
       type: "roundTrip",
       passengers,
       departure_return_airport: {
@@ -156,7 +156,8 @@ const Index: React.FC<IndexProps> = () => {
         code: "",
         location: "",
       },
-      departure_return_time: null as Date | null,
+      arrival_time: null as Date | null,
+      // departure_return_time: null as Date | null,
     };
   
     // Handle return trip details if round trip is selected
@@ -173,7 +174,8 @@ const Index: React.FC<IndexProps> = () => {
         code: departure!.code,
         location: departure!.location,
       };
-      flightSearchData.departure_return_time = date.to;
+      flightSearchData.arrival_time = date.to;
+      // flightSearchData.departure_return_time = date.to;
     }
   
     setFlightSearch(flightSearchData);

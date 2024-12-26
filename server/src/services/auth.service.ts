@@ -32,6 +32,7 @@ class AuthService {
             data: {
                 passenger_id: createUser.user_id,
                 user_id: createUser.user_id,
+                dob: new Date(),
             }
         })
 

@@ -61,7 +61,7 @@ const SelectFlightPage = () => {
   const {
     departure_come_airport,
     arrival_come_airport,
-    departure_come_time,
+    departure_time,
     type,
     passengers,
   } = useFlightSearchStore();
@@ -78,7 +78,7 @@ const SelectFlightPage = () => {
     page: "1",
     departure_airport: departureAirportid,
     arrival_airport: arrivalAirportid,
-    departure_time: departure_come_time?.toISOString() || "",
+    departure_time: departure_time?.toISOString() || "",
     passengers: passengers?.toString(),
   };
   
@@ -140,6 +140,8 @@ const SelectFlightPage = () => {
       airplane_come: selectedFlight?.airplane,
       flight_come: selectedFlight ?? undefined,
       flight_come_id: flight_id, 
+      departure_come_time: selectedFlight?.departure_time,
+      arrival_come_time: selectedFlight?.arrival_time,
       total_price: (selectedFlight?.price_business ?? 0) * passengers,
     });
     if(type === "oneWay") {
@@ -156,6 +158,8 @@ const SelectFlightPage = () => {
       airplane_come: selectedFlight?.airplane,
       flight_come: selectedFlight ?? undefined,
       flight_come_id: flight_id, 
+      departure_come_time: selectedFlight?.departure_time,
+      arrival_come_time: selectedFlight?.arrival_time,
       total_price: (selectedFlight?.price_economy ?? 0) * passengers,
     });
     if(type === "oneWay") {

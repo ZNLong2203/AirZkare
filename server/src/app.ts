@@ -13,7 +13,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 
 import { Routes } from './interfaces/routes.interface';
-import { errorMiddleware }  from './middlewares/error.middleware';
+import { errorMiddleware } from './middlewares/error.middleware';
 
 class App {
     public app: express.Application;
@@ -21,7 +21,7 @@ class App {
     public port: string | number;
     public server: http.Server;
     public io: SocketIOServer;
-    
+
     constructor(routes: Routes[]) {
         this.app = express();
         this.env = process.env.NODE_ENV || 'dev';
@@ -38,7 +38,7 @@ class App {
     public listen() {
         this.server.listen(this.port || 3000, () => {
             console.log(`Server running on port ${this.port}`);
-        })
+        });
     }
 
     public getServer() {
@@ -46,14 +46,17 @@ class App {
     }
 
     private middlewares() {
-        this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: true }));
+        this.app.use(express.json({ limit: '10mb' }));
+        this.app.use(express.urlencoded({ extended: true, limit: '10mb' }));
         this.app.use(cookieParser());
         this.app.use(helmet());
         this.app.use(cors({
-            origin: process.env.FRONTEND_URL,
+            origin: process.env.FRONTEND_URL || 'http://localhost:3000',
             credentials: true,
+            methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+            allowedHeaders: ['Content-Type', 'Authorization']
         }));
+        this.app.options('*', cors());
         this.app.use(compression());
         this.app.use(morgan('dev'));
         this.app.use(session({
@@ -68,46 +71,46 @@ class App {
 
     private initializeRoutes(routes: Routes[]) {
         routes.forEach(route => {
-          this.app.use('/api', route.router);
+            this.app.use('/api', route.router);
         });
-        this.app.use('/images/', express.static('./'));
-    }    
+        this.app.use('/images/', express.static('./')); 
+    }
 
     private initializeSwagger() {
         const options = {
-          swaggerDefinition: {
-            openapi: '3.0.0',
-            info: {
-              title: 'REST API',
-              version: '1.0.0',
-              description: 'Example docs',
-            },
-            servers: [
-              {
-                url: 'http://localhost:2222',
-              },
-            ],
-            components: {
-              securitySchemes: {
-                bearerAuth: {
-                  type: 'http',
-                  scheme: 'bearer',
-                  bearerFormat: 'JWT',
+            swaggerDefinition: {
+                openapi: '3.0.0',
+                info: {
+                    title: 'REST API',
+                    version: '1.0.0',
+                    description: 'Example docs',
                 },
-              },
+                servers: [
+                    {
+                        url: 'http://localhost:2222',
+                    },
+                ],
+                components: {
+                    securitySchemes: {
+                        bearerAuth: {
+                            type: 'http',
+                            scheme: 'bearer',
+                            bearerFormat: 'JWT',
+                        },
+                    },
+                },
+                security: [
+                    {
+                        bearerAuth: [],
+                    },
+                ],
             },
-            security: [
-              {
-                bearerAuth: [],
-              },
-            ],
-          },
-          apis: ['swagger.yaml'],
+            apis: ['swagger.yaml'],
         };
-      
+
         const specs = swaggerJSDoc(options);
         this.app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
-    }  
+    }
 
     private errorHandling() {
         this.app.use(errorMiddleware);

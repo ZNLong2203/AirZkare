@@ -42,6 +42,7 @@ const PaymentPage = () => {
     flight_return,
     type,
     passengers,
+    fee,
     total_price 
   } = useFlightSearchStore();
   const saveToLocalStorage = useFlightSearchStore((state) => state.saveToLocalStorage);
@@ -51,18 +52,20 @@ const PaymentPage = () => {
   const departure_come_airport_code = departure_come_airport?.code;
   const arrival_come_airport_name = arrival_come_airport?.location;
   const arrival_come_airport_code = arrival_come_airport?.code;
+  // const departure_come_time = flight_come?.departure_time;
   const arrival_come_time = flight_come?.arrival_time;
 
   const departure_return_airport_name = departure_return_airport?.location;
   const departure_return_airport_code = departure_return_airport?.code;
   const arrival_return_airport_name = arrival_return_airport?.location;
   const arrival_return_airport_code = arrival_return_airport?.code;
+  // const departure_return_time = flight_return?.departure_time;
   const arrival_return_time = flight_return?.arrival_time;
 
   const handleStripePayment = async () => {
     try {
       const res = await axiosInstance.post(`${API.PAYMENTSTRIPE}`, {
-        amount: total_price || 5000,
+        amount: total_price + fee || 5000,
       }, {
         withCredentials: true,
       })
@@ -87,7 +90,7 @@ const PaymentPage = () => {
   const handleZaloPayPayment = async () => {
     try {
       const res = await axiosInstance.post(`${API.PAYMENTZALOPAY}`, {
-        amount: total_price || 5000,
+        amount: total_price + fee || 5000,
       }, {
         withCredentials: true,
       })
@@ -293,12 +296,12 @@ const PaymentPage = () => {
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-muted-foreground">Taxes & Fees</p>
-                <p className="font-semibold text-foreground">$200.00</p>
+                <p className="font-semibold text-foreground">${fee}</p>
               </div>
               <Separator />
               <div className="flex justify-between items-center">
                 <p className="font-semibold text-foreground">Total</p>
-                <p className="text-2xl font-bold text-primary">${total_price + 200}</p>
+                <p className="text-2xl font-bold text-primary">${total_price + fee}</p>
               </div>
             </CardContent>
           </Card>

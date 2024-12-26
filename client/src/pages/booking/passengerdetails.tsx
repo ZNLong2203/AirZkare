@@ -136,9 +136,11 @@ const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onCha
 
 const PassengerDetails = () => {
   const router = useRouter();
+  const setFlightSearch = useFlightSearchStore((state) => state.setFlightSearch);
   const { passengers, departure_come_airport, arrival_come_airport, setPassengers } = useFlightSearchStore();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [fee] = useState(30 * passengers);
   const [insuranceOption, setInsuranceOption] = useState("yes");
   const [passengerForms, setPassengerForms] = useState<Array<{ id: number; name: string; dob: string; gender: string; nationality: string; }>>([]);
 
@@ -158,6 +160,8 @@ const PassengerDetails = () => {
 
   const handleSubmit = async () => {
     try {
+      setFlightSearch({ fee });
+
       await axiosInstance.post(`${API.BOOKINGPASSENGER}`, {
         email,
         phone,
@@ -188,6 +192,12 @@ const PassengerDetails = () => {
 
   const updatePassenger = (index: number, data: any) => {
     setPassengerForms(prev => prev.map(form => form.id === index ? { ...form, ...data } : form));
+  };
+
+  const handleInsuranceChange = (value: string) => {
+    const newFee = value === 'yes' ? 30 * passengers : 0; 
+    setFlightSearch({ fee: newFee }); 
+    setInsuranceOption(value); 
   };
 
   return (
@@ -274,10 +284,13 @@ const PassengerDetails = () => {
               <h3 className="text-lg font-semibold text-indigo-800">Travel Protection</h3>
             </div>
             <p className="text-gray-600 mb-4">Secure your journey with our Smart Insurance for just $30 extra per passenger.</p>
-            <RadioGroup value={insuranceOption} onValueChange={setInsuranceOption} className="flex space-x-4">
+            <RadioGroup value={insuranceOption} onValueChange={handleInsuranceChange} className="flex space-x-4">
               {['Yes, protect my trip', 'No, I\'ll take the risk'].map((option) => (
                 <div key={option} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option === 'Yes, protect my trip' ? 'yes' : 'no'} id={`insurance-${option}`} />
+                  <RadioGroupItem 
+                    value={option === 'Yes, protect my trip' ? 'yes' : 'no'} 
+                    id={`insurance-${option}`} 
+                  />
                   <Label htmlFor={`insurance-${option}`}>{option}</Label>
                 </div>
               ))}
