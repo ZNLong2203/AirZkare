@@ -54,7 +54,17 @@ class AuthController {
             const userData: User = req.user as User;
             await this.authService.logout(userData);
 
-            res.clearCookie('refreshToken');
+            res.clearCookie('refreshToken', {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax'
+            });
+            res.clearCookie('user_id', {
+                httpOnly: true,
+                secure: false,
+                sameSite: 'lax'
+            });
+            
             res.status(200).json({
                 message: 'Logout successful',
             })
@@ -107,7 +117,7 @@ class AuthController {
                         httpOnly: true,
                         secure: false,
                         sameSite: 'lax',
-                        maxAge: 24 * 7 * 60 * 60 * 1000,    
+                        maxAge: 24 * 7 * 60 * 60 * 1000, 
                     })
                     res.cookie('user_id', user.user_id, {
                         httpOnly: true,
@@ -115,7 +125,7 @@ class AuthController {
                         sameSite: 'lax',
                         maxAge: 24 * 60 * 60 * 1000,
                     })
-                    res.redirect(`${process.env.FRONTEND_URL}/?token=${encodeURIComponent(user.accessToken)}&user_id=${user.user_id}&expire=${Date.now() + 24 * 60 * 60 * 1000}`);
+                    res.redirect(`${process.env.FRONTEND_URL}/?token=${encodeURIComponent(user.accessToken)}&user_id=${user.user_id}&role=${user.role}&expire=${Date.now() + 24 * 60 * 60 * 1000}`);
                 });
             })(req, res, next);
         } catch(err) {

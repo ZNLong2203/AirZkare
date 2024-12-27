@@ -144,7 +144,7 @@ const MyTickets = () => {
                     </div>
 
                     <Link
-                      href={`detailticket/${ticket?.id}`}
+                      href={`/user/booking-details/${ticket?.id}`}
                       className="block w-full text-center py-3 bg-gray-50 text-blue-600 font-medium hover:bg-gray-100 transition-colors duration-200"
                     >
                       View Details

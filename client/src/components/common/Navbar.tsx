@@ -6,17 +6,22 @@ import Link from 'next/link';
 import useFlightSearchStore from '@/store/useFlightSearchStore';
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router';
+import axiosInstance from '@/configs/axios-customize';
+import API from '@/constants/api';
 
 const Navbar = () => {
   const router = useRouter();
   const { setFlightSearch } = useFlightSearchStore();
+  const [role, setRole] = useState<string | null>(null);
   const [isLogin, setIsLogin] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
     if(token) {
+      setRole(role);
       setIsLogin(true);
     } else {
       setIsLogin(false);
@@ -40,11 +45,12 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    // try {
-      // const response = await axios.post(`${API.LOGOUT}`);
-      // if (response.status === 200) {
+    try {
+      const response = await axiosInstance.post(`${API.LOGOUT}`, { withCredentials: true });
+      if (response.status === 200) {
         localStorage.removeItem('token');
         localStorage.removeItem('user_id');
+        localStorage.removeItem('role');
         localStorage.removeItem('expire');
         setFlightSearch({ isSearching: false });
         
@@ -52,12 +58,12 @@ const Navbar = () => {
           window.location.reload();
         });
         toast.success('Logout successful')
-      // } else {
-      //   toast.error('Error logging out');
-      // }
-    // } catch (error) {
-    //   toast.error('Error logging out');
-    // }
+      } else {
+        toast.error('Error logging out');
+      }
+    } catch (error) {
+      toast.error('Error logging out');
+    }
   }
 
   return (
@@ -68,9 +74,11 @@ const Navbar = () => {
           AirZkare
         </Link>
         <div className="flex items-center space-x-6">
-          <Link href="/admin" className="hover:text-yellow-400 transition-colors duration-300">
-            Admin
-          </Link>
+          {role == 'admin' && 
+            <Link href="/admin" className="hover:text-yellow-400 transition-colors duration-300">
+              Admin
+            </Link>
+          }
           <Link href="/" className="hover:text-yellow-400 transition-colors duration-300">
             Home
           </Link>

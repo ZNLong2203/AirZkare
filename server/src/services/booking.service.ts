@@ -279,8 +279,51 @@ class BookingService {
             where: {
                 booking_id,
             },
-            include: {
-                payment: true,
+            select: {
+                booking_id: true,
+                status: true,
+                time: true,
+                booking_passenger: {
+                    select: {
+                        passenger: {
+                            select: {
+                                flight_seat: {
+                                    select: {
+                                        flight: {
+                                            select: {
+                                                flight_id: true,
+                                                code: true,
+                                                airport_flight_arrival_airportToairport: {
+                                                    select: {
+                                                        airport_id: true,
+                                                        name: true,
+                                                        location: true,
+                                                    }
+                                                },
+                                                airport_flight_departure_airportToairport: {
+                                                    select: {
+                                                        airport_id: true,
+                                                        name: true,
+                                                        location: true,
+                                                    }
+                                                },
+                                                departure_time: true,
+                                                status: true,
+                                                airplane: {
+                                                    select: {
+                                                        airplane_id: true,
+                                                        name: true,
+                                                        model: true,
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         })
 

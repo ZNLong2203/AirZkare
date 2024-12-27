@@ -1,7 +1,7 @@
 "use client";
 
 import axios from "axios";
-import React, { useState, FormEvent, useEffect } from "react";
+import React, { useState, FormEvent } from "react";
 import { FaLock, FaGoogle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { Plane, CheckCircle2, Lock, Cloud } from "lucide-react";
@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import API from "@/constants/api";
 import useFlightSearchStore from "@/store/useFlightSearchStore";
-import { getCookie } from "@/utils/getCookie";
+// import { getCookie } from "@/utils/getCookie";
 import { useStore } from "@/store/useStore";
 import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
 
@@ -28,15 +28,15 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const token: string | undefined = getCookie("token");
-    const user_id: string | undefined = getCookie("user_id");
-    if (token && user_id) {
-      localStorage.setItem("token", token);
-      localStorage.setItem("user_id", user_id);
-      router.push("/");
-    }
-  }, [router]);
+  // useEffect(() => {
+  //   const token: string | undefined = getCookie("token");
+  //   const user_id: string | undefined = getCookie("user_id");
+  //   if (token && user_id) {
+  //     localStorage.setItem("token", token);
+  //     localStorage.setItem("user_id", user_id);
+  //     router.push("/");
+  //   }
+  // }, [router]);
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -58,6 +58,7 @@ const Login: React.FC = () => {
 
       localStorage.setItem("user_id", response.data.metadata.user_id);
       localStorage.setItem("token", response.data.metadata.accessToken);
+      localStorage.setItem("role", response.data.metadata.role);
       localStorage.setItem("expire", response.data.metadata.expire);
 
       if (isSearching) {
