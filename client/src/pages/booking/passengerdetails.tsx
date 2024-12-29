@@ -1,49 +1,48 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import axiosInstance from '@/configs/axios-customize'
-import moment from 'moment'
+'use client'
+
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
+import moment from 'moment'
+import axiosInstance from '@/configs/axios-customize'
+import useFlightSearchStore from '@/store/useFlightSearchStore'
+import API from '@/constants/api'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { CalendarIcon, Plane, User, Phone, Mail, Flag, Shield, PlusCircle, MinusCircle } from "lucide-react"
-import { format } from "date-fns"
-import { useRouter } from 'next/router'
+// import { Calendar } from "@/components/ui/calendar"
+// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+// import { CalendarIcon } from 'lucide-react'
+import { Plane, User, Phone, Mail, Flag, Shield, PlusCircle, MinusCircle, FileText } from 'lucide-react'
 import toast from 'react-hot-toast'
-import API from '@/constants/api'
-import useFlightSearchStore from '@/store/useFlightSearchStore'
+
+interface PassengerData {
+  id: number;
+  name: string;
+  dob: string;
+  gender: string;
+  nationality: string;
+  passport: string;
+}
 
 interface PassengerFormProps {
   index: number;
   isLeader?: boolean;
   onRemove: () => void;
-  passengerData: {
-    id: number;
-    name: string;
-    dob: string;
-    gender: string;
-    nationality: string;
-  };
-  onChange: (index: number, data: any) => void;
+  passengerData: PassengerData;
+  onChange: (index: number, data: PassengerData) => void;
 }
 
 const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onChange }: PassengerFormProps) => {
-  const [date, setDate] = useState<Date | null>(passengerData.dob ? moment(passengerData.dob, "YYYY-MM-DD").toDate() : null);
-
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = (field: keyof PassengerData, value: string) => {
     if (field === 'dob') {
-        const formattedDate = value ? moment(value).format('YYYY-MM-DD') : null;
-        setDate(value);
-        const updatedPassenger = { ...passengerData, [field]: formattedDate };
-        onChange(index, updatedPassenger);
-      } else {
-        const updatedPassenger = { ...passengerData, [field]: value };
-        onChange(index, updatedPassenger);
-      }
-    };
-  
+      const updatedPassenger = { ...passengerData, [field]: value };
+      onChange(index, updatedPassenger);
+    } else {
+      const updatedPassenger = { ...passengerData, [field]: value };
+      onChange(index, updatedPassenger);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
@@ -66,28 +65,64 @@ const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onCha
         </div>
         <div className="space-y-2">
           <Label htmlFor={`dob-${index}`} className="text-indigo-700">Date of Birth</Label>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant={"outline"}
-                className={`w-full justify-start text-left font-normal ${!date && "text-muted-foreground"} border-indigo-200 focus:border-indigo-500`}
-              >
-                <CalendarIcon className="mr-2 h-4 w-4" />
-                {date ? format(date, "PPP") : <span>Pick a date</span>}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar
-                mode="single"
-                selected={date || undefined}
-                onSelect={(d) => {
-                  setDate(d ?? null);
-                  handleInputChange('dob', d);
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <Label htmlFor={`dob-day-${index}`} className="sr-only">Day</Label>
+              <Input
+                id={`dob-day-${index}`}
+                type="number"
+                placeholder="Day"
+                min="1"
+                max="31"
+                className="w-full"
+                value={passengerData.dob ? moment(passengerData.dob).format('DD') : ''}
+                onChange={(e) => {
+                  const day = e.target.value;
+                  const currentDate = moment(passengerData.dob || undefined);
+                  const newDate = currentDate.date(parseInt(day));
+                  handleInputChange('dob', newDate.isValid() ? newDate.format('YYYY-MM-DD') : '');
                 }}
-                initialFocus
               />
-            </PopoverContent>
-          </Popover>
+            </div>
+            <div>
+              <Label htmlFor={`dob-month-${index}`} className="sr-only">Month</Label>
+              <select
+                id={`dob-month-${index}`}
+                className="w-full h-10 border border-input bg-background px-3 py-2 text-sm ring-offset-background rounded-md"
+                value={passengerData.dob ? moment(passengerData.dob).format('MM') : ''}
+                onChange={(e) => {
+                  const month = e.target.value;
+                  const currentDate = moment(passengerData.dob || undefined);
+                  const newDate = currentDate.month(parseInt(month) - 1);
+                  handleInputChange('dob', newDate.isValid() ? newDate.format('YYYY-MM-DD') : '');
+                }}
+              >
+                <option value="">Month</option>
+                {moment.months().map((month, idx) => (
+                  <option key={month} value={String(idx + 1).padStart(2, '0')}>{month}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <Label htmlFor={`dob-year-${index}`} className="sr-only">Year</Label>
+              <select
+                id={`dob-year-${index}`}
+                className="w-full h-10 border border-input bg-background px-3 py-2 text-sm ring-offset-background rounded-md"
+                value={passengerData.dob ? moment(passengerData.dob).format('YYYY') : ''}
+                onChange={(e) => {
+                  const year = e.target.value;
+                  const currentDate = moment(passengerData.dob || undefined);
+                  const newDate = currentDate.year(parseInt(year));
+                  handleInputChange('dob', newDate.isValid() ? newDate.format('YYYY-MM-DD') : '');
+                }}
+              >
+                <option value="">Year</option>
+                {Array.from({ length: 124 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor={`nationality-${index}`} className="text-indigo-700">Nationality</Label>
@@ -99,6 +134,19 @@ const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onCha
               className="pl-10 border-indigo-200 focus:border-indigo-500"
               value={passengerData.nationality || ''}
               onChange={(e) => handleInputChange('nationality', e.target.value)}
+            />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor={`passport-${index}`} className="text-indigo-700">Passport Number</Label>
+          <div className="relative">
+            <FileText className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Input
+              id={`passport-${index}`}
+              placeholder="Passport Number"
+              className="pl-10 border-indigo-200 focus:border-indigo-500"
+              value={passengerData.passport || ''}
+              onChange={(e) => handleInputChange('passport', e.target.value)}
             />
           </div>
         </div>
@@ -133,30 +181,30 @@ const PassengerForm = ({ index, isLeader = false, onRemove, passengerData, onCha
   );
 };
 
-
 const PassengerDetails = () => {
   const router = useRouter();
   const setFlightSearch = useFlightSearchStore((state) => state.setFlightSearch);
   const { passengers, departure_come_airport, arrival_come_airport, setPassengers } = useFlightSearchStore();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [fee] = useState(30 * passengers);
+  const [fee, setFee] = useState(0);
   const [insuranceOption, setInsuranceOption] = useState("yes");
-  const [passengerForms, setPassengerForms] = useState<Array<{ id: number; name: string; dob: string; gender: string; nationality: string; }>>([]);
+  const [passengerForms, setPassengerForms] = useState<Array<{ id: number; name: string; dob: string; gender: string; nationality: string; passport: string; }>>([]);
 
   const departure_come_name = departure_come_airport?.name;
   const arrival_come_name = arrival_come_airport?.name;
 
   useEffect(() => {
-    // Initialize passenger forms based on the 'passengers' value
     setPassengerForms(Array.from({ length: passengers }, (_, index) => ({
       id: index + 1,
       name: '',
       dob: '',
       gender: '',
-      nationality: ''
+      nationality: '',
+      passport: ''
     })));
-  }, [passengers]);
+    setFee(insuranceOption === 'yes' ? 30 * passengers : 0);
+  }, [passengers, insuranceOption]);
 
   const handleSubmit = async () => {
     try {
@@ -177,27 +225,30 @@ const PassengerDetails = () => {
   };
 
   const addPassenger = () => {
-    setPassengerForms(prev => [...prev, { id: prev.length + 1, name: '', dob: '', gender: '', nationality: '' }]);
+    setPassengerForms(prev => [...prev, { id: prev.length + 1, name: '', dob: '', gender: '', nationality: '', passport: '' }]);
     setPassengers(passengers + 1);
+    setFee(insuranceOption === 'yes' ? 30 * (passengers + 1) : 0);
   };
 
   const removePassenger = (id: number) => {
     if (passengerForms.length > 1) {
       setPassengerForms(prev => prev.filter(form => form.id !== id));
       setPassengers(passengers - 1);
+      setFee(insuranceOption === 'yes' ? 30 * (passengers - 1) : 0);
     } else {
       toast.error('You must have at least one passenger.');
     }
   };
 
-  const updatePassenger = (index: number, data: any) => {
+  const updatePassenger = (index: number, data: PassengerData) => {
     setPassengerForms(prev => prev.map(form => form.id === index ? { ...form, ...data } : form));
   };
 
   const handleInsuranceChange = (value: string) => {
-    const newFee = value === 'yes' ? 30 * passengers : 0; 
-    setFlightSearch({ fee: newFee }); 
-    setInsuranceOption(value); 
+    const newFee = value === 'yes' ? 30 * passengers : 0;
+    setFee(newFee);
+    setFlightSearch({ fee: newFee });
+    setInsuranceOption(value);
   };
 
   return (
@@ -311,3 +362,4 @@ const PassengerDetails = () => {
 };
 
 export default PassengerDetails;
+

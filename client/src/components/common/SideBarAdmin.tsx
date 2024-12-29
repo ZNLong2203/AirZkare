@@ -1,3 +1,5 @@
+// file: components/SideBarAdmin.tsx
+
 import React from 'react';
 import { AiOutlineDashboard, AiOutlineUser, AiOutlineSetting } from 'react-icons/ai';
 import { IoAirplane } from 'react-icons/io5';
@@ -24,10 +26,11 @@ const SideBarAdmin: React.FC = () => {
     ];
 
     return (
-        <aside className="flex flex-col h-screen w-64 bg-blue-50 border-r border-blue-100">
+        <aside className="w-64 bg-blue-50 border-r border-blue-100 flex flex-col">
             <div className="p-6">
                 <h2 className="text-2xl font-semibold text-blue-800">Admin Home</h2>
             </div>
+
             <nav className="flex-grow space-y-1 px-3">
                 {links.map(({ href, label, icon: Icon }) => (
                     <Link
@@ -40,6 +43,7 @@ const SideBarAdmin: React.FC = () => {
                     </Link>
                 ))}
             </nav>
+
             <div className="p-4">
                 <button
                     onClick={() => {/* Add logout logic here */}}

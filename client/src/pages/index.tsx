@@ -67,7 +67,7 @@ const popularRoutes: PopularRoute[] = [
     image: "/Paris.jpg",
   },
   {
-    name: "Germany",
+    name: "Berlin",
     image: "/Germany.jfif",
   },
 ]
