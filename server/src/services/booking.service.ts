@@ -283,6 +283,14 @@ class BookingService {
                 booking_id: true,
                 status: true,
                 time: true,
+                type: true,
+                payment: {
+                    select: {
+                        payment_id: true,
+                        amount: true,
+                        method: true,
+                    }
+                },
                 booking_passenger: {
                     select: {
                         passenger: {

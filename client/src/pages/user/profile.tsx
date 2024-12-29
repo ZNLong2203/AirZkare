@@ -49,18 +49,18 @@ const Profile: React.FC = () => {
     user: null,
   });
 
-  const [userId, setUserId] = useState<string | null>(null);
+  // const [userId, setUserId] = useState<string | null>(null);
   const [countries, setCountries] = useState<Option[]>([]);
   const [cities, setCities] = useState<Option[]>([]);
   const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    const userId = localStorage.getItem('user_id');
-    setUserId(userId);
+    // const userId = localStorage.getItem('user_id');
+    // setUserId(userId);
     
     const fetchUserData = async () => {
       try {
-        const response = await axiosInstance.get(`${API.PASSENGER}/${userId}`, {
+        const response = await axiosInstance.get(`${API.PASSENGER}/${localStorage.getItem('user_id')}`, {
           withCredentials: true,
         });
         setUsers({
@@ -140,7 +140,7 @@ const Profile: React.FC = () => {
     };
 
     try {
-      await axiosInstance.patch(`${API.PASSENGER}/${userId}`, updatedUserData, {
+      await axiosInstance.patch(`${API.PASSENGER}/${localStorage.getItem('user_id')}`, updatedUserData, {
         withCredentials: true,
       });
       toast.success('User data updated successfully');
