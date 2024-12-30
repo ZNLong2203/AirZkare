@@ -56,11 +56,11 @@ interface IndexProps {
 const popularRoutes: PopularRoute[] = [
   {
     name: "Madrid",
-    image: "/Madrid.jfif",
+    image: "/Madrid.jpg",
   },
   {
     name: "Oslo",
-    image: "/Oslo.jfif",
+    image: "/Oslo.jpg",
   },
   {
     name: "Paris",
@@ -68,7 +68,7 @@ const popularRoutes: PopularRoute[] = [
   },
   {
     name: "Berlin",
-    image: "/Germany.jfif",
+    image: "/Berlin.jpg",
   },
 ]
 
