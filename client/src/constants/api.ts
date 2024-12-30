@@ -1,7 +1,7 @@
-const BE = "http://localhost:2222/api";
+const BE = "https://airzkare.up.railway.app/api";
 
 const API = {
-    BE: `http://localhost:2222`,
+    BE: `https://airzkare.up.railway.app`,
     LOGIN: `${BE}/auth/login`,
     REGISTER: `${BE}/auth/register`,
     LOGOUT: `${BE}/auth/logout`,
