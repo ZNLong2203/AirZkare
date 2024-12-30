@@ -156,7 +156,7 @@ const Profile: React.FC = () => {
 
   return (
     <div className="bg-gray-100 min-h-screen p-6">
-      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-8 mt-24">
+      <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-8 mt-10">
         <div className="flex justify-between items-center">
           <h2 className="text-3xl font-bold">Profile</h2>
           <div className="text-gray-500">

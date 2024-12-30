@@ -52,9 +52,9 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] grid md:grid-cols-2">
+    <div className="min-h-[calc(100vh-4rem)] grid md:grid-cols-3">
       {/* Left Section - Register Form */}
-      <div className="relative flex items-center justify-center p-6 bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="relative flex col-span-2 items-center justify-center p-6 bg-gradient-to-b from-gray-50 to-gray-100">
         <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.5))] -z-10" />
         <div className="w-full max-w-[400px] space-y-6">
           <div className="flex flex-col items-center space-y-4">
