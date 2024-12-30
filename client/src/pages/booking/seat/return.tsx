@@ -50,7 +50,6 @@ interface Seat {
 
 const SeatSelecting = () => {
   const router = useRouter();
-  const user_id = localStorage.getItem("user_id");
   const { token } = useStore((state) => state);
   const {
     departure_return_airport,
@@ -65,6 +64,7 @@ const SeatSelecting = () => {
   } = useFlightSearchStore((state) => state);
   const [seats, setSeats] = useState<Seat[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<string[]>([]);
+  const [user_id, setUserId] = useState<string | null>(null);
 
   const departureCode = departure_return_airport?.code;
   const arrivalCode = arrival_return_airport?.code;
@@ -72,6 +72,14 @@ const SeatSelecting = () => {
   const airplaneCode = airplane_return?.name;
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      setUserId(localStorage.getItem("user_id"));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!flight_return_id) return;
+
     const fetchSeats = async () => {
       try {
         const res = await axiosInstance.get(
